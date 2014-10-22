@@ -1,0 +1,55 @@
+{
+    "attributes": {
+        "poor"  : {
+            "stamina"   :   "nearly dying",
+            "charisma"  :   "hated",    
+            "duelling"  :   "hopeless",
+            "scouting"  :   "lost",
+            "roguery"   :   "naiv",
+            "magic"     :   "none",
+            "healing"   :   "poor",
+            "luck"      :   "cursed"            
+        },
+        "alright"  : {
+            "stamina"   :   "nearly dying",
+            "charisma"  :   "hated",    
+            "duelling"  :   "hopeless",
+            "scouting"  :   "lost",
+            "roguery"   :   "naiv",
+            "magic"     :   "none",
+            "healing"   :   "poor",
+            "luck"      :   "cursed"            
+        },
+        "good"  : {
+            "stamina"   :   "nearly dying",
+            "charisma"  :   "hated",    
+            "duelling"  :   "hopeless",
+            "scouting"  :   "lost",
+            "roguery"   :   "naiv",
+            "magic"     :   "none",
+            "healing"   :   "poor",
+            "luck"      :   "lucky"            
+        },
+        "perfect"  : {
+            "stamina"   :   "nearly dying",
+            "charisma"  :   "hated",    
+            "duelling"  :   "hopeless",
+            "scouting"  :   "lost",
+            "roguery"   :   "naiv",
+            "magic"     :   "none",
+            "healing"   :   "poor",
+            "luck"      :   "cursed"           
+        },
+        "excellent"  : {
+            "stamina"   :   "nearly dying",
+            "charisma"  :   "hated",    
+            "duelling"  :   "hopeless",
+            "scouting"  :   "lost",
+            "roguery"   :   "naiv",
+            "magic"     :   "none",
+            "healing"   :   "poor",
+            "luck"      :   "blessed"         
+        }
+        
+    }
+}

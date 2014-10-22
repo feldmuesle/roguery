@@ -5,7 +5,6 @@ This is the start-up file
 // get all tools/modules needed
 
 var express = require('express');
-//var expressValidator = require('express-validator');
 
 var app = express();
 var http = require ('http');
@@ -39,7 +38,6 @@ app.use(morgan('dev')); //log every http-request to console
 app.use(cookieParser()); //read cooies (needed for auth)
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true})); // get input-values from forms
-//app.use(expressValidator);
 
 // Do not advertise that we use ExpressJS.
 app.disable('x-powered-by');
@@ -61,8 +59,8 @@ app.use(passport.session()); //persistent login-sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
 /*********** configure game ***********/
-var Guild = require('./app/models/guilds.js');
-var Room = require('./app/models/room.js');
+var Character = require('./app/models/character.js');
+var Guild = require('./app/models/guild.js');
 
 
 /**************************************************************************************************/
