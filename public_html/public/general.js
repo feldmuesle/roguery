@@ -37,7 +37,20 @@ function displayRandCharacter(){
     
 function setRandCharacter(){
     var stats = [];
+    var count = 0;
     var character = getRandomIndex(characters);
+    console.log(character);
+    
+    // get DOM-elemnts
+    var inventory = $('#inventory');
+    var display = $('#characterStats');
+    
+    // reset height
+    $('#displayBody').height(300);
+        
+    //clear lists to make sure no old data is left
+    display.html('');
+    inventory.html('<dt class="dlHeading">Inventory</dt>');
     
     var name = '<dt>Name </dt><dd id="name">'+character.name+'</dd>';
     var guild = '<dt><span class="glyphicon glyphicon-flag"></span> Guild: </dt><dd>'+character.guild.name+'</dd>';
@@ -60,14 +73,34 @@ function setRandCharacter(){
                 '<dd id="luck">lucky'+character.attributes.luck+'<span class="statDesc" id="staminaDesc"> blessed</span></dd>';
     var coins = '<dt><span class="glyphicon glyphicon-flash"></span> Coins </dt>'+
                     '<dd id="coins">'+character.attributes.coins+'</dd>';
-            
-    stats.push(name, guild, stamina, charisma, duelling, scouting, roguery, magic, healing, luck, coins);
     
-    var display = $('#characterStats');
-    display.html('');
+    stats.push(name, guild, stamina, charisma, duelling, scouting, 
+    roguery, magic, healing, luck, coins);
+    
+    // append all stats
     for(var i=0; i<stats.length; i++){
         display.append(stats[i]);
+    } 
+    
+    // fill inventory
+    // append weapon first
+    var weapon = '<dt><span class="glyphicon glyphicon-flash"></span> Weapon </dt>'+
+                    '<dd id="weapon">Trident</dd>';
+    inventory.append(weapon);
+    
+    // if there are any items in inventory, append them
+    if(character.inventory.length > 0){
+        while (count < character.inventory.length){
+            var item = '<dd id="weapon">'+character.inventory[count].name+'</dd>';
+            inventory.append(item);
+            count++;
+        }
+        // set height depending on the length of inventory
+        $('#displayBody').height(300+(10*count));
     }
+    
+    
+        
 }
 
 // get another random character

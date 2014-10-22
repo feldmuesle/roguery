@@ -6,7 +6,7 @@
 
 
 //var RoomModel = require('../models/room.js');
-//var NpcModel = require('../models/npc.js');
+var Item = require('../models/item.js');
 var Player = require('../models/player.js');
 var Guild = require('../models/guild.js');
 var Weapon = require('../models/weapon.js');
@@ -58,7 +58,7 @@ module.exports = function(app, passport, game){
              
         })
         .then(function(guilds){
-            Character.find().populate('guild weapon').exec(function(err, characters){
+            Character.find().populate('guild weapon inventory').exec(function(err, characters){
                 if(err){ return console.log(err);}
                 console.log('characters: '+characters);
                 var data ={'guilds': guilds, 'characters': characters};

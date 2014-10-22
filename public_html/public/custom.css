@@ -176,7 +176,7 @@ li.exitDesc{
 /****** Modal displaying character before playing ******/
 
 #displayBody{
-    min-height: 285px;
+    min-height: 300px;
 }
 
 .statDesc{
@@ -205,4 +205,8 @@ li.exitDesc{
     height: 100%;
     z-index: 2;
     content: "";
+}
+
+dt.dlHeading{
+    width:100%;
 }

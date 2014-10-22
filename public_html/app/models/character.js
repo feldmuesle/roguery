@@ -67,8 +67,19 @@ module.exports = CharacterModel;
         weapon: mongoose.Types.ObjectId('5446609291fb5af016aaeed5'),
         inventory: []   
     };
+    
+    var dwarf = {
+        id: 3,
+        name: 'Thurax',
+        guild: mongoose.Types.ObjectId('5446775b89d2d7b813093011'),
+        gender: 'male',
+        attributes:{},
+        weapon: mongoose.Types.ObjectId('5446609291fb5af016aaeed5'),
+        inventory: [mongoose.Types.ObjectId('54465bb75b0df4d814539619'),
+                    mongoose.Types.ObjectId('54465bb75b0df4d81453961c')]   
+    };
 
-    var character = new CharacterModel(cat);
+    var character = new CharacterModel(dwarf);
     console.log(character);
 //    character.save(function(err, character){
 //        if(err){console.log(err); return;}
