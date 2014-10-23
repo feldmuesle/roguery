@@ -5,6 +5,9 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Helper = require('../controllers/helper_functions.js');
+var Item = require('./item.js');
+var Weapon = require('./weapon.js');
+var Guild = require('./guild.js');
 var valEmpty = [Helper.valEmpty, 'The field \'{PATH}:\' must just not be empty.'];
 var values = Helper.getRandAttributes(130,10);
 
@@ -40,47 +43,62 @@ CharacterSchema.pre('save', function(next){
     next();
 });
 
+CharacterSchema.statics.createForPlayer = function(charObj){
+    var model = this || mongoose.model('Character');
+    var character = new model();
+    Guild.find({'name':charObject.guild.name}).exec(function(err, guild){
+        if(err){console.log(err); return;}        
+        character.guild = guild._id;
+    })
+    .then(
+        Weapon.find({'name':charObject.weapon.name}).exec(function(err, weapon){
+            if(err){console.log(err); return;}     
+            character.weapon = weapon._id;
+        })
+    );
+};
+
 var CharacterModel = mongoose.model('Character', CharacterSchema);
 module.exports = CharacterModel;
 
 
 // create a character in DB
 {
-    var guild = mongoose.Types.ObjectId('5446775b89d2d7b813093013');
-    var weapon = mongoose.Types.ObjectId('5446609291fb5af016aaeed5');
-    var witch = {
-        id: 1,
-        name: 'Omaimai',
-        guild: guild,
-        gender: 'female',
-        attributes:{},
-        weapon: weapon,
-        inventory: []   
-    };
-    
-    var cat = {
-        id: 2,
-        name: 'Moritz',
-        guild: mongoose.Types.ObjectId('5446775b89d2d7b813093010'),
-        gender: 'male',
-        attributes:{},
-        weapon: mongoose.Types.ObjectId('5446609291fb5af016aaeed5'),
-        inventory: []   
-    };
-    
-    var dwarf = {
-        id: 3,
-        name: 'Thurax',
-        guild: mongoose.Types.ObjectId('5446775b89d2d7b813093011'),
-        gender: 'male',
-        attributes:{},
-        weapon: mongoose.Types.ObjectId('5446609291fb5af016aaeed5'),
-        inventory: [mongoose.Types.ObjectId('54465bb75b0df4d814539619'),
-                    mongoose.Types.ObjectId('54465bb75b0df4d81453961c')]   
-    };
-
-    var character = new CharacterModel(dwarf);
-    console.log(character);
+//    var guild = mongoose.Types.ObjectId('5446775b89d2d7b813093013');
+//    var weapon = mongoose.Types.ObjectId('5446609291fb5af016aaeed5');
+//    var witch = {
+//        id: 1,
+//        name: 'Omaimai',
+//        guild: guild,
+//        gender: 'female',
+//        attributes:{},
+//        weapon: weapon,
+//        inventory: []   
+//    };
+//    
+//    var cat = {
+//        id: 2,
+//        name: 'Moritz',
+//        guild: mongoose.Types.ObjectId('5446775b89d2d7b813093010'),
+//        gender: 'male',
+//        attributes:{},
+//        weapon: mongoose.Types.ObjectId('5446609291fb5af016aaeed5'),
+//        inventory: []   
+//    };
+//    
+//    var dwarf = {
+//        id: 3,
+//        name: 'Thurax',
+//        guild: mongoose.Types.ObjectId('5446775b89d2d7b813093011'),
+//        gender: 'male',
+//        attributes:{},
+//        weapon: mongoose.Types.ObjectId('5446609291fb5af016aaeed5'),
+//        inventory: [mongoose.Types.ObjectId('54465bb75b0df4d814539619'),
+//                    mongoose.Types.ObjectId('54465bb75b0df4d81453961c')]   
+//    };
+//
+//    var character = new CharacterModel(dwarf);
+//    console.log(character);
 //    character.save(function(err, character){
 //        if(err){console.log(err); return;}
 //        console.log('character saved');

@@ -11,7 +11,9 @@ $(function(){
        $('#playerlist').hide();
        $('#roomPlayerlist').hide();
        $('#gameSignup').hide();
-       $('#alert').hide();       
+       $('#alert').hide();    
+       $('#alertSum').hide(); 
+       $('#validSum').hide(); 
        $('#pseudoInput').focus();
        $('.thumbnail').hide();
        $('#loadGame').click(function(){loadGame();});
@@ -35,12 +37,35 @@ function displayRandCharacter(){
     $('#displayCharacter').modal('show');
     }
     
+//create a random character
+function createRandCharacter(){
+    var rand = getRandomNumber(0,characters.length-1);
+    var rand2 = getRandomNumber(0,characters.length-1);
+    var values = getRandAttributes(MAXSUM,10);
+    
+    var character = {
+        name : characters[rand].name,
+        guild: characters[rand].guild,
+        weapon: characters[rand2].weapon,
+        inventory : [],
+        attributes:{}
+    };
+    
+    for(var key in characters[rand].attributes){
+        character.attributes[key] = values[key];
+        
+    }
+    
+    console.dir(character);
+    return character;
+};
+
+// populate modal with random character data
 function setRandCharacter(){
     var stats = [];
     var count = 0;
-    var character = getRandomIndex(characters);
-    console.log(character);
-    
+    character = createRandCharacter();
+    console.dir(character);
     // get DOM-elemnts
     var inventory = $('#inventory');
     var display = $('#characterStats');
@@ -98,9 +123,6 @@ function setRandCharacter(){
         // set height depending on the length of inventory
         $('#displayBody').height(300+(10*count));
     }
-    
-    
-        
 }
 
 // get another random character
@@ -108,5 +130,104 @@ $('#character').click(function(){
     setRandCharacter();
 });
 
+// customize random character
+$('#customize').click(function(){
+   customizeCharacter(character);   
+   console.log(character);
+});
 
+// populate modal with update-form for character with data
+function customizeCharacter(character){    
+    
+    console.log('hello from character modal customization');
+    console.dir(character);
+    $('#characterForms').modal('show');
+    
+    // reset the form
+    $('#customizeCharacter').trigger('reset');    
+    
+           
+    // when changing the range
+    $('.range').on('change',function(){
+        
+        // populate value in input right to it
+        var val = $(this).val();
+        $(this).next('.value').val(val);
+        
+        var sum = validateSum(character.attributes);        
+        console.log('you are changing range');
+    });
+    
+    $('#customizeCharacter input[name=name]').val(character.name);
+    $('#customizeCharacter select[name=guild]').val(character.guild.name).attr('selected','selected');
+    
+    // loop through all attributes and set them according to character
+    for(var key in character.attributes){
+        if( key != 'something'){
+            var attribute = $('#customizeCharacter input[name='+key+']').val(character.attributes[key]);
+            attribute.next('input').val(character.attributes[key]);
+        }      
+    }
+    
+    // check if attributes sum up - they should by default, but just in case
+    var sum = validateSum(character.attributes);
+    
+    // set weapon
+    $('#customizeCharacter select[name=weapon]').val(character.weapon.name).attr('selected','selected');
+}
+    
 
+// get customized playing-character
+function getCustomized (){
+    var character = {};
+    character.name = $('#customizeCharacter input[name=name]').val();
+    character.guild = $('#customizeCharacter select[name=guild]').val();
+    character.weapon = $('#customizeCharacter select[name=weapon]').val();
+    character.inventory =[] ;
+    
+    
+    for (var key in character.attributes){
+        
+        character.attributes[key] = $('#customizeCharacter input[name='+key+']').val();
+    }
+    console.log('updated character ');
+    console.dir(character);
+    return character;
+}
+
+// sum up all attribute-values
+function sumAttributes(attribute){
+    var sum = 0;
+    for(var key in attribute){        
+        // take only real attributes
+        if(key != 'maxStam'){
+            var value = $('#customizeCharacter input[name='+key+']').next('input').val();
+            console.log(key+' ='+value);
+             sum += parseInt(value);
+        }        
+    }        
+    console.log('sumAttribute: sum='+sum);
+    return sum;
+}
+
+// display validation for sum up of attribute-values
+function validateSum (attributes){
+    
+    var sum = sumAttributes(attributes);
+    if(sum != MAXSUM){
+       $('#validSum').hide();
+        if(sum > MAXSUM){           
+            $('#alertSum').html('Your attributes sum up to '+sum+'. They must sum up to '+MAXSUM +' in order to play.');        
+        }else{            
+            $('#alertSum').html('Your attributes sum up to only '+sum+'. They must sum up to'+MAXSUM+' in order to play.');
+        } 
+        $('#alertSum').show();
+        return false;
+        
+    }else{        
+        $('#alertSum').hide();
+        $('#validSum').html('Your attributes sum up to '+MAXSUM+' - You are ready to play!');
+        $('#validSum').show(); 
+        return true;
+    }
+}

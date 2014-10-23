@@ -1,0 +1,117 @@
+<% include ./partials/header.ejs %>
+    <!-- display weapon-list -->
+    <div class="row">
+        <div class="lists col-xs-12 col-lg-6 col-lg-offset-3">
+            <div id="weaponSuccess" class="alert alert-success"></div>
+            <h3>Weapons<button id="addWeapon" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
+            
+            <ul id="weaponList" class="list-group list-unstyled">
+                <%for(var i=0; i<weapons.length; i++){%>
+                    <li class="list-group-item">
+                        <a id="weapon<%=weapons[i].id%>" class="showWeapon" href="#"><%=weapons[i].name%></a>
+                        <button class="deleteWeapon pull-right btn btn-xs margin" id="weaponBtnDel<%=weapons[i].id%>">Delete</button>
+                        <button class="updateWeapon pull-right btn btn-xs margin" id="weaponBtn<%=weapons[i].id%>">Update</button>                       
+                    </li>
+                <%}%>
+            </ul>
+        </div>
+    </div><!-- weaponlist end -->
+        
+    <!-- display characters-list -->
+    <div class="row">
+        <div class="col-xs-12 col-lg-6 col-lg-offset-3">
+            <div id="charactersSuccess" class="alert alert-success"></div>
+            <h3>Characters<button id="addCharacter" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
+            <ul id="charactersList" class="list-group list-unstyled">
+                <%for(var i=0; i<characters.length; i++){%>
+                    <li class="list-group-item">
+                        <a id="character<%=characters[i].id%>" class="showCharacter" href="#"><%=characters[i].name%></a>
+                        <button class="deleteCharacter pull-right btn btn-xs margin" id="characterBtnDel<%=characters[i].id%>">Delete</button>
+                        <button class="updateCharacter pull-right btn btn-xs" id="characterBtn<%=characters[i].id%>">Update</button>
+                    </li>
+                <%}%>
+            </ul>
+        </div>
+    </div><!-- characters-list end -->
+
+    <!-- display items list -->
+    <div class="row">
+        <div class="col-xs-12 col-lg-6 col-lg-offset-3">
+            <div id="itemSuccess" class="alert alert-success"></div>
+            <h3>Items<button id="addItem" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
+            
+            <ul id="itemList" class="list-group list-unstyled">
+                <%for(var i=0; i<items.length; i++){%>
+                    <li class="list-group-item">
+                        <a id="item<%=items[i].id%>" class="showItem" href="#"><%=items[i].name%></a>
+                        <button class="deleteItem pull-right btn btn-xs margin" id="itemBtnDel<%=items[i].id%>">Delete</button>
+                        <button class="updateItem pull-right btn btn-xs" id="itemBtn<%=items[i].id%>">Update</button>                       
+                    </li>
+                <%}%>
+            </ul>
+        </div>        
+    </div><!-- items-list end-->
+
+    <!-- display guild list -->
+    <div class="row">
+        <div class="col-xs-12 col-lg-6 col-lg-offset-3">
+            <div id="guildSuccess" class="alert alert-success"></div>
+            <h3>Guilds<button id="addGuild" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
+            
+            <ul id="guildList" class="list-group list-unstyled">
+                <%for(var i=0; i<guilds.length; i++){%>
+                    <li class="list-group-item">
+                        <a id="guild<%=guilds[i].id%>" class="showGuild" href="#"><%=guilds[i].name%></a>
+                        <button class="deleteGuild pull-right btn btn-xs margin" id="guildBtnDel<%=guilds[i].id%>">Delete</button>
+                        <button class="updateGuild pull-right btn btn-xs" id="guildBtn<%=guilds[i].id%>">Update</button>                       
+                    </li>
+                <%}%>
+            </ul>
+        </div>        
+    </div><!-- guild-list end-->
+    
+    <!-- modal window for create-npc-form -->
+        <% include ./partials/weaponForm.ejs %>
+    <!-- npc-modal-end -->
+    
+    <!-- modal window for create-room-form -->
+        <% include ./partials/characterForm.ejs %>
+    <!-- room-modal-end -->
+    
+    <!-- modal window for create-item-form -->
+        <% include ./partials/itemsForm.ejs %>
+    <!-- item-modal-end -->
+
+    <!-- modal window for create-guild-form -->
+        <% include ./partials/guildForm.ejs %>
+    <!-- guild-modal-end -->
+        
+    <!-- modal window for displaying a record -->
+    <div class="modal fade" id="displayRecord" tabindex="-1" role="dialog" aria-labelledby="displayRecord" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="displayTitle"></h4>
+            </div>
+            <div id="displayBody" class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+      </div>
+    </div>
+    <!-- record-display end -->
+
+</div><!-- wrapper end-->
+<script>  <!--
+    var weapons = <%-JSON.stringify(weapons)%>;
+    var characters = <%-JSON.stringify(characters)%>;
+    var items = <%-JSON.stringify(items)%>;
+    var guilds = <%-JSON.stringify(guilds)%>;
+    -->
+</script>
+<script src="crud.js"></script>
+</body>
+</html>

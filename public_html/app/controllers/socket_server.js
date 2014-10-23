@@ -11,15 +11,54 @@ var users = []; //array of users that are currently connected
 var numUsers =0;
 
 // get all the models we need
-//var Texter = require('./texter.js');
+var Helper = require('./helper_functions.js');
 //var User = require('../models/user.js');
-//var Game = require('./game_functions.js');
+var Game = require('./game_functions.js');
+
+// constants
+var MAXSUM = 130; // sum attributes must sum up to
 
 
 
 module.exports.response = function(socket){
     console.log('hello from socket-response'); 
-    };
+    
+    socket.on('play', function(data){
+        console.log('start to play with socket');
+        var isValid = Game.checkAttributeSum(data['attributes'], MAXSUM);
+        if(isValid){
+            console.log('it is valid');
+            console.log(data);
+//            Game.startGame(data);
+        }else{
+            console.log('it is not valid - sending alert back');
+            socket.emit('notValid', data);
+        }
+        
+    });
+    
+    /******* GAMEEND - DISCONNECT ***********************************************/
+    
+    //when a user disconnects
+    socket.on('disconnect', function(data){
+        console.log('disconnecting - is there anything?');
+//        Game.removePlayer(socket , function(data){
+//            
+//            // broadcast to all users online that user has left and update players-online-list
+//            socket.broadcast.emit('user left',{
+//                username        :   socket.pseudo,
+//                numUsers        :   data['numUsers'],
+//                usersOnline     :   data['online']
+//            });
+//            
+//            //broadcast new playerlist to players in same room as left user
+//            socket.broadcast.to(socket.room).emit('playerlist',{
+//                playersInRoom   :  data['roomies'],
+//                currRoom        :  socket.room
+//            });
+//        });     
+
+    }); // socket.on'disconnect' -> end
 {   
 ////    Game.insertTestItem();    
 ////    Game.insertTestNpc();
@@ -280,4 +319,5 @@ module.exports.response = function(socket){
 //          socket.broadcast.to(socket.room).emit('message',data);
 //          console.log('user '+ data['username'] + ' sends '+ data['msg']+' on socket.room' + socket.room);
 //    });
+}
 }; // module.exports.response -> end

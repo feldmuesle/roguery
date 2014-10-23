@@ -28,32 +28,32 @@ module.exports = PlayerModel;
 
 // create a player in DB
 {
-    var user = mongoose.Types.ObjectId('544635f19009d81408166e16');
-    var guild = mongoose.Types.ObjectId('5446775b89d2d7b813093013');
-    var weapon = mongoose.Types.ObjectId('5446609291fb5af016aaeed5');
-    var witch = {
-        id: 1,
-        name: 'Omaimai',
-        guild: guild,
-        gender: 'female',
-        attributes:{},
-        weapon: weapon,
-        inventory: []   
-    };
-    
-    var dwarf = {
-        id: 3,
-        name: 'Thurax',
-        guild: mongoose.Types.ObjectId('5446775b89d2d7b813093011'),
-        gender: 'male',
-        attributes:{},
-        weapon: mongoose.Types.ObjectId('5446609291fb5af016aaeed5'),
-        inventory: [mongoose.Types.ObjectId('54465bb75b0df4d814539619'),
-                    mongoose.Types.ObjectId('54465bb75b0df4d81453961c')]   
-    };
-
-    var character = new Character(dwarf);
-    console.log(character);
+//    var user = mongoose.Types.ObjectId('544635f19009d81408166e16');
+//    var guild = mongoose.Types.ObjectId('5446775b89d2d7b813093013');
+//    var weapon = mongoose.Types.ObjectId('5446609291fb5af016aaeed5');
+//    var witch = {
+//        id: 1,
+//        name: 'Omaimai',
+//        guild: guild,
+//        gender: 'female',
+//        attributes:{},
+//        weapon: weapon,
+//        inventory: []   
+//    };
+//    
+//    var dwarf = {
+//        id: 3,
+//        name: 'Thurax',
+//        guild: mongoose.Types.ObjectId('5446775b89d2d7b813093011'),
+//        gender: 'male',
+//        attributes:{},
+//        weapon: mongoose.Types.ObjectId('5446609291fb5af016aaeed5'),
+//        inventory: [mongoose.Types.ObjectId('54465bb75b0df4d814539619'),
+//                    mongoose.Types.ObjectId('54465bb75b0df4d81453961c')]   
+//    };
+//
+//    var character = new Character(dwarf);
+//    console.log(character);
 //    var player = new PlayerModel();
 //    player.character = character;
 //    player.user = user;

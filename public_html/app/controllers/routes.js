@@ -11,7 +11,7 @@ var Player = require('../models/player.js');
 var Guild = require('../models/guild.js');
 var Weapon = require('../models/weapon.js');
 var Character = require('../models/character.js');
-//var Helper = require('./helper_functions.js');
+var Helper = require('./helper_functions.js');
 
 module.exports = function(app, passport, game){
         
@@ -48,40 +48,282 @@ module.exports = function(app, passport, game){
         failureFlash: true // allow flash-messages
     }));
     
+    // show crud-page
+    //TODO: make only accessible to administrators 
+    app.get('/crud', isLoggedIn, function (req, res){
+        
+        Guild.find().exec(function(err, guilds){            
+            if(err){ return console.log(err);}
+            return guilds;                      
+        })
+        .then(function(guilds){
+            Character.find().populate('guild weapon inventory').exec(function(err, characters){
+                if(err){ return console.log(err);}
+                return characters;
+            })
+        .then(function(characters){
+            Item.find().exec(function(err, items){
+                if(err){ return console.log(err);}
+                return items;
+            })
+        .then(function(items){
+            Weapon.find().exec(function(err, weapons){
+                if(err){ return console.log(err);}
+                res.render('crud.ejs', {
+                   userId   :   req.user._id,
+                   username :   req.user.username,
+                   message  :   '',
+                   weapons  :   weapons,
+                   characters:  characters,
+                   guilds   :   guilds,
+                   items    :   items
+               });
+            });
+        });
+        }); 
+    });
+    });
+    
     // show start-screen for existing player
     app.get('/game', isLoggedIn, function (req, res){
         
         console.log('hello from game-routes');
         Guild.find().exec(function(err, guilds){            
             if(err){ return console.log(err);}
-            return guilds;         
-             
+            return guilds;                      
         })
         .then(function(guilds){
             Character.find().populate('guild weapon inventory').exec(function(err, characters){
                 if(err){ return console.log(err);}
-                console.log('characters: '+characters);
-                var data ={'guilds': guilds, 'characters': characters};
                 return characters;
             })
         .then(function(characters){
+            Weapon.find().exec(function(err, weapons){
+                if(err){ return console.log(err);}
+                return weapons;
+            })
+        .then(function(weapons){
             Player.find({user: req.user._id}).exec(function(err, players){
                 if(err){ return console.log(err);}
-//                console.log('data:'+data);
-                console.log('charactersfound: '+characters);
-//                console.log('guilds found: '+data['guilds']);
+
                 res.render('game.ejs', {
                    guilds   :   guilds,
                    characters:  characters,
                    userId   :   req.user._id,
                    username :   req.user.username,
                    games    :   players,
+                   weapons  :   weapons,
                    message  :   ''
                }); 
            });
-        });
+       });
+    });
     });
     });  
+    
+    // handle post-requests from crud
+    //TODO: restrict access to only for administror
+    app.post('/crud',isLoggedIn, function(req, res){
+        
+        console.log('the form sent is: '+req.body.form);
+        
+        /********** CREATE ***************/
+        if(req.body.form == 'createWeapon'){
+
+            console.log('a new item wants to be created');
+            Weapon.find(function(err, weapons){
+                if(err){console.log(err); return;}
+                var id = Helper.autoIncrementId(weapons); 
+                var weapon = new Weapon();
+                weapon.id = id;
+                weapon.name = req.body.name;
+
+                console.log('weapon to create: '+weapon);
+
+                weapon.save(function(err){
+                   if(err){
+                        console.log('something went wrong when creating an weapon.');
+                        console.log('error '+err); 
+                        res.send({
+                            'success'   : false,
+                            'msg'       : 'could not save weapon',
+                            'errors'    : err.errors});
+                    }else{
+                        weapons.push(weapon);
+                        res.send({
+                                'success'   : true,
+                                'msg'       : 'yuppi! - weapon has been created.',
+                                'weapons'   :  weapons
+                        });  
+                    }    
+                });        
+            });            
+        }// create weapon end
+        
+        if(req.body.form == 'createGuild'){
+
+            console.log('a new guild wants to be created');
+            Guild.find(function(err, guilds){
+                if(err){console.log(err); return;}
+                var id = Helper.autoIncrementId(guilds); 
+                var guild = new Guild();
+                guild.id = id;
+                guild.name = req.body.name;
+
+                console.log('guild to create: '+guild);
+
+                guild.save(function(err){
+                   if(err){
+                        console.log('something went wrong when creating an guild.');
+                        console.log('error '+err); 
+                        res.send({
+                            'success'   : false,
+                            'msg'       : 'could not save guild',
+                            'errors'    : err.errors});
+                    }else{
+                        guilds.push(guild);
+                        res.send({
+                                'success'  : true,
+                                'msg'      : 'yuppi! - guild has been created.',
+                                'guilds'   :  guilds
+                        });  
+                    }    
+                });        
+            });            
+        }
+        
+        
+        if(req.body.form == 'createItem'){
+            
+            console.log('a new item wants to be created');
+            Item.find(function(err, items){
+                if(err){console.log(err); return;}
+                var id = Helper.autoIncrementId(items); 
+                var item = new Item();
+                item.id = id;
+                item.name = req.body.name;
+                
+                console.log('item to create: '+item);
+                
+                item.save(function(err){
+                   if(err){
+                        console.log('something went wrong when creating an item.');
+                        console.log('error '+err); 
+                        res.send({
+                            'success'   : false,
+                            'msg'       : 'could not save item',
+                            'errors'    : err.errors});
+                    }else{
+                        items.push(item);
+                        res.send({
+                            'success'   : true,
+                            'msg'       : 'yuppi! - item has been created.',
+                            'items'   :   items
+                        });
+                    }    
+                });        
+            });            
+        }
+        
+        /*********** UPDATE *********************/
+    
+        if(req.body.form == 'updateItem'){
+
+            var itemId = Helper.sanitizeNumber(req.body.id);
+            Item.findOne({'id':itemId}, function(err, item){
+               if(err){console.log(err); return;}
+
+                item.name = req.body.name;
+
+                item.save(function(err){
+                    if(err){
+                        console.log('something went wrong when updating a item.');
+                        console.log('error '+err); 
+                        res.send({
+                            'success'   : false,
+                            'msg'       : 'could not update item',
+                            'errors'    : err.errors});
+                    }else{
+                        Item.find(function(err, items){
+                            if(err){ return console.log(err);}
+                            res.send({
+                                'success'   : true,
+                                'msg'       : 'yuppi! - item has been updated.',
+                                'items'   :   items
+                            });
+
+                        });  
+                    }    
+                });
+            });
+        }// update item end
+        
+        if(req.body.form == 'updateWeapon'){
+
+            var weaponId = Helper.sanitizeNumber(req.body.id);
+            Weapon.findOne({'id':weaponId}, function(err, weapon){
+               if(err){console.log(err); return;}
+
+                weapon.name = req.body.name;
+
+                weapon.save(function(err){
+                    if(err){
+                        console.log('something went wrong when updating a weapon.');
+                        console.log('error '+err); 
+                        res.send({
+                            'success'   : false,
+                            'msg'       : 'could not update weapon',
+                            'errors'    : err.errors});
+                    }else{
+                        Weapon.find(function(err, weapons){
+                            if(err){ return console.log(err);}
+                            res.send({
+                                'success'   : true,
+                                'msg'       : 'yuppi! - weapon has been updated.',
+                                'weapons'   :   weapons
+                            });
+
+                        });  
+                    }    
+                });
+            });
+        }// update weapon end 
+        
+        if(req.body.form == 'updateGuild'){
+            
+            var guildId = Helper.sanitizeNumber(req.body.id);
+            Guild.findOne({'id':guildId}, function(err, guild){
+               if(err){console.log(err); return;}
+
+                guild.name = req.body.name;
+
+                guild.save(function(err){
+                    if(err){
+                        console.log('something went wrong when updating a guild.');
+                        console.log('error '+err); 
+                        res.send({
+                            'success'   : false,
+                            'msg'       : 'could not update guild',
+                            'errors'    : err.errors});
+                    }else{
+                        Guild.find(function(err, guilds){
+                            if(err){ return console.log(err);}
+                            res.send({
+                                'success'   :  true,
+                                'msg'       :  'yuppi! - guild has been updated.',
+                                'guilds'    :  guilds
+                            });
+
+                        });  
+                    }    
+                });
+            });
+        }// update guild end
+    });
+    
+    
+    
+    
     
 //    app.get('/crud',isLoggedIn, isMe, function (req, res){
 //        

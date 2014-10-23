@@ -19,6 +19,14 @@ GuildSchema.pre('save', function(next){
     next();
 });
 
+
+//update guild
+GuildSchema.statics.updateGuild = function(input){
+    
+    var Guild = this || mongoose.model('Guild');  
+    
+};
+
 var GuildModel = mongoose.model('Guild', GuildSchema);
 module.exports = GuildModel;
 

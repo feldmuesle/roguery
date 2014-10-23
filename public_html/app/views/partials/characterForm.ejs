@@ -1,0 +1,120 @@
+     <!-- display modal form for character adjustments -->
+    <div class="modal fade" id="characterForms" tabindex="-1" role="dialog" aria-labelledby="createItems" aria-hidden="true">
+    
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">
+                    <span class="glyphicon glyphicon-plus"></span> create new item
+                </h4>
+            </div>
+            <div class="modal-body">
+                
+                <form id="customizeCharacter" class="modal-form form-horizontal" role="form" action="/crud" method="post">
+                    <div class="form-group">
+                        <label>Name:</label>
+                        <input type="text" class="form-control" name="name">
+                    </div>                   
+                    <div class="form-group">
+                        <label>Choose guild</label>
+                        <select id="playerclass" class="form-control" name="guild">
+                            
+                            <%for( var i=0; i<guilds.length; i++){%> 
+                                <option value="<%=guilds[i].name%>"><%=guilds[i].name%></option>
+                            <%}%> 
+                        </select>
+                    </div>
+                    <!-- display all attributes as range-inputs -->
+                    <div class="form-group">
+                    <label class="formH">Attributes</label>
+                    <div>
+                        <label>Stamina</label>
+                        <div class="col-xs-12">
+                            <input class="range col-xs-9" type="range" min="0" max="25" name="stamina">
+                            <input class="value col-xs-2 col-xs-offset-1" type="text">
+                        </div>
+                    </div>
+                    <div>
+                        <label>Charisma</label>
+                        <div class="col-xs-12">
+                            <input class="range col-xs-9" type="range" min="0" max="25" name="charisma">
+                            <input class="value col-xs-2 col-xs-offset-1" type="text">
+                        </div>
+                    </div>
+                    <div>
+                        <label>Duelling</label>
+                        <div class="col-xs-12">
+                            <input class="range col-xs-9" type="range" min="0" max="25" name="duelling">
+                            <input class="value col-xs-2 col-xs-offset-1" type="text">
+                        </div>
+                    </div>
+                    <div>
+                        <label>Scouting</label>
+                        <div class="col-xs-12">
+                            <input class="range col-xs-9" type="range" min="0" max="25" name="scouting">
+                            <input class="value col-xs-2 col-xs-offset-1" type="text">
+                        </div>
+                    </div>
+                    <div>
+                        <label>Roguery</label>
+                        <div class="col-xs-12">
+                            <input class="range col-xs-9" type="range" min="0" max="25" name="roguery">
+                            <input class="value col-xs-2 col-xs-offset-1" type="text">
+                        </div>
+                    </div>
+                    <div>
+                        <label>Magic</label>
+                        <div class="col-xs-12">
+                            <input class="range col-xs-9" type="range" min="0" max="25" name="magic">
+                            <input class="value col-xs-2 col-xs-offset-1" type="text">
+                        </div>
+                    </div>
+                    <div>
+                        <label>Healing</label>
+                        <div class="col-xs-12">
+                            <input class="range col-xs-9" type="range" min="0" max="25" name="healing">
+                            <input class="value col-xs-2 col-xs-offset-1" type="text">
+                        </div>
+                    </div>
+                    <div>
+                        <label>Luck</label>
+                        <div class="col-xs-12">
+                            <input class="range col-xs-9" type="range" min="0" max="25" name="luck">
+                            <input class="value col-xs-2 col-xs-offset-1" type="text">
+                        </div>
+                    </div>
+                    <div>
+                        <label>Coins</label>
+                        <div class="col-xs-12">
+                            <input class="range col-xs-9" type="range" min="0" max="25" name="coins">
+                            <input class="value col-xs-2 col-xs-offset-1" type="text" >
+                        </div>
+                    </div>
+                    </div>  <!-- formgroup attributes - end -->
+                    <!-- formgroup inventory start -->
+                    <div class="form-group">
+                        <label class="formH">Inventory</label>
+                        <div>
+                            <label>Choose weapon</label>
+                            <select id="playerclass" class="form-control" name="weapon">
+
+                                <%for( var i=0; i<weapons.length; i++){%> 
+                                    <option value="<%=weapons[i].name%>"><%=weapons[i].name%></option>
+                                <%}%> 
+                            </select>
+                        </div>
+                    </div>
+                    <div id="alertSum" class="alert alert-danger"></div>
+                    <div id="validSum" class="alert alert-success"></div>
+                    <input type="hidden" name="form" value="createItem">
+                    <input id="itemId" type="hidden" name="form" value="">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button id="btnPlay" type="button" class="btn btn-info" data-dismiss="modal" >Play with this character</button>
+            </div>
+        </div>
+      </div>
+    </div><!-- modal form for character end -->

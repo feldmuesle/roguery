@@ -25,7 +25,31 @@ exports.sanitizeString = function(string){
     }    
 };
 
+// strip everything thats not a number
+exports.sanitizeNumber = function (numb){
+    console.log('number to sanitize: '+numb);
+    return numb.replace(/[^0-9]/g, '');
+};
+
 /********** calculations *******************/
+
+// autoincrement id by one
+exports.autoIncrementId = function(mongooseArray){
+    var ids=[];
+    for(var i=0; i<mongooseArray.length; i++){
+           ids.push(mongooseArray[i].id);
+       }
+    var largest = Math.max.apply(Math, ids);
+    
+    // if no records, start at 0 and increment
+    if (largest > -1){
+            return largest + 1; 
+    }else {
+        return 0;
+    }
+     
+};
+
 
 // get random value within range
 var getRandomNumber = function(min, max){
@@ -40,16 +64,21 @@ exports.getRandAttributes = function(max, attributesNum){
     var maxStam = getRandomNumber(stamina+1,20); // max must be always higher than stamina
     values[0] = stamina;
     values[1] = maxStam;
-    
+    max - maxStam;
+    console.log('attributesNum '+attributesNum+' max '+max);
     var currsum = 0;
     for(i=2; i<attributesNum-1; i++) {
-       values[i] = getRandomNumber(1, max/(attributesNum -4));//-(attributesNum-i)-currsum);
+       values[i] = getRandomNumber(1, max/(attributesNum-i)-currsum);
        currsum += values[i];
     }
     values[attributesNum-1] = max - currsum;
     return values;  
 };
 
+
+
+
+// get attribute-description depending on amount
 var getAttributDesc = function(attribute, value){
   switch(true){
         case(value < 5):
