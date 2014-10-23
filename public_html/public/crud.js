@@ -2,6 +2,8 @@
  * This file contains all functionality cencerning crud
  */
 
+var MAXSUM = 130;
+
 $(document).ready(function(){
     
     // hide alert-windows for now
@@ -46,14 +48,66 @@ $(document).ready(function(){
     $('#addCharacter').click(function(){
         console.log('want to create an guild?');
         //make sure the form is cleaned up
-        $('#createCharacter').trigger('reset');
-            $('#createCharacter input[name=form]').val('createCharacter');
-        $('#btnCreateCharacter').text('create');
-        customizeCharacter();
+        $('#customizeCharacter').trigger('reset');
+        $('#customizeCharacter input[name=form]').val('createCharacter');
+        $('#btnPlay').text('create');
+        var character = createRandCharacter();
+        customizeCharacter(character);
         $("#characterForms").modal('show'); 
     });
         
     /******** CREATE ************/
+    
+    $('#btnPlay').click(function(){
+        //empty validation-alert
+        $('#alertCharacter').text('');
+        var form = $('#customizeCharacter input[name=form]').val();
+        var character = getCustomized(); 
+        
+                
+        if(form == 'updateCharacter'){
+           console.log('character to update: id '+$('#characterId').val());
+           character.id = $('#characterId').val();
+           console.log(character.id);
+       }
+       
+       var package ={
+            'form'  : form,
+            'character':  character
+        };
+       
+       $.post('/crud',package, function(data){
+           console.log('hello back from server');
+           if(!data['success']){
+                var errors = data['errors'];
+                console.log(typeof errors);
+                $('#alertCharacter').show();
+                $('#alertCharacter').append('<h3>'+data['msg']+'</h3>');
+                for(var key in errors){
+                    var err = errors[key];
+                    console.log('error-message: '+err.message);
+                    $('#alertCharacter').append('<p>'+err.message+'</p>');
+                };
+            }else{
+                
+                // close modal 
+                $('#characterForms').modal('hide');
+                // reset modal-button again
+                $('#customizeCharacter input[name=form]').val('customize');
+                $('#btnPlay').text('Play with this character');
+                
+                // show success-message
+                alertSuccess('#characterSuccess',data['msg']);
+                characters = data['characters'];
+                updateItemList();
+                // clear all inputs in form
+                $('#customizeCharacter').trigger('reset');
+                
+            }
+       });
+       console.dir(character);
+       
+    });
     
     $('#btnCreateGuild').click(function(){
     
@@ -63,7 +117,6 @@ $(document).ready(function(){
        var form = $('#createGuild input[name=form]').val();
        console.log(form);
        var name = $('#createGuild input[name=name]').val();
-       
        
        var guild = {
            'form'   :   form,

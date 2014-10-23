@@ -140,7 +140,7 @@ $('#customize').click(function(){
 function customizeCharacter(character){    
     
     console.log('hello from character modal customization');
-    console.dir(character);
+    console.dir(character.name);
     $('#characterForms').modal('show');
     
     // reset the form
@@ -184,10 +184,11 @@ function getCustomized (){
     character.guild = $('#customizeCharacter select[name=guild]').val();
     character.weapon = $('#customizeCharacter select[name=weapon]').val();
     character.inventory =[] ;
+    character.attributes = {};
     
     
-    for (var key in character.attributes){
-        
+    for (var key in characters[0].attributes){ // characters[0} - use a character as mold for attributes
+        console.log('get attributes from form: '+key);
         character.attributes[key] = $('#customizeCharacter input[name='+key+']').val();
     }
     console.log('updated character ');

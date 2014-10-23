@@ -33,8 +33,9 @@ $(document).ready(function(){
     // in case data has been tempered and escaped client-side-validation
     socket.on('notValid', function(data){
         console.log('hello from NotValid socket');
+        console.dir(data);
        character = data;
-       customizeCharacter();
+       customizeCharacter(character);
     });
 
 });

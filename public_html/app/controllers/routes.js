@@ -225,6 +225,41 @@ module.exports = function(app, passport, game){
             });            
         }
         
+        if(req.body.form == 'createCharacter'){
+            
+            console.log('a new character wants to be created');
+            Character.find(function(err, characters){
+                if(err){console.log(err); return;}
+                var id = Helper.autoIncrementId(characters); 
+                var character = new Character(req.body.character);
+                character.id = id;
+//                character.name = req.body.character.name;
+                
+                console.log('character to create: '+character);
+                console.log('character recieved: ');
+                console.dir(req.body.character);
+                
+                
+//                character.save(function(err){
+//                   if(err){
+//                        console.log('something went wrong when creating an item.');
+//                        console.log('error '+err); 
+//                        res.send({
+//                            'success'   : false,
+//                            'msg'       : 'could not save item',
+//                            'errors'    : err.errors});
+//                    }else{
+//                        characters.push(character);
+//                        res.send({
+//                            'success'   :   true,
+//                            'msg'       :   'yuppi! - item has been created.',
+//                            'characters':   characters
+//                        });
+//                    }    
+//                });        
+            });            
+        }
+        
         /*********** UPDATE *********************/
     
         if(req.body.form == 'updateItem'){

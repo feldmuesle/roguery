@@ -13,6 +13,7 @@ var Character = require('../models/character.js');
 // start the game
 exports.startGame = function(character){
     var playingChar = Character.createNew(character);
+    //TODO: create new player with character
 };
 
 
@@ -21,7 +22,7 @@ exports.checkAttributeSum = function (attributes, maxSum){
     var sum=0;
     
     for( var key in attributes){
-        if(key != 'stamina'){
+        if(key != 'maxStam'){
             var value = attributes[key];
             sum += parseInt(value);
         }        
