@@ -17,6 +17,7 @@ GuildSchema.pre('save', function(next){
     // sanitize all strings
     var self = this || mongoose.model('Guild');
     self.name = Helper.sanitizeString(self.name);
+    self._id  = self.name;
     next();
 });
 

@@ -15,6 +15,7 @@ $(document).ready(function(){
     $('#weaponSuccess').hide();
     $('#charactersSuccess').hide();
     $('#guildSuccess').hide();
+    $('#characterSuccess').hide();
     
     /******** SHOW MODAL FORMS ********/
     
@@ -53,6 +54,8 @@ $(document).ready(function(){
         $('#btnPlay').text('create');
         var character = createRandCharacter();
         customizeCharacter(character);
+        // empty the name-field though since we never want two characters with the same name
+        $('#customizeCharacter input[name=name]').val('');
         $("#characterForms").modal('show'); 
     });
         
@@ -63,8 +66,7 @@ $(document).ready(function(){
         $('#alertCharacter').text('');
         var form = $('#customizeCharacter input[name=form]').val();
         var character = getCustomized(); 
-        
-                
+                     
         if(form == 'updateCharacter'){
            console.log('character to update: id '+$('#characterId').val());
            character.id = $('#characterId').val();
@@ -291,6 +293,27 @@ $(document).ready(function(){
         console.log(item);
         $('#btnCreateItem').text('Update');
         $("#createItems").modal('show');
+    });
+    
+    //button for showing modal form for updation character
+    $(document).on('click','.updateCharacter', function(){
+        console.log('want to update character?');
+        // make sure form is clean
+        $('#alertItem').hide();
+        $('#customizeCharacter').trigger('reset');
+        
+        // get id from button-element and item-object from items-array
+        var characterId = this.id.substr(12,this.id.length); // btnItem = 12 chars
+        var character = getRecordById(characters, characterId);
+        console.log('characterId to update: '+characterId);
+ 
+        // populate character in modal form
+        customizeCharacter(character);
+        $('#customizeCharacter input[name=form]').val('updateCharacter');
+        $('#characterId').val(character.id);
+
+        console.log(character);
+        $('#btnPlay').text('Update');
     });
     
     //button for showing modal form for updation weapon

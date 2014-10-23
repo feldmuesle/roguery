@@ -8,8 +8,9 @@ var Helper = require('../controllers/helper_functions.js');
 var valEmpty = [Helper.valEmpty, 'The field \'{PATH}:\' must just not be empty.'];
 
 var ItemSchema = Schema({
-   id   : {type: Number, unique:true},
-   name :   {type:String, trim:true, lowercase:true, validate:valEmpty}
+    _id     :   {type:String, unique:true},
+    id      :   {type: Number, unique:true},
+    name    :   {type:String, trim:true, lowercase:true, validate:valEmpty}
 });
 
 ItemSchema.set('toObject', {getters : true});
@@ -19,6 +20,7 @@ ItemSchema.pre('save', function(next){
     var self = this || mongoose.model('Item');
     console.log('hello from pre-save: '+self.name);
     self.name = Helper.sanitizeString(self.name);
+    self._id  = self.name;
     next();
 });
 

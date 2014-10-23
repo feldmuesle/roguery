@@ -9,6 +9,7 @@ var socket = io.connect();
 var player;
 var character;
 
+
 // constants
 var MAXSUM = 130;  // max-sum of attributes add-up
 
@@ -16,17 +17,30 @@ $(document).ready(function(){
 
     $('#play').click(function(){
            console.log('character from random: ');
-           console.dir(character);
-           socket.emit('play', character);
+           var data = {
+               user : user,
+               character : character
+           };
+           socket.emit('play', data);
+           console.dir(data);
     });
     
     $('#btnPlay').click(function(){
+        // close modal and get values from form
+        $('#characterForms').modal('hide');
+        var character = getCustomized();
+        
        // if it's valid, send it to the server and start the game
        if(validateSum(character.attributes)){
-           getCustomized();
-           socket.emit('play', character);
+           
+           var data = {
+               user : user,
+               character : character
+           }; 
+           
+           socket.emit('play', data);
            console.log('attributes adjusted - socket.play');
-           console.dir(character);
+           console.dir(data);
        }       
     });
     
@@ -36,6 +50,12 @@ $(document).ready(function(){
         console.dir(data);
        character = data;
        customizeCharacter(character);
+    });
+    
+    socket.on('startGame', function(data){
+        console.log('start game with player');
+        player = data['player'];
+        gameInit();
     });
 
 });

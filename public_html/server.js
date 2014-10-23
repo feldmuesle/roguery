@@ -16,6 +16,8 @@ var flash = require ('connect-flash');
 var io = require('socket.io').listen(server);
 var game = require('./app/controllers/socket_server.js');
 var path = require('path');
+var events = require('events');
+var eventEmitter = new events.EventEmitter();
 
 var morgan = require('morgan');
 var cookieParser = require('cookie-parser');
@@ -59,8 +61,7 @@ app.use(passport.session()); //persistent login-sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
 /*********** configure game ***********/
-var Character = require('./app/models/character.js');
-var Guild = require('./app/models/guild.js');
+
 
 
 /**************************************************************************************************/
@@ -68,14 +69,25 @@ var Guild = require('./app/models/guild.js');
 /********** game ********/
 io.sockets.on('connection', function(socket){
     console.log('connection works');
-    game.response(socket);
+    
+    // get user from routes as soon as logged in to the game
+//    eventEmitter.on('loggedIn', function(user){
+//        console.log('user has been logged in '+user.username);
+//        console.log('default socket id:'+socket.id);
+//        game.addSocket(socket, user);
+//        socket.emit('setSocket', {'socketId':socket.id});
+//        
+//    });    
+    
+    // start the game
+        game.response(socket);
+        console.log('response socket id:'+socket.id);
+    
 });
 
 /*********** routes *************/
-require('./app/controllers/routes.js')(app, passport, game); // load the routes and pass in our app and fully configured passport
+require('./app/controllers/routes.js')(app, passport); // load the routes and pass in our app and fully configured passport
 
-//var currentUser = require('./app/model/sessionhelper.js')(req);
-//console.log('test in server.js: var currentUser= '+currentUser.req.user);
 /********** launch ************/
 server.listen(port);
 console.log('The magic is happening at port 3000'); 

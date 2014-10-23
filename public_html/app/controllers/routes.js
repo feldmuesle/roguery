@@ -13,7 +13,7 @@ var Weapon = require('../models/weapon.js');
 var Character = require('../models/character.js');
 var Helper = require('./helper_functions.js');
 
-module.exports = function(app, passport, game){
+module.exports = function(app, passport){
         
     // homepage (with login-links)
     app.get('/', function(req, res){
@@ -86,7 +86,7 @@ module.exports = function(app, passport, game){
     
     // show start-screen for existing player
     app.get('/game', isLoggedIn, function (req, res){
-        
+                
         console.log('hello from game-routes');
         Guild.find().exec(function(err, guilds){            
             if(err){ return console.log(err);}
@@ -240,23 +240,23 @@ module.exports = function(app, passport, game){
                 console.dir(req.body.character);
                 
                 
-//                character.save(function(err){
-//                   if(err){
-//                        console.log('something went wrong when creating an item.');
-//                        console.log('error '+err); 
-//                        res.send({
-//                            'success'   : false,
-//                            'msg'       : 'could not save item',
-//                            'errors'    : err.errors});
-//                    }else{
-//                        characters.push(character);
-//                        res.send({
-//                            'success'   :   true,
-//                            'msg'       :   'yuppi! - item has been created.',
-//                            'characters':   characters
-//                        });
-//                    }    
-//                });        
+                character.save(function(err){
+                   if(err){
+                        console.log('something went wrong when creating an characters.');
+                        console.log('error '+err); 
+                        res.send({
+                            'success'   : false,
+                            'msg'       : 'could not save characters',
+                            'errors'    : err.errors});
+                    }else{
+                        characters.push(character);
+                        res.send({
+                            'success'   :   true,
+                            'msg'       :   'yuppi! - characters has been created.',
+                            'characters':   characters
+                        });
+                    }    
+                });        
             });            
         }
         
@@ -354,6 +354,47 @@ module.exports = function(app, passport, game){
                 });
             });
         }// update guild end
+        
+        if(req.body.form == 'updateCharacter'){
+            
+            var characterUp = req.body.character;
+            console.log('character to update: '+characterUp);
+            var characterId = Helper.sanitizeNumber(characterUp.id);
+            Character.findOne({'id':characterId}, function(err, character){
+               if(err){console.log(err); return;}
+
+                character.name = characterUp.name;
+                character.guild = characterUp.guild;
+                character.weapon = characterUp.weapon;
+                character.attributes = {};
+                character.inventory = [];
+                
+                for(var key in characterUp.attributes){
+                    character.attributes[key] = characterUp.attributes[key];
+                }
+
+                character.save(function(err){
+                    if(err){
+                        console.log('something went wrong when updating a character.');
+                        console.log('error '+err); 
+                        res.send({
+                            'success'   : false,
+                            'msg'       : 'could not update character',
+                            'errors'    : err.errors});
+                    }else{
+                        Character.find(function(err, characters){
+                            if(err){ return console.log(err);}
+                            res.send({
+                                'success'   :  true,
+                                'msg'       :  'yuppi! - character has been updated.',
+                                'characters':  characters
+                            });
+
+                        });  
+                    }    
+                });
+            });
+        }// update character end
     });
     
     
@@ -939,6 +980,7 @@ module.exports = function(app, passport, game){
 // route middleware to make sure a user is logged in
 function isLoggedIn(req, res, next){
     if(req.isAuthenticated()){
+        
         console.log('Yes your are authenticated');
         next();
     }else{

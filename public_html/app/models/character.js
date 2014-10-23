@@ -14,7 +14,7 @@ var values = Helper.getRandAttributes(130,10);
 var CharacterSchema = new Schema({
     id          :   Number,
     name        :   {type:String, trim:true, lowercase:true, validate:valEmpty},
-    guild       :   {type:Schema.ObjectId, ref:'Guild', index:true},
+    guild       :   {type:String, ref:'Guild', index:true},
     gender      :   {type:String, trim:true, default:'male'},
     attributes  : {
             stamina  :   {type : Number, default:values[0]},
@@ -28,8 +28,8 @@ var CharacterSchema = new Schema({
             luck     :   {type : Number, default:values[8]},
             coins    :   {type : Number, default:values[9]}
         },
-    inventory   :   [{type:Schema.ObjectId, ref:'Item', index:true}],
-    weapon      :   {type:Schema.ObjectId, ref:'Weapon', index:true}
+    inventory   :   [{type:String, ref:'Item', index:true}],
+    weapon      :   {type:String, ref:'Weapon', index:true}
 });
 
 
@@ -40,6 +40,12 @@ CharacterSchema.set('toObject', {getters : true});
 CharacterSchema.pre('save', function(next){
     var self = this || mongoose.model('Character');
     self.name = Helper.sanitizeString(self.name);
+    self.guild = Helper.sanitizeString(self.guild);
+    self.weapon = Helper.sanitizeString(self.guild);
+    
+    for(var key in self.attributes){
+        self.attributes[key] = Helper.sanitizeNumber(self.attributes[key]);
+    }
     next();
 });
 
@@ -87,14 +93,13 @@ module.exports = CharacterModel;
 //    };
 //    
 //    var dwarf = {
-//        id: 3,
+//        id: 1,
 //        name: 'Thurax',
-//        guild: mongoose.Types.ObjectId('5446775b89d2d7b813093011'),
+//        guild: 'dwarf',//mongoose.Types.ObjectId('5446775b89d2d7b813093011'),
 //        gender: 'male',
 //        attributes:{},
-//        weapon: mongoose.Types.ObjectId('5446609291fb5af016aaeed5'),
-//        inventory: [mongoose.Types.ObjectId('54465bb75b0df4d814539619'),
-//                    mongoose.Types.ObjectId('54465bb75b0df4d81453961c')]   
+//        weapon: 'trident',//mongoose.Types.ObjectId('5446609291fb5af016aaeed5'),
+//        inventory: []   
 //    };
 //
 //    var character = new CharacterModel(dwarf);

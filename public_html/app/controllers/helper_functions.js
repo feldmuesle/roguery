@@ -33,6 +33,19 @@ exports.sanitizeNumber = function (numb){
 
 /********** calculations *******************/
 
+// get index of assoc-array by key and value
+exports.getIndexByKeyValue = function(array, key, value){
+    console.log('key = '+key);
+    console.log('value='+value);
+    console.dir(array);
+    for (var i = 0; i< array.length; i++){
+        if (array[i][key] == value){
+            return i;
+        }        
+    }
+    return null;
+}
+
 // autoincrement id by one
 exports.autoIncrementId = function(mongooseArray){
     var ids=[];
@@ -64,11 +77,11 @@ exports.getRandAttributes = function(max, attributesNum){
     var maxStam = getRandomNumber(stamina+1,20); // max must be always higher than stamina
     values[0] = stamina;
     values[1] = maxStam;
-    max - maxStam;
+    
     console.log('attributesNum '+attributesNum+' max '+max);
-    var currsum = 0;
+    var currsum = stamina;
     for(i=2; i<attributesNum-1; i++) {
-       values[i] = getRandomNumber(1, max/(attributesNum-i)-currsum);
+       values[i] = getRandomNumber(1, (max-currsum)/(attributesNum-i));
        currsum += values[i];
     }
     values[attributesNum-1] = max - currsum;

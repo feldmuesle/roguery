@@ -3,18 +3,33 @@
  */
 
 // get all neccessary imports
-
 var Item = require('../models/item.js');
 var Player = require('../models/player.js');
 var Guild = require('../models/guild.js');
 var Weapon = require('../models/weapon.js');
 var Character = require('../models/character.js');
 
+
+
 // start the game
-exports.startGame = function(character){
-    var playingChar = Character.createNew(character);
-    //TODO: create new player with character
+exports.startGame = function(character, userId, cb){
+    console.log('start game');
+    var player = Player.createNew(character, userId);
+    console.log('player created');
+    console.dir(player);
+    
+    //TODO: 
+    //- get random location 
+    //- initiate player at random location
+    //
+    
+    
+    return cb(player);
+    
+    
 };
+
+
 
 
 // check if attributes sum up to maxsum

@@ -1,4 +1,41 @@
 <% include ./partials/header.ejs %>
+
+    <!-- display event-list -->
+    <div class="row">
+        <div class="lists col-xs-12 col-lg-6 col-lg-offset-3">
+            <div id="eventSuccess" class="alert alert-success"></div>
+            <h3>Events<button id="addLocation" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
+            
+            <ul id="eventList" class="list-group list-unstyled">
+                <%for(var i=0; i<weapons.length; i++){%>
+                    <li class="list-group-item">
+                        <a id="weapon<%=weapons[i].id%>" class="showEvent" href="#"><%=weapons[i].name%></a>
+                        <button class="deleteEvent pull-right btn btn-xs margin" id="eventBtnDel<%=weapons[i].id%>">Delete</button>
+                        <button class="updateEvent pull-right btn btn-xs margin" id="eventBtn<%=weapons[i].id%>">Update</button>                       
+                    </li>
+                <%}%>
+            </ul>
+        </div>
+    </div><!-- location-list end -->
+    
+    <!-- display location-list -->
+    <div class="row">
+        <div class="lists col-xs-12 col-lg-6 col-lg-offset-3">
+            <div id="locationSuccess" class="alert alert-success"></div>
+            <h3>Locations<button id="addLocation" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
+            
+            <ul id="locationList" class="list-group list-unstyled">
+                <%for(var i=0; i<weapons.length; i++){%>
+                    <li class="list-group-item">
+                        <a id="weapon<%=weapons[i].id%>" class="showLocation" href="#"><%=weapons[i].name%></a>
+                        <button class="deleteLocation pull-right btn btn-xs margin" id="locationBtnDel<%=weapons[i].id%>">Delete</button>
+                        <button class="updateLocation pull-right btn btn-xs margin" id="locationBtn<%=weapons[i].id%>">Update</button>                       
+                    </li>
+                <%}%>
+            </ul>
+        </div>
+    </div><!-- location-list end -->
+
     <!-- display weapon-list -->
     <div class="row">
         <div class="lists col-xs-12 col-lg-6 col-lg-offset-3">
@@ -20,7 +57,7 @@
     <!-- display characters-list -->
     <div class="row">
         <div class="col-xs-12 col-lg-6 col-lg-offset-3">
-            <div id="charactersSuccess" class="alert alert-success"></div>
+            <div id="characterSuccess" class="alert alert-success"></div>
             <h3>Characters<button id="addCharacter" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
             <ul id="charactersList" class="list-group list-unstyled">
                 <%for(var i=0; i<characters.length; i++){%>

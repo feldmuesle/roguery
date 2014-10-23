@@ -2,36 +2,68 @@
  * This file handles the game itself
  */
 
-// modules we need
-var events = require('events');
-var eventEmitter = new events.EventEmitter();
-
-// global variables we need
-var users = []; //array of users that are currently connected
-var numUsers =0;
-
 // get all the models we need
 var Helper = require('./helper_functions.js');
 //var User = require('../models/user.js');
 var Game = require('./game_functions.js');
 
+// set global variables we need
+var clients = []; //array of users that are currently connected
+var numUsers =0;
 // constants
 var MAXSUM = 130; // sum attributes must sum up to
 
+// add socket to array of current connected sockets
+var addSocket = function(socket, user){
+    
+    var index = Helper.getIndexByKeyValue(clients, 'user', user);
+    
+    if(index == null){
+        socket.room = user;
+        var client = {'user':user, 'socket':socket};
+        clients.push(client);
+        numUsers++;
+        console.log('socket added to clientArray');
+        
+        
+    } else {
+        console.log('user already registered');
+    }
+    
+};
 
-
+// socket-response and listeners
 module.exports.response = function(socket){
     console.log('hello from socket-response'); 
-    
+    console.log('socketId '+socket.id);    
+        
     socket.on('play', function(data){
-        console.log('start to play with socket');
-        var isValid = Game.checkAttributeSum(data['attributes'], MAXSUM);
+        console.log(data);
+        var character = data['character'];
+        
+        addSocket(socket, data['user']);
+        
+        // check first if the character has the right amount of attributes
+        var isValid = Game.checkAttributeSum(character['attributes'], MAXSUM);
         if(isValid){
-            console.log('it is valid');
-            console.log(data);
-//            Game.startGame(data);
+            console.log('character is valid');
+            
+            // get userId from clients-array by socket and start the game
+            var index = Helper.getIndexByKeyValue(clients, 'user',data['user']);
+            console.log('index ='+index);
+            if(index != null){
+                var userId = clients[index].user;
+                Game.startGame(character, userId, function(data){
+                    
+                    var player = data;
+                    // start the game client-side
+                    socket.emit('startGame', player);
+                });
+            }            
+            
         }else{
-            console.log('it is not valid - sending alert back');
+            console.log('character is not valid - sending alert back');
+            console.log(data);
             socket.emit('notValid', data);
         }
         
@@ -42,6 +74,18 @@ module.exports.response = function(socket){
     //when a user disconnects
     socket.on('disconnect', function(data){
         console.log('disconnecting - is there anything?');
+        // TODO: remove client from clients-array
+        
+        if(clients.length > 0){ // in case server shut down and avoid negative numbers
+        --numUsers;
+        
+        //take socket out of clients, then update texter
+        var clientI =  Helper.getIndexByKeyValue(clients, 'socket', socket);
+        clients.splice(clientI, 1);
+        console.log('user removed from clients');
+        console.dir(clients);
+    }
+        
 //        Game.removePlayer(socket , function(data){
 //            
 //            // broadcast to all users online that user has left and update players-online-list

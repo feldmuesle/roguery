@@ -23,6 +23,14 @@ PlayerSchema.pre('save', function(next){
     next();
 });
 
+PlayerSchema.statics.createNew = function (character, userId){
+  console.log('create new Player');
+  var player = new PlayerModel();
+  player.character = character;
+  player.user = mongoose.Types.ObjectId(userId);
+  return player;
+};
+
 var PlayerModel = mongoose.model('Player', PlayerSchema);
 module.exports = PlayerModel;
 

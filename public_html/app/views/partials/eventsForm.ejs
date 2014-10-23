@@ -1,0 +1,28 @@
+<!-- partial view displaying modal for events-form -->
+<div class="modal fade" id="createEvents" tabindex="-1" role="dialog" aria-labelledby="createEvents" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">
+                    <span class="glyphicon glyphicon-plus"></span> create new event
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div id="alertEvent" class="alert alert-danger"></div>
+                <form id="createEvent" class="modal-form form-horizontal" role="form" action="/crud" method="post">
+                    <div class="form-group">
+                        <label>Title:</label>
+                        <input type="text" class="form-control" name="name">
+                    </div>                               
+                    <input type="hidden" name="form" value="createEvent">
+                    <input id="eventId" type="hidden" name="id" value="">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button id="btnCreateEvent" type="button" class="btn btn-info" >Create event</button>
+            </div>
+        </div>
+      </div>
+    </div>

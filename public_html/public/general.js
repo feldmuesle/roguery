@@ -211,6 +211,20 @@ function sumAttributes(attribute){
     return sum;
 }
 
+// set screen-height, hide startup-form and show the game!!
+    function gameInit(){
+
+        setAutoHeight();  
+        $('#game').show();
+        $('#profile').show();
+        $('#playerlist').show();
+        $('#roomPlayerlist').show();
+        $('#chatWrapper').show();
+        $('.thumbnail').show();
+        $('#pseudoSet').hide();
+        $('#chatInput').focus();
+    }
+
 // display validation for sum up of attribute-values
 function validateSum (attributes){
     
@@ -232,3 +246,14 @@ function validateSum (attributes){
         return true;
     }
 }
+
+// adjust height of chatlist to current window
+    function setAutoHeight(){
+        var windowH = $(document).height();
+        $('#sidebar').height(windowH);
+        var sidebarH = $('#sidebar').height(); 
+        
+        console.log('window height is '+windowH);
+        $('#chatWrapper').height(windowH -80); 
+         
+    }

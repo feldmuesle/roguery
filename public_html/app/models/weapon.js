@@ -8,8 +8,9 @@ var Helper = require('../controllers/helper_functions.js');
 var valEmpty = [Helper.valEmpty, 'The field \'{PATH}:\' must just not be empty.'];
 
 var WeaponSchema = Schema({
-   id   :   {type:Number, unique:true},
-   name :   {type:String, trim:true, lowercase:true, unique:true, validate:valEmpty}
+    _id  :   {type:String, unique:true},
+    id   :   {type:Number, unique:true},
+    name :   {type:String, trim:true, lowercase:true, unique:true, validate:valEmpty}
 });
 
 WeaponSchema.set('toObject', {getters : true});
@@ -18,6 +19,7 @@ WeaponSchema.set('toObject', {getters : true});
 WeaponSchema.pre('save', function(next){
     var self = this || mongoose.model('Weapon');
     self.name = Helper.sanitizeString(self.name);
+    self._id  = self.name;
     next();
 });
 
