@@ -44,73 +44,71 @@
             </div>                            
         </div> <!-- flag event end -->
         <!-- require flag-->
-        <div class="form-group">
+        <div id="flag" class="form-group">
             <div>
                 <label><input type="checkbox" name="reqFlag"> Require flag</label>                                
             </div>                        
-            <div id="reqFlagFold" class="col-xs-11 col-xs-offset-1">                             
-                <div id="reqFlag1" class="form-group">
-                    <label>Choose flag</label>
-                    <div class="row">                                
-                        <div class="col-xs-10">                                   
+            <div id="reqFlagFold" class="col-xs-11 col-xs-offset-1">                    
+                    <div id="flagRow" class=" form-group row">                             
+                        <div class="col-xs-10">            
+                            <label>Choose flag</label>
                             <select class="form-control" name="flag">
-                                <!--<%for( var i=0; i<flags.length; i++){%> -->
+                                <%for( var i=0; i<flags.length; i++){%>
                                     <option value="<%=flags[i].id%>"><%=flags[i].name%></option>
-                                <!-- <%}%> -->
+                                <%}%>
                             </select>
                         </div>
                         <div class="col-xs-1">
                             <button class="btn add-flag" type="button">+</button>
                         </div>                                
-                    </div>
-                </div>                            
+                    </div>                           
             </div>    
         </div> <!-- require flag end -->
         <!-- use item  -->
-        <div class="form-group">
+        <div id="item" class="form-group">
             <div>
                 <label><input type="checkbox" name="useItem"> Use item</label>                                
             </div>
-            <div id="itemFold1" class="col-xs-11 col-xs-offset-1">
+            <div id="itemFold" class="col-xs-11 col-xs-offset-1">
                 <div class="row">
                     <div class="form-group col-xs-11">
                         <label class="radio-inline">
-                        <input type="radio" name="itemAction" id="inlineRadio3" value="loose" checked> loose item
+                        <input type="radio" name="itemAction" value="loose" checked> loose item
                         </label>
                         <label class="radio-inline">
-                            <input type="radio" name="itemAction" id="inlineRadio4" value="gain"> gain item
+                            <input type="radio" name="itemAction" value="gain"> gain item
                         </label>
                         <label class="radio-inline">
-                            <input type="radio" name="itemAction" id="inlineRadio4" value="require"> require item
+                            <input type="radio" name="itemAction" value="require"> require item
                         </label>
                     </div>
                    <div class="col-xs-1">
-                        <button class="btn add-attr" type="button">+</button>
+                        <button class="btn add-item" type="button">+</button>
                     </div>
                 </div>
                 <div class='form-group'>
                     <label>Choose item</label>
                     <select class="form-control" name="item">
-                        <!--<%for( var i=0; i<items.length; i++){%> -->
+                        <%for( var i=0; i<items.length; i++){%>
                             <option value="<%=items[i].id%>"><%=items[i].name%></option>
-                        <!-- <%}%> -->
+                        <%}%>
                     </select>
                 </div>
             </div>    
         </div> <!-- use item end -->
         <!-- checkbox use attributes -->
-        <div class="form-group">
+        <div id="attribute" class="form-group">
             <div>
                 <label><input type="checkbox" name="attributes"> Use attributes</label>                                
             </div>
-            <div id="attrFold1" class="col-xs-11 col-xs-offset-1">
+            <div id="attrFold" class="col-xs-11 col-xs-offset-1">
                 <div class="row">
                     <div class="form-group col-xs-11">
                         <label class="radio-inline">
-                        <input type="radio" name="attrAction" value="loose" checked> loose 
+                        <input type="radio" name="attrAction" value="loose" checked> loose attribute
                         </label>
                         <label class="radio-inline">
-                            <input type="radio" name="attrAction" value="gain"> gain 
+                            <input type="radio" name="attrAction" value="gain"> gain attribute
                         </label>
                     </div> 
                     <div class="col-xs-1">
@@ -118,10 +116,10 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div id="attrRow" class="row">
                     <div class="form-group col-xs-10">
                         <label>Choose attribute</label>
-                        <select class="form-control" name="flag">
+                        <select class="form-control" name="attr">
                         <%for( var i=0; i<attributes.length; i++){%>
                             <option value="<%=attributes[i]%>"><%=attributes[i]%></option>
                         <%}%>
