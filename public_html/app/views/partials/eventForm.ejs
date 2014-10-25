@@ -1,0 +1,142 @@
+<!-- partial containing the actual form for creating event-modal -->
+<form id="createEvent" class="modal-form form-horizontal" role="form" action="/crud" method="post">
+        <div class="form-group">
+            <label>Choose location</label>
+            <select class="form-control" name="location">
+                <%for( var i=0; i<locations.length; i++){%>
+                    <option value="<%=locations[i].id%>"><%=locations[i].name%></option>
+                <%}%>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" class="form-control" name="name">
+        </div>
+        <div class="form-group">
+            <label><input type="checkbox" name="newPara"> Start new paragraph</label>                                
+        </div>
+        <div class="form-group">
+            <label>Text</label>
+            <textarea class="form-control" name="text"></textarea>
+        </div>
+        <!-- is choice -->
+        <div class="form-group">
+            <div>
+                <label><input type="checkbox" name="isChoice"> Event is a choice</label>                                
+            </div>
+            <div id="isChoiceFold" class="col-xs-11 col-xs-offset-1">
+                <div class="form-group">
+                    <label>Choice-text</label>
+                    <input type="text" class="form-control" name="choiceText">
+                </div>
+            </div>    
+        </div> <!-- is choice end-->
+        <!-- flag event -->
+        <div class="form-group">
+            <div>
+                <label><input type="checkbox" name="isFlagged"> Flag event</label>                                
+            </div>
+            <div id="isFlaggedFold" class="col-xs-11 col-xs-offset-1">
+                <div class="form-group">
+                    <label>Flag-description</label>
+                    <input type="text" class="form-control" name="flagDesc">
+                </div>
+            </div>                            
+        </div> <!-- flag event end -->
+        <!-- require flag-->
+        <div class="form-group">
+            <div>
+                <label><input type="checkbox" name="reqFlag"> Require flag</label>                                
+            </div>                        
+            <div id="reqFlagFold" class="col-xs-11 col-xs-offset-1">                             
+                <div id="reqFlag1" class="form-group">
+                    <label>Choose flag</label>
+                    <div class="row">                                
+                        <div class="col-xs-10">                                   
+                            <select class="form-control" name="flag">
+                                <!--<%for( var i=0; i<flags.length; i++){%> -->
+                                    <option value="<%=flags[i].id%>"><%=flags[i].name%></option>
+                                <!-- <%}%> -->
+                            </select>
+                        </div>
+                        <div class="col-xs-1">
+                            <button class="btn add-flag" type="button">+</button>
+                        </div>                                
+                    </div>
+                </div>                            
+            </div>    
+        </div> <!-- require flag end -->
+        <!-- use item  -->
+        <div class="form-group">
+            <div>
+                <label><input type="checkbox" name="useItem"> Use item</label>                                
+            </div>
+            <div id="itemFold1" class="col-xs-11 col-xs-offset-1">
+                <div class="row">
+                    <div class="form-group col-xs-11">
+                        <label class="radio-inline">
+                        <input type="radio" name="itemAction" id="inlineRadio3" value="loose" checked> loose item
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="itemAction" id="inlineRadio4" value="gain"> gain item
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="itemAction" id="inlineRadio4" value="require"> require item
+                        </label>
+                    </div>
+                   <div class="col-xs-1">
+                        <button class="btn add-attr" type="button">+</button>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label>Choose item</label>
+                    <select class="form-control" name="item">
+                        <!--<%for( var i=0; i<items.length; i++){%> -->
+                            <option value="<%=items[i].id%>"><%=items[i].name%></option>
+                        <!-- <%}%> -->
+                    </select>
+                </div>
+            </div>    
+        </div> <!-- use item end -->
+        <!-- checkbox use attributes -->
+        <div class="form-group">
+            <div>
+                <label><input type="checkbox" name="attributes"> Use attributes</label>                                
+            </div>
+            <div id="attrFold1" class="col-xs-11 col-xs-offset-1">
+                <div class="row">
+                    <div class="form-group col-xs-11">
+                        <label class="radio-inline">
+                        <input type="radio" name="attrAction" value="loose" checked> loose 
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="attrAction" value="gain"> gain 
+                        </label>
+                    </div> 
+                    <div class="col-xs-1">
+                        <button class="btn add-attr" type="button">+</button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-xs-10">
+                        <label>Choose attribute</label>
+                        <select class="form-control" name="flag">
+                        <%for( var i=0; i<attributes.length; i++){%>
+                            <option value="<%=attributes[i]%>"><%=attributes[i]%></option>
+                        <%}%>
+                    </select>
+                    </div>
+                    <div class="form-group col-xs-2 pull-right">
+                        <label>Amount</label>
+                        <input type="text" class="form-control" name="attrNumb">
+                    </div>
+                </div>
+
+            </div>    
+        </div> <!-- use attributes end -->
+<!-- because this form is getting endless, we import a partial handling branching -->
+<% include ./branchEventsForm.ejs %>
+    <input type="hidden" name="form" value="createEvent">
+    <input id="eventId" type="hidden" name="id" value="">
+</form>  
