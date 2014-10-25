@@ -5,7 +5,8 @@
  */
 
 
-//var RoomModel = require('../models/room.js');
+var Location = require('../models/location.js');
+var Flag = require('../models/flag.js');
 var Item = require('../models/item.js');
 var Player = require('../models/player.js');
 var Guild = require('../models/guild.js');
@@ -67,20 +68,45 @@ module.exports = function(app, passport){
                 return items;
             })
         .then(function(items){
+            Location.find().exec(function(err, locations){
+                if(err){ return console.log(err);}
+                return locations;
+            })
+        .then(function(locations){
+            Flag.find().exec(function(err, flags){
+                if(err){ return console.log(err);}
+                return flags;
+            })    
+        .then(function(flags){
             Weapon.find().exec(function(err, weapons){
+                
+                // also put all character-attr. in an array
+                var testChar = characters[0].attributes.toObject();
+                var attributes = Object.keys(testChar);
+                // remove maxStamina
+                var index = attributes.indexOf('maxStam');
+                attributes.splice(index,1);
+
+                console.log(attributes);
+                
                 if(err){ return console.log(err);}
                 res.render('crud.ejs', {
-                   userId   :   req.user._id,
-                   username :   req.user.username,
-                   message  :   '',
-                   weapons  :   weapons,
-                   characters:  characters,
-                   guilds   :   guilds,
-                   items    :   items
+                   'userId'   :   req.user._id,
+                   'username' :   req.user.username,
+                   'message'  :   '',
+                   'weapons'  :   weapons,
+                   'characters':  characters,
+                   'attributes':  attributes,
+                   'guilds'   :   guilds,
+                   'items'    :   items,
+                   'locations':   locations,
+                   'flags'    :   flags  
                });
             });
         });
-        }); 
+        });
+    });
+    });
     });
     });
     

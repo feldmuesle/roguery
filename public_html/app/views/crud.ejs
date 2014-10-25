@@ -1,19 +1,26 @@
 <% include ./partials/header.ejs %>
-
+    <%
+    console.log(flags.length);
+    console.log(locations.length);
+    console.log(items.length);
+    console.log(weapons.length);
+    console.log(attributes.length);
+    console.log(guilds.length);
+    %>
     <!-- display event-list -->
     <div class="row">
         <div class="lists col-xs-12 col-lg-6 col-lg-offset-3">
             <div id="eventSuccess" class="alert alert-success"></div>
-            <h3>Events<button id="addLocation" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
+            <h3>Events<button id="addEvent" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
             
             <ul id="eventList" class="list-group list-unstyled">
-                <%for(var i=0; i<weapons.length; i++){%>
+               <!-- <%for(var i=0; i<weapons.length; i++){%>
                     <li class="list-group-item">
                         <a id="weapon<%=weapons[i].id%>" class="showEvent" href="#"><%=weapons[i].name%></a>
                         <button class="deleteEvent pull-right btn btn-xs margin" id="eventBtnDel<%=weapons[i].id%>">Delete</button>
                         <button class="updateEvent pull-right btn btn-xs margin" id="eventBtn<%=weapons[i].id%>">Update</button>                       
                     </li>
-                <%}%>
+               <%}%> -->
             </ul>
         </div>
     </div><!-- location-list end -->
@@ -25,11 +32,11 @@
             <h3>Locations<button id="addLocation" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
             
             <ul id="locationList" class="list-group list-unstyled">
-                <%for(var i=0; i<weapons.length; i++){%>
+                <%for(var i=0; i<locations.length; i++){%>
                     <li class="list-group-item">
-                        <a id="weapon<%=weapons[i].id%>" class="showLocation" href="#"><%=weapons[i].name%></a>
-                        <button class="deleteLocation pull-right btn btn-xs margin" id="locationBtnDel<%=weapons[i].id%>">Delete</button>
-                        <button class="updateLocation pull-right btn btn-xs margin" id="locationBtn<%=weapons[i].id%>">Update</button>                       
+                        <a id="location<%=locations[i].id%>" class="showLocation" href="#"><%=locations[i].name%></a>
+                        <button class="deleteLocation pull-right btn btn-xs margin" id="locationBtnDel<%=locations[i].id%>">Delete</button>
+                        <button class="updateLocation pull-right btn btn-xs margin" id="locationBtn<%=locations[i].id%>">Update</button>                       
                     </li>
                 <%}%>
             </ul>
@@ -106,14 +113,18 @@
             </ul>
         </div>        
     </div><!-- guild-list end-->
-    
-    <!-- modal window for create-npc-form -->
+
+    <!-- modal window for create-event-form -->
+        <% include ./partials/eventsForm.ejs %>
+    <!-- event-modal-end -->
+
+    <!-- modal window for create-weapon-form -->
         <% include ./partials/weaponForm.ejs %>
-    <!-- npc-modal-end -->
+    <!-- weapon-modal-end -->
     
-    <!-- modal window for create-room-form -->
+    <!-- modal window for create-character-form -->
         <% include ./partials/characterForm.ejs %>
-    <!-- room-modal-end -->
+    <!-- character-modal-end -->
     
     <!-- modal window for create-item-form -->
         <% include ./partials/itemsForm.ejs %>
@@ -146,11 +157,13 @@
     var weapons = <%-JSON.stringify(weapons)%>;
     var characters = <%-JSON.stringify(characters)%>;
     var items = <%-JSON.stringify(items)%>;
+-->
     var guilds = <%-JSON.stringify(guilds)%>;
-    -->
+    
 </script>
 <script src="helpers.js"></script>
 <script src="general.js"></script>
 <script src="crud.js"></script>
+<script src="./cruds/test.js"></script>
 </body>
 </html>

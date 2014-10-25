@@ -10,14 +10,8 @@
             </div>
             <div class="modal-body">
                 <div id="alertEvent" class="alert alert-danger"></div>
-                <form id="createEvent" class="modal-form form-horizontal" role="form" action="/crud" method="post">
-                    <div class="form-group">
-                        <label>Title:</label>
-                        <input type="text" class="form-control" name="name">
-                    </div>                               
-                    <input type="hidden" name="form" value="createEvent">
-                    <input id="eventId" type="hidden" name="id" value="">
-                </form>
+                <!-- because form is very long, include it as partial from separate file-->
+                <% include ./eventForm.ejs %>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>

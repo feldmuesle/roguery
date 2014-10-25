@@ -23,3 +23,23 @@ FlagSchema.pre('save', function(next){
 
 var FlagModel = mongoose.model('Flag', FlagSchema);
 module.exports = FlagModel;
+
+// create some flags
+{
+//    var flag1 = {id:1, name:'defeated troll'};
+//    var flag2 = {id:1, name:'run from witch'};
+//
+//
+//    var flags = [flag1, flag2];
+//    console.log(flags.length);
+//    
+//    for( var j=0; j<flags.length; j++){
+//        var flag = new FlagModel(flags[j]);
+//        flag.save(function(err, flag){
+//            if(err){console.log(err); return;}
+//            console.log('flag saved.');
+//            console.log(flag);
+//        });
+//        console.log('i = '+j);
+//    }
+}
