@@ -92,8 +92,6 @@ function createInputWithSpinner(name){
     return inputGroup;                
 }
 
-
-
 function foldOutRadio(radio){
     // catch the change-event 
     $('#createEvent input[name='+radio+']').on('change',function (){
@@ -129,7 +127,7 @@ function foldOutRadio(radio){
 
                 case'failLoco':
                     // show select, populated with locations
-                    populateSelect(items, 'failTrigger');
+                    populateSelect(locations, 'failTrigger');
                     $('#failTriggerFold').show();
                     break;
 
@@ -160,11 +158,11 @@ function foldOutRadio(radio){
                     break;
 
                 case'continueLoco':
-                    populateSelect(items, 'continueTo');
+                    populateSelect(locations, 'continueTo');
                     break;
 
                 case'continueEvent':
-                    populateSelect(items, 'continueTo');
+                    populateSelect(events, 'continueTo');
                     break;
 
                 case'choiceRand':
@@ -351,7 +349,7 @@ $('.add-choice').click(function(){
     
     $('#choice').append(fold);
     $('#'+foldId+next).append(buttonDiv);
-    populateSelect(items, 'choice'+next);   
+    populateSelect(events, 'choice'+next);   
     
     // remove folds
     $('#removeChoice'+next).click(function(){
@@ -411,11 +409,11 @@ function removeAddOns(count, buttonId){
        var failTrigger = $('#createEvent select[name=failTrigger] option:selected').val();
        var failure = $('#createEvent input[name=failure]:checked').val(); 
        var contin = $('#createEvent input[name=continue]:checked').val(); 
-       var continueTo = $('#createEvent select[name=continue]option:selected').val(); 
+       var continueTo = $('#createEvent select[name=continueTo] option:selected').val(); 
        var choices = $('#createEvent input[name=choices]:checked').val();       
        var choiceNumb = $('#createEvent input[name=choiceNumb]').val();
        
-       console.log('location'+location);
+       console.log('continueTo= '+continueTo);
        
        var event = {
             'form'      :   form,
@@ -426,7 +424,7 @@ function removeAddOns(count, buttonId){
             'isChoice'  :   isChoice,
             'setFlag'   :   isFlagged,
             'reqFlag'   :   reqFlag,
-            'item'      :   useItem,
+            'items'      :   useItem,
             'attributes':   attributes,
             'branchType':   branchType,
             'branch'    :   {}             
@@ -494,7 +492,7 @@ function removeAddOns(count, buttonId){
                  };
                  items.push(item);
             }
-            event.item = items;
+            event.items = items;
        }
        
        // if there are any flags reqiured, push them in flags-array
@@ -543,7 +541,7 @@ function removeAddOns(count, buttonId){
                     },
                     'failure'       :   {
                             'type'      :   failure,
-                            'trigger'   :   succTrigger
+                            'trigger'   :   failTrigger
                             }
                 };
                 
@@ -554,8 +552,9 @@ function removeAddOns(count, buttonId){
                 break;
             
             case 'continue':
-                var continueObj ={};
-                contin == 'location'? continueObj.location = continueTo : continueObj.event = continueTo;
+                var continueObj ={ 
+                    'type'      : contin,
+                    'continueTo': continueTo};
                 event.branch = continueObj;
                 break;
                 

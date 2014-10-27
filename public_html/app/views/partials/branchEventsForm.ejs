@@ -49,9 +49,11 @@
                     <label class="radio-inline">
                       <input type="radio" name="success" value="succEventSgl"> single event
                     </label>
+<!--
                     <label class="radio-inline">
                       <input type="radio" name="success" value="succEventRand"> random events
                     </label>
+-->
                 </div>
                 <div id="succTriggerFold">
                     <label>Choose event/location</label>
@@ -71,9 +73,11 @@
                     <label class="radio-inline">
                         <input type="radio" name="failure" value="failEventSgl"> single event
                     </label>
+<!--
                     <label class="radio-inline">
                       <input type="radio" name="failure" value="failEventRand"> random events
                     </label>
+-->
                 </div>
 
                 <div id="failTriggerFold">
@@ -136,8 +140,8 @@
                 <div class="col-xs-10">                  
                     <label class="col-xs-12">Pick choice</label>
                     <select class="form-control" name="choice">
-                        <%for( var i=0; i<locations.length; i++){%>
-                            <option value="<%=locations[i].id%>"><%=locations[i].name%></option>
+                        <%for( var i=0; i<events.length; i++){%>
+                            <option value="<%=events[i].id%>"><%=events[i].name%></option>
                         <%}%>
                     </select>
                 </div>

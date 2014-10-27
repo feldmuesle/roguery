@@ -21,6 +21,29 @@ FlagSchema.pre('save', function(next){
     next();
 });
 
+/****** statics ************/
+
+// create Flag with auto-increment-id
+FlagSchema.statics.createFlag = function(flagText, cb){
+    var self = this || mongoose.model('Flag');
+    return self.find(function(err, flags){
+        if(err){console.log(err); return;}
+        var id = Helper.autoIncrementId(flags); 
+        var flag = new FlagModel();
+        flag.id = id;
+        flag.name = flagText;
+
+        flag.save(function(err, flag){
+            if(err){console.log(err); return;}
+            console.log('new flag has been saved');
+            cb(flag);
+        });
+    });
+};
+
+
+
+
 var FlagModel = mongoose.model('Flag', FlagSchema);
 module.exports = FlagModel;
 

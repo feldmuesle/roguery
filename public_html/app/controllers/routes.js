@@ -13,6 +13,7 @@ var Guild = require('../models/guild.js');
 var Weapon = require('../models/weapon.js');
 var Character = require('../models/character.js');
 var Event = require('../models/event1.js');
+var Crud = require('./crud_functions.js');
 var Helper = require('./helper_functions.js');
 
 module.exports = function(app, passport){
@@ -64,8 +65,15 @@ module.exports = function(app, passport){
                 return characters;
             })
         .then(function(characters){
+            Event.find().exec(function(err, events){
+                if(err){ console.log(err); return;}
+                console.log('events from routes');
+                console.dir(events);
+                return events;
+            }) 
+        .then(function(events){
             Item.find().exec(function(err, items){
-                if(err){ return console.log(err);}
+                if(err){ console.log(err); return;}
                 return items;
             })
         .then(function(items){
@@ -92,18 +100,20 @@ module.exports = function(app, passport){
                 
                 if(err){ return console.log(err);}
                 res.render('crud.ejs', {
-                   'userId'   :   req.user._id,
-                   'username' :   req.user.username,
-                   'message'  :   '',
-                   'weapons'  :   weapons,
-                   'characters':  characters,
-                   'attributes':  attributes,
-                   'guilds'   :   guilds,
-                   'items'    :   items,
-                   'locations':   locations,
-                   'flags'    :   flags  
+                   'userId'     :   req.user._id,
+                   'username'   :   req.user.username,
+                   'message'    :   '',
+                   'weapons'    :   weapons,
+                   'characters' :   characters,
+                   'events'     :   events,     
+                   'attributes' :   attributes,
+                   'guilds'     :   guilds,
+                   'items'      :   items,
+                   'locations'  :   locations,
+                   'flags'      :   flags  
                });
             });
+        });    
         });
         });
     });
@@ -134,19 +144,22 @@ module.exports = function(app, passport){
                 if(err){ return console.log(err);}
 
                 res.render('game.ejs', {
-                   guilds   :   guilds,
-                   characters:  characters,
-                   userId   :   req.user._id,
-                   username :   req.user.username,
-                   games    :   players,
-                   weapons  :   weapons,
-                   message  :   ''
+                   'guilds'     :   guilds,
+                   'characters' :  characters,
+//                   events   :   events,
+                   'userId'     :   req.user._id,
+                   'username'   :   req.user.username,
+                   'games'      :   players,
+                   'weapons'    :   weapons,
+                   'message'    :   ''
                }); 
            });
        });
+     
     });
     });
-    });  
+    });
+    
     
     // handle post-requests from crud
     //TODO: restrict access to only for administror
@@ -162,28 +175,27 @@ module.exports = function(app, passport){
             Event.find(function(err, events){
                 if(err){console.log(err); return;}
                 var id = Helper.autoIncrementId(events); 
-                var event = new Event();
-                event.id = id;
-                event.name = req.body.name;
-                event.location = req.body.location;
-                event.text = req.body.text;
-                event.newPara = req.body.newPara;
-                event.isChoice = req.body.isChoice;
-                event.setFlag = req.body.setFlag;
-                event.reqFlag = req.body.reqFlag;
-                event.item = req.body.item;
-                event.attributes = req.body.attributes;
-                event.branchType = req.body.branchType;
-                var branch = req.body.branch;
-                console.dir(req.body.attributes);
-                console.dir(req.body.item);
-                console.log(req.body.setFlag);
+                Crud.createEvent(req.body, id, function(event){
+                    console.log('hello from Crud-callback');
+                    console.log(event);
                 
-                if(event.branchType = 'dice'){
-                    console.log('roll the dices');
-                }
+                //                event.id = id;
+//                event.name = req.body.name;
+//                event.location = req.body.location;
+//                event.text = req.body.text;
+//                event.newPara = req.body.newPara;
+//                event.isChoice = req.body.isChoice;
+//                event.setFlag = req.body.setFlag;
+//                event.reqFlag = req.body.reqFlag;
+//                event.item = req.body.item;
+//                event.attributes = req.body.attributes;
+//                event.branchType = req.body.branchType;       
                 
-                console.log('event to create: '+event);
+//                console.dir(req.body.attributes);
+//                console.dir(req.body.item);
+//                console.log(req.body.setFlag);  
+                
+                //console.log('event to create: '+event);
                 
                 event.save(function(err){
                    if(err){
@@ -201,8 +213,9 @@ module.exports = function(app, passport){
                             'events'   :   events
                         });
                     }    
-                });        
-            });            
+                });  
+                }); // Crud.cb end
+            }); // event.find end           
         }
         
         if(req.body.form == 'createWeapon'){

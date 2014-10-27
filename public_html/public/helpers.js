@@ -58,15 +58,16 @@ function inputSpinner(foldId, step, max, min){
         console.log('hello from spinner-up in '+foldId);
     });
     // arrow down
-    $('#'+foldId+'.spinner .btn:last-of-type').on('click', function(e) {
+    $('#'+foldId).find('.spinner .btn:last-of-type').on('click', function(e) {
         e.preventDefault();
-        var value = parseInt($('#'+foldId+'.spinner input').val(), 10);
+        var value = parseInt($('#'+foldId).find('.spinner input').val(), 10);
         // increase step to ten if value gets higher than 30
         if(value == 30)step =10;
         
         if ((value-step) >= min){
-            $('#'+foldId+'.spinner input').val( value-step);
+            $('#'+foldId).find('.spinner input').val( value-step);
         }
+        console.log('hello from spinner-down in '+foldId);
     });
 };
 
