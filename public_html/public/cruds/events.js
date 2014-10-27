@@ -19,7 +19,7 @@ $('#addEvent').click(function(){
         $('#createEvent').trigger('reset');
         $('#createEvent input[name=form]').val('createEvent');
         $('#btnCreateEvent').text('create');
-        $('#createEvent input:radio').removeProp('checked');
+//        $('#createEvent input:radio').removeProp('checked');
         
         // hide all fold-outs
         $('#isChoiceFold').hide();
@@ -27,13 +27,13 @@ $('#addEvent').click(function(){
         $('#reqFlagFold').hide();
         $('#itemFold').hide();
         $('#attrFold').hide();
-        $('#diceFold').hide();
+//        $('#diceFold').hide();  // show diceFold by default
+//        $('#succTriggerFold').hide();
+//        $('#failTriggerFold').hide();   
         $('#choicesFold').hide();
         $('#continueFold').hide();
-        $('#choiceRandFold').hide();
+//        $('#choiceRandFold').hide();
         $('#pickChoiceFold').hide();
-        $('#succTriggerFold').hide();
-        $('#failTriggerFold').hide();
         
         foldOut('isChoice', 'isChoiceFold');
         foldOut('isFlagged', 'isFlaggedFold');
@@ -47,6 +47,12 @@ $('#addEvent').click(function(){
         foldOutRadio('failure');
         foldOutRadio('choices');
         foldOutRadio('continue');
+        
+        //activate input-spinners for inputs of type number (-> function declared in helper.js)
+        inputSpinner('choiceRandFold', 1, 8, 1);
+        inputSpinner('diceFold', 5, 30, 5);
+        inputSpinner('attrFold', 1, 150, 0);
+        
         
         
         $("#createEvents").modal('show'); 
@@ -75,6 +81,17 @@ function foldOut(checkbox, foldId){
     });
 }
 
+function createInputWithSpinner(name){
+    
+    var btnUp = '<button class="btn btn-default"><i class="fa fa-caret-up"></i></button>';
+    var btnDown = '<button class="btn btn-default"><i class="fa fa-caret-down"></i></button>';
+    var btnGroup = '<div class="input-group-btn-vertical">'+btnUp+btnDown+'</div>';
+    var input = '<input type="number" min="1" max="7" class="form-control" name="'+name+'" value="0">';
+    var inputGroup = '<div class="input-group spinner">'+input+btnGroup+'</div>';
+    
+    return inputGroup;                
+}
+
 
 
 function foldOutRadio(radio){
@@ -86,25 +103,25 @@ function foldOutRadio(radio){
             var value = $('#createEvent input[name='+radio+']:checked').val();
 
             switch(value){
-                case'branchDice':
+                case'dice':
                     $('#choicesFold').hide();
                     $('#continueFold').hide();
                     $('#diceFold').show();
                     break;
 
-                case'branchEnd':
+                case'end':
                     $('#diceFold').hide();
                     $('#choicesFold').hide();
                     $('#continueFold').hide();
                     break;
 
-                case'branchChoices':
+                case'choices':
                     $('#continueFold').hide();
                     $('#diceFold').hide();
                     $('#choicesFold').show();
                     break;
 
-                case'branchContinue':
+                case'continue':
                     $('#diceFold').hide();
                     $('#choicesFold').hide();
                     $('#continueFold').show();
@@ -136,7 +153,7 @@ function foldOutRadio(radio){
                     // show select, populated with events
                     populateSelect(events, 'succTrigger');
                     $('#succTriggerFold').show();
-                    break;
+                    break; 
 
                 case'succEventRand':
                     $('#succTriggerFold').hide();
@@ -220,21 +237,23 @@ $('.add-attr').click(function(){
     var buttonDiv = '<div class="col-xs-1">'+button+'</div>';                       
     var row = '<div class="row">'+formgroup+buttonDiv+'</div';
     var fold = '<div id="'+foldId+next+'" class="col-xs-11 col-xs-offset-1">'+row+'</div>';
-    
-    var amount = '<div class="form-group col-xs-2 pull-right">'+
-                    '<label>Amount</label><input type="text" class="form-control" name="attrNumb'+next+'">'
-                  +'</div>';
+    var spinner = createInputWithSpinner('attrNumb'+next);
+    var amount = '<div class="form-group col-xs-4 pull-right">'+
+                    '<label>Amount</label>'+spinner+'</div>';
     var options = '';
     for(var i=0; i<attributes.length; i++){
         options += '<option value="'+attributes[i]+'">'+attributes[i]+'</option>';
     }
     var select = '<select class="form-control" name="attr'+next+'">'+options+'</select>';
-    var selectGroup = '<div class="form-group col-xs-10"><label>Choose another attribute</label>'+select+'</div>';
+    var selectGroup = '<div class="form-group col-xs-8"><label>Choose another attribute</label>'+select+'</div>';
     var row2 = '<div id="attrRow'+next+'" class="row">'+selectGroup+'</div>';    
     
     $('#attribute').append(fold);
     $('#'+foldId+next).append(row2);
     $('#attrRow'+next).append(amount);
+    
+    //activate input-spinner for amount-field
+    inputSpinner('attrFold'+next, 1, 150, 0);
     
     // remove fold
     $('#removeAttr'+next).click(function(){
@@ -362,110 +381,211 @@ function removeAddOns(count, buttonId){
         //empty validation-alert
         $('#alertEvent').text(''); 
        
+       // set value of all unchecked checkboxes to false
+       $('#createEvent').find('input:checkbox:not(:checked)').each(function(){
+           console.log('there are unchecked boxes');
+          $(this).val('false'); 
+       });
+       
        // get all values from form 
        var form = $('#createEvent input[name=form]').val();
        console.log(form);
-       var location = $('#createEvent select[name=location]').val();
+       var location = $('#createEvent select[name=location] option:selected').val();
        var name = $('#createEvent input[name=name]').val();
-       var text = $('#createEvent input[name=text]').val();
+       var text = $('#createEvent textarea[name=text]').val();
        var newPara = $('#createEvent input[name=newPara]').val();
        var isChoice = $('#createEvent input[name=isChoice]').val();
        var choiceText = $('#createEvent input[name=choiceText]').val();
        var isFlagged = $('#createEvent input[name=isFlagged]').val();
        var flagDesc = $('#createEvent input[name=flagDesc]').val();
        var reqFlag = $('#createEvent input[name=reqFlag]').val();
-       var flag = $('#createEvent input[name=flag]').val();
-       var useItem = $('#createEvent input[name=useItem]').val();
-       var itemAction = $('#createEvent input[name=itemAction]').val();
-       var itemPick = $('#createEvent select[name=item]').val();
+       
+       var useItem = $('#createEvent input[name=useItem]').val();       
        var attributes = $('#createEvent input[name=attributes]').val();
-       var attrAction = $('#createEvent input[name=attrAction]').val();
-       var attr = $('#createEvent input[name=attr]').val();
-       var attrNumb = $('#createEvent input[name=attrNumb]').val();
-       var branchType = $('#createEvent input[name=branchType]').val();
-       var diceAttr = $('#createEvent input[name=branchType]').val();
+       
+       var branchType = $('#createEvent input[name=branchType]:checked').val();
+       var diceAttr = $('#createEvent select[name=diceAttr] option:selected').val();
        var difficulty = $('#createEvent input[name=difficulty]').val();
-       var succTrigger = $('#createEvent input[name=succTrigger]').val();
-       var success = $('#createEvent input[name=success]').val();
-       var failTrigger = $('#createEvent input[name=failTrigger]').val();
-       var failure = $('#createEvent input[name=failure]').val(); 
-       var contin = $('#createEvent input[name=continue]').val(); 
-       var continueTo = $('#createEvent input[name=continue]').val(); 
-       var choices = $('#createEvent input[name=choices]').val();       
+       var succTrigger = $('#createEvent select[name=succTrigger] option:selected').val();
+       var success = $('#createEvent input[name=success]:checked').val();
+       var failTrigger = $('#createEvent select[name=failTrigger] option:selected').val();
+       var failure = $('#createEvent input[name=failure]:checked').val(); 
+       var contin = $('#createEvent input[name=continue]:checked').val(); 
+       var continueTo = $('#createEvent select[name=continue]option:selected').val(); 
+       var choices = $('#createEvent input[name=choices]:checked').val();       
        var choiceNumb = $('#createEvent input[name=choiceNumb]').val();
-       var choice = $('#createEvent input[name=choice]').val();
        
-       
-       if(isChoice){
-           var choiceText = $('#createEvent input[name=choiceText]').val();
-       }
-       
-       if(isFlagged){
-           var flagDesc = $('#createEvent input[name=flagDesc]').val();
-       }
-       
-       if(reqFlag){
-           var flag = $('#createEvent input[name=flag]').val();
-       }
-       
-       // if there are any items, push them in items-array
-       if(useItem){
-           var items = [];
-           var item = {
-               item     :   itemPick,
-               action   :   itemAction
-           };
-       }
+       console.log('location'+location);
        
        var event = {
             'form'      :   form,
+            'location'  :   location,
             'name'      :   name,
             'text'      :   text,
             'newPara'   :   newPara,
-            'isChoice'  :   {
-                    checked :   isChoice,
-                    text    :   choiceText
-                },
-            'setFlag' :   {
-                    checked :   isFlagged,
-                    text    :   flagDesc
-                },
-            'item'    :   [{  item    :    {type:String, ref:'Item'},
-                    action  :    {type:String, trim:true, lowercase:true}   
-                }],
-    reqFlag :   [{type: Schema.Types.ObjectId, ref:'Flag', index:true}],
-    attributes : [{
-                    attributes  :   {type:String, trim:true, lowercase:true},
-                    action  :    {type:String, trim:true, lowercase:true},
-                    amount  :   {type:Number, min:1, max:10}                    
-                }],
-    branch  : {
-        type: {type:String, trim:true, lowercase:true},
-        dices   :   {
-            attribtues  :   {type:String, trim:true, lowercase:true},
-            difficulty  :   {type:String, trim:true, lowercase:true},
-            success     :   [{
-                    type:   {type:String, trim:true, lowercase:true},
-                    location : {type: Schema.Types.ObjectId, ref:'Location', index:true},
-                    events  : [{type: Schema.Types.ObjectId, ref:'Event', index:true}]
-            }],
-            failure :[{
-                    type:   {type:String, trim:true, lowercase:true},
-                    location : {type: Schema.Types.ObjectId, ref:'Location', index:true},
-                    events  : [{type: Schema.Types.ObjectId, ref:'Event', index:true}]
-                    }]
-        },
-        continueTo  :{
-                    event   : {type: Schema.Types.ObjectId, ref:'Event', index:true},
-                    location   : {type: Schema.Types.ObjectId, ref:'Location', index:true}
-        },
-        choices:    {
-            type    :   {type:String, trim:true, lowercase:true},
-            amount  :  {type:Number, trim:true, lowercase:true},
-            events  : []
-        }    
-    }
-       };
+            'isChoice'  :   isChoice,
+            'setFlag'   :   isFlagged,
+            'reqFlag'   :   reqFlag,
+            'item'      :   useItem,
+            'attributes':   attributes,
+            'branchType':   branchType,
+            'branch'    :   {}             
+        };
+       
+              
+//       var event = {
+//            'form'      :   form,
+//            'location'  :   location,
+//            'name'      :   name,
+//            'text'      :   text,
+//            'newPara'   :   newPara,
+//            'isChoice'  :   isChoice,
+//            'setFlag'   :   isFlagged,
+//            'branch'  : {
+//                'type'  : branchType,
+//                'dices' :   {
+//                    'attribute'     :   diceAttr,
+//                    'difficulty'    :   difficulty,
+//                    'success'       :   {
+//                            'type'      :   success,
+//                            'location'  :   succTrigger,
+//                            'events'    :   succTrigger
+//                    },
+//                    'failure'       :{
+//                            'type'      :   failure,
+//                            'location'  :   failTrigger,
+//                            'events'    :   failTrigger
+//                            }
+//                },
+//                'continueTo':{
+//                        'event'     : contin,
+//                        'location'  : continueTo
+//                },
+//                'choices':    {
+//                    'type'    :   choices,
+//                    'amount'  :   choiceNumb,
+//                    'events'  :   []
+//                }    
+//            }
+//        };
+        
+        
+        // if it's a choice, set the choice-text
+        if(isChoice == 'true'){
+            event.isChoice = choiceText;
+        }
+        
+        // if a flag is set, get the desc.
+        if(isFlagged == 'true'){
+            event.setFlag = flagDesc;
+        }
+             
+              
+       // if there are any items, push them in items-array
+       if(useItem == 'true'){
+            var items = [];            
+            for(var i=0; i<itemCount; i++){                
+                var itemAction = $('#createEvent input[name=itemAction'+i+']:checked').val();
+                var itemPick = $('#createEvent select[name=item'+i+'] option:selected').val();
+                
+                var item = {
+                     item     :   itemPick,
+                     action   :   itemAction
+                 };
+                 items.push(item);
+            }
+            event.item = items;
+       }
+       
+       // if there are any flags reqiured, push them in flags-array
+       if(reqFlag == 'true'){
+            var flags = [];
+            
+            for(var i=0; i<flagCount; i++){
+                var flag = $('#createEvent select[name=flag'+i+'] option:selected').val();
+                flags.push(flag);
+            }
+            event.reqFlag = flags;
+          
+        }
+        
+        // if there are any flags reqiured, push them in flags-array
+       if(attributes == 'true'){
+            var attributes = [];
+            
+            for(var i=0; i<attrCount; i++){
+                var attrAction = $('#createEvent input[name=attrAction'+i+']').val();
+                var attr = $('#createEvent select[name=attr'+i+'] option:selected').val();
+                var attrNumb = $('#createEvent input[name=attrNumb'+i+']').val();
+                
+                var attribute = {                                                                                                                                                       
+                    attribute  :   attr,
+                    action  :    attrAction,
+                    amount  :   attrNumb  
+                };
+                
+                attributes.push(attribute);
+            }
+            event.attributes = attributes;
+          
+        }
+        
+        // dependent on branch-type, create branch, 
+        
+        switch(branchType){
+            case 'dice':
+                var dices = {
+                    'attribute'     :   diceAttr,
+                    'difficulty'    :   difficulty,
+                    'success'       :   {
+                            'type'      :   success,
+                            'trigger'   :   succTrigger
+                    },
+                    'failure'       :   {
+                            'type'      :   failure,
+                            'trigger'   :   succTrigger
+                            }
+                };
+                
+                // add either event or location
+//                success == 'succLoco'? success.location = failTrigger : success.event =  succTrigger;
+//                failure == 'failLoco'? success.location = failTrigger : success.event =  succTrigger;
+                event.branch = dices;
+                break;
+            
+            case 'continue':
+                var continueObj ={};
+                contin == 'location'? continueObj.location = continueTo : continueObj.event = continueTo;
+                event.branch = continueObj;
+                break;
+                
+            case 'choices':
+                
+                console.log('hello from branchcase: choice');
+                var choiceBranch = {
+                    'type'    :   choices
+                };
+                
+                console.log(choiceBranch);
+                console.log(choices);
+                                
+               // set either choice-array or eventNumb for random events
+                if(choices == 'choiceCustom' && choiceCount > 1){
+                    var choiceArr = [];            
+                    for(var i=0; i<choiceCount; i++){                
+                        var choice = $('#createEvent input[name=choice'+i+']option:selected').val();
+                        choiceArr.push(choice);
+                    }
+                    choiceBranch.events = choiceArr;
+                }else{
+                    choiceBranch.amount = choiceNumb;
+                }
+                
+                event.branch = choiceBranch; 
+                break;
+        }
+        
+       console.log(event);
        
        if(form == 'updateEvent'){
            console.log('event to update: id '+$('#eventId').val());

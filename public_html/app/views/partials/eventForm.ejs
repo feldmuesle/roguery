@@ -7,13 +7,13 @@
                     <option value="<%=locations[i].id%>"><%=locations[i].name%></option>
                 <%}%>
             </select>
-        </div>
+        </div> 
         <div class="form-group">
             <label>Title</label>
             <input type="text" class="form-control" name="name">
         </div>
         <div class="form-group">
-            <label><input type="checkbox" name="newPara"> Start new paragraph</label>                                
+            <label><input type="checkbox" value="true" name="newPara"> Start new paragraph</label>                                
         </div>
         <div class="form-group">
             <label>Text</label>
@@ -22,7 +22,7 @@
         <!-- is choice -->
         <div class="form-group">
             <div>
-                <label><input type="checkbox" name="isChoice"> Event is a choice</label>                                
+                <label><input type="checkbox" value="true" name="isChoice"> Event is a choice</label>                                
             </div>
             <div id="isChoiceFold" class="col-xs-11 col-xs-offset-1">
                 <div class="form-group">
@@ -34,7 +34,7 @@
         <!-- flag event -->
         <div class="form-group">
             <div>
-                <label><input type="checkbox" name="isFlagged"> Flag event</label>                                
+                <label><input type="checkbox" value="true" name="isFlagged"> Flag event</label>                                
             </div>
             <div id="isFlaggedFold" class="col-xs-11 col-xs-offset-1">
                 <div class="form-group">
@@ -46,13 +46,13 @@
         <!-- require flag-->
         <div id="flag" class="form-group">
             <div>
-                <label><input type="checkbox" name="reqFlag"> Require flag</label>                                
+                <label><input type="checkbox" value="true" name="reqFlag"> Require flag</label>                                
             </div>                        
             <div id="reqFlagFold" class="col-xs-11 col-xs-offset-1">                    
                     <div id="flagRow" class=" form-group row">                             
                         <div class="col-xs-10">            
                             <label>Choose flag</label>
-                            <select class="form-control" name="flag">
+                            <select class="form-control" name="flag0">
                                 <%for( var i=0; i<flags.length; i++){%>
                                     <option value="<%=flags[i].id%>"><%=flags[i].name%></option>
                                 <%}%>
@@ -67,19 +67,19 @@
         <!-- use item  -->
         <div id="item" class="form-group">
             <div>
-                <label><input type="checkbox" name="useItem"> Use item</label>                                
+                <label><input type="checkbox" value="true" name="useItem"> Use item</label>                                
             </div>
             <div id="itemFold" class="col-xs-11 col-xs-offset-1">
                 <div class="row">
                     <div class="form-group col-xs-11">
                         <label class="radio-inline">
-                        <input type="radio" name="itemAction" value="loose" checked> loose item
+                        <input type="radio" name="itemAction0" value="loose" checked> loose item
                         </label>
                         <label class="radio-inline">
-                            <input type="radio" name="itemAction" value="gain"> gain item
+                            <input type="radio" name="itemAction0" value="gain"> gain item
                         </label>
                         <label class="radio-inline">
-                            <input type="radio" name="itemAction" value="require"> require item
+                            <input type="radio" name="itemAction0" value="require"> require item
                         </label>
                     </div>
                    <div class="col-xs-1">
@@ -88,7 +88,7 @@
                 </div>
                 <div class='form-group'>
                     <label>Choose item</label>
-                    <select class="form-control" name="item">
+                    <select class="form-control" name="item0">
                         <%for( var i=0; i<items.length; i++){%>
                             <option value="<%=items[i].id%>"><%=items[i].name%></option>
                         <%}%>
@@ -99,16 +99,16 @@
         <!-- checkbox use attributes -->
         <div id="attribute" class="form-group">
             <div>
-                <label><input type="checkbox" name="attributes"> Use attributes</label>                                
+                <label><input type="checkbox" value="true" name="attributes"> Use attributes</label>                                
             </div>
             <div id="attrFold" class="col-xs-11 col-xs-offset-1">
                 <div class="row">
                     <div class="form-group col-xs-11">
                         <label class="radio-inline">
-                        <input type="radio" name="attrAction" value="loose" checked> loose attribute
+                        <input type="radio" name="attrAction0" value="loose" checked> loose attribute
                         </label>
                         <label class="radio-inline">
-                            <input type="radio" name="attrAction" value="gain"> gain attribute
+                            <input type="radio" name="attrAction0" value="gain"> gain attribute
                         </label>
                     </div> 
                     <div class="col-xs-1">
@@ -117,17 +117,23 @@
                 </div>
 
                 <div id="attrRow" class="row">
-                    <div class="form-group col-xs-10">
+                    <div class="form-group col-xs-8">
                         <label>Choose attribute</label>
-                        <select class="form-control" name="attr">
-                        <%for( var i=0; i<attributes.length; i++){%>
-                            <option value="<%=attributes[i]%>"><%=attributes[i]%></option>
-                        <%}%>
-                    </select>
+                        <select class="form-control" name="attr0">
+                            <%for( var i=0; i<attributes.length; i++){%>
+                                <option value="<%=attributes[i]%>"><%=attributes[i]%></option>
+                            <%}%>
+                        </select>
                     </div>
-                    <div class="form-group col-xs-2 pull-right">
+                    <div class="form-group col-xs-4 pull-right">
                         <label>Amount</label>
-                        <input type="text" class="form-control" name="attrNumb">
+                        <div class="input-group spinner">
+                            <input type="number" class="form-control" name="attrNumb0" value="0">
+                            <div class="input-group-btn-vertical">
+                              <button class="btn btn-default"><i class="fa fa-caret-up"></i></button>
+                              <button class="btn btn-default"><i class="fa fa-caret-down"></i></button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

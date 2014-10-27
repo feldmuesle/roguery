@@ -25,25 +25,25 @@ var EventSchema = Schema({
                 }],
     reqFlag :   [{type: Schema.Types.ObjectId, ref:'Flag', index:true}],
     attributes : [{
-                    attributes  :   {type:String, trim:true, lowercase:true},
+                    attribute  :   {type:String, trim:true, lowercase:true},
                     action  :    {type:String, trim:true, lowercase:true},
                     amount  :   {type:Number, min:1, max:10}                    
                 }],
     branch  : {
         type: {type:String, trim:true, lowercase:true},
         dices   :   {
-            attribtues  :   {type:String, trim:true, lowercase:true},
+            attribtue  :   {type:String, trim:true, lowercase:true},
             difficulty  :   {type:String, trim:true, lowercase:true},
-            success     :   [{
+            success     :   {
                     type:   {type:String, trim:true, lowercase:true},
                     location : {type: Schema.Types.ObjectId, ref:'Location', index:true},
                     events  : [{type: Schema.Types.ObjectId, ref:'Event', index:true}]
-            }],
-            failure :[{
+            },
+            failure :{
                     type:   {type:String, trim:true, lowercase:true},
                     location : {type: Schema.Types.ObjectId, ref:'Location', index:true},
                     events  : [{type: Schema.Types.ObjectId, ref:'Event', index:true}]
-                    }]
+                    }
         },
         continueTo  :{
                     event   : {type: Schema.Types.ObjectId, ref:'Event', index:true},

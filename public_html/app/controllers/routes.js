@@ -12,6 +12,7 @@ var Player = require('../models/player.js');
 var Guild = require('../models/guild.js');
 var Weapon = require('../models/weapon.js');
 var Character = require('../models/character.js');
+var Event = require('../models/event1.js');
 var Helper = require('./helper_functions.js');
 
 module.exports = function(app, passport){
@@ -154,6 +155,56 @@ module.exports = function(app, passport){
         console.log('the form sent is: '+req.body.form);
         
         /********** CREATE ***************/
+        // event
+        if(req.body.form == 'createEvent'){
+            
+            console.log('a new event wants to be created');
+            Event.find(function(err, events){
+                if(err){console.log(err); return;}
+                var id = Helper.autoIncrementId(events); 
+                var event = new Event();
+                event.id = id;
+                event.name = req.body.name;
+                event.location = req.body.location;
+                event.text = req.body.text;
+                event.newPara = req.body.newPara;
+                event.isChoice = req.body.isChoice;
+                event.setFlag = req.body.setFlag;
+                event.reqFlag = req.body.reqFlag;
+                event.item = req.body.item;
+                event.attributes = req.body.attributes;
+                event.branchType = req.body.branchType;
+                var branch = req.body.branch;
+                console.dir(req.body.attributes);
+                console.dir(req.body.item);
+                console.log(req.body.setFlag);
+                
+                if(event.branchType = 'dice'){
+                    console.log('roll the dices');
+                }
+                
+                console.log('event to create: '+event);
+                
+                event.save(function(err){
+                   if(err){
+                        console.log('something went wrong when creating an event.');
+                        console.log('error '+err); 
+                        res.send({
+                            'success'   : false,
+                            'msg'       : 'could not save item',
+                            'errors'    : err.errors});
+                    }else{
+                        events.push(event);
+                        res.send({
+                            'success'   : true,
+                            'msg'       : 'yuppi! - event has been created.',
+                            'events'   :   events
+                        });
+                    }    
+                });        
+            });            
+        }
+        
         if(req.body.form == 'createWeapon'){
 
             console.log('a new item wants to be created');

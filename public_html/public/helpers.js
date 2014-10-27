@@ -39,3 +39,34 @@ function getRandAttributes(max, attributesNum){
     console.log( 'random attributes generated: sum='+(max - currsum - parseInt(attributes.coins)));
     return attributes;  
 };
+
+// spinner for number-inputs
+
+function inputSpinner(foldId, step, max, min){
+    
+        
+    // arrow up
+    $('#'+foldId).find('.spinner .btn:first-of-type').on('click', function(e) {
+        e.preventDefault();
+        var value = parseInt($('#'+foldId).find('.spinner input').val(), 10);
+        // increase step to ten if value gets higher than 30
+        if(value == 30)step =10;
+        
+        if ((value+step) <= max){
+            $('#'+foldId).find('.spinner input').val( value+step);
+        }
+        console.log('hello from spinner-up in '+foldId);
+    });
+    // arrow down
+    $('#'+foldId+'.spinner .btn:last-of-type').on('click', function(e) {
+        e.preventDefault();
+        var value = parseInt($('#'+foldId+'.spinner input').val(), 10);
+        // increase step to ten if value gets higher than 30
+        if(value == 30)step =10;
+        
+        if ((value-step) >= min){
+            $('#'+foldId+'.spinner input').val( value-step);
+        }
+    });
+};
+
