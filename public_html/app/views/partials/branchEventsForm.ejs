@@ -101,8 +101,11 @@
                 <label class="radio-inline">
                     <input type="radio" name="continue" value="continueEvent"> to event
                 </label>
+                <label class="radio-inline">
+                    <input type="radio" name="continue" value="continueRand"> random event
+                </label>
             </div>
-            <div class="form-group">
+            <div id="continSelectFold" class="form-group">
                 <label>Choose event/location</label>
                 <select class="form-control" name="continueTo">
                     <%for( var i=0; i<locations.length; i++){%>
@@ -116,6 +119,7 @@
     <!-- choices-fold-out -->
     <div id="choicesFold" class="row form-group">
         <div id="choice" class="col-xs-11 col-xs-offset-1" >
+<!--
             <div class="form-group col-xs-12">
                 <label class="radio-inline">
                     <input type="radio" name="choices" value="choiceRand" checked> pick random choices
@@ -134,12 +138,12 @@
                     </div>
                 </div>
             </div>
-
+-->
               
             <div id="pickChoiceFold" class="form-group row">                
                 <div class="col-xs-10">                  
                     <label class="col-xs-12">Pick choice</label>
-                    <select class="form-control" name="choice">
+                    <select class="form-control" name="choice0">
                         <%for( var i=0; i<events.length; i++){%>
                             <option value="<%=events[i].id%>"><%=events[i].name%></option>
                         <%}%>

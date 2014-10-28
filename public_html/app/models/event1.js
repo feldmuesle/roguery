@@ -23,11 +23,32 @@ var EventSchema = Schema({
     reqFlag     :   [{type: Schema.Types.ObjectId, ref:'Flag', index:true}],
     attributes  :   [AttributeSchema],
     branchType  :   {type:String, trim:true, lowercase:true, required:true},
-    branch      :   [{type: Schema.Types.Mixed}]
+//    branch      :   [{type: Schema.Types.Mixed}]
+    dice        :   {    
+        attribute   :   {type:String, trim:true, lowercase:true},
+        difficulty  :   {type:Number, min:5, max:25},
+        success     :   {
+            type    :   {type:String, trim:true},
+            location:   {type: Schema.Types.ObjectId, ref:'Location', index:true},
+            event   :   {type: Schema.Types.ObjectId, ref:'Event', index:true}
+        },
+        failure     :   {
+            type    :   {type:String, trim:true},
+            location:   {type: Schema.Types.ObjectId, ref:'Location', index:true},
+            event   :   {type: Schema.Types.ObjectId, ref:'Event', index:true}
+        }        
+    },
+    choices         :  [{type: Schema.Types.ObjectId, ref:'Event', index:true}],
+    continueTo      : {
+            type    :   {type:String, trim:true},
+            event   :   {type: Schema.Types.ObjectId, ref:'Event', index:true},
+            location:   {type: Schema.Types.ObjectId, ref:'Location', index:true},
+            random  :   [{type: Schema.Types.ObjectId, ref:'Event', index:true}]
+        }
 });
 
 // sub-schemas
-
+{
 var EventItemSchema = new Schema({
     item    :    {type:String, ref:'Item'},
     action  :    {type:String, trim:true, lowercase:true, required:true}  
@@ -40,39 +61,39 @@ var AttributeSchema = new Schema({
     amount      :   {type:Number, min:1, max:10}
 }); 
 var AttributeModel = mongoose.model('Attribute', AttributeSchema);
-
-var DiceSchema = new Schema({
-    
-    attribute   :   {type:String, trim:true, lowercase:true, required:true},
-    difficulty  :   {type:Number, min:5, max:25, required:true},
-    success     :   {
-        type    :   {type:String, trim:true, lowercase:true, required:true},
-        location:   {type: Schema.Types.ObjectId, ref:'Location', index:true},
-        event   :   {type: Schema.Types.ObjectId, ref:'Event', index:true}
-    },
-    failure     :   {
-        type    :   {type:String, trim:true, lowercase:true, required:true},
-        location:   {type: Schema.Types.ObjectId, ref:'Location', index:true},
-        event   :   {type: Schema.Types.ObjectId, ref:'Event', index:true}
-        }
-        
-});
-
-var DiceModel = mongoose.model('Dice', DiceSchema);
-
-var ChoiceSchema = new Schema({
-    type    :   {type:String, trim:true, lowercase:true, required:true},
-    amount  :   {type:Number, min:1, max:8, required:true},
-    events  :   [{type: Schema.Types.ObjectId, ref:'Event', index:true}]
-});
-var ChoiceModel = mongoose.model('Choice', ChoiceSchema);
-
-var ContinueSchema = new Schema({
-    event   :   {type: Schema.Types.ObjectId, ref:'Event', index:true},
-    location:   {type: Schema.Types.ObjectId, ref:'Location', index:true}
-});
-var ContinueModel = mongoose.model('Continue', ContinueSchema);
-
+//
+//var DiceSchema = new Schema({
+//    
+//    attribute   :   {type:String, trim:true, lowercase:true, required:true},
+//    difficulty  :   {type:Number, min:5, max:25, required:true},
+//    success     :   {
+//        type    :   {type:String, trim:true, lowercase:true, required:true},
+//        location:   {type: Schema.Types.ObjectId, ref:'Location', index:true},
+//        event   :   {type: Schema.Types.ObjectId, ref:'Event', index:true}
+//    },
+//    failure     :   {
+//        type    :   {type:String, trim:true, lowercase:true, required:true},
+//        location:   {type: Schema.Types.ObjectId, ref:'Location', index:true},
+//        event   :   {type: Schema.Types.ObjectId, ref:'Event', index:true}
+//        }
+//        
+//});
+//
+//var DiceModel = mongoose.model('Dice', DiceSchema);
+//
+//var ChoiceSchema = new Schema({
+//    type    :   {type:String, trim:true, lowercase:true, required:true},
+//    amount  :   {type:Number, min:1, max:8, required:true},
+//    events  :   [{type: Schema.Types.ObjectId, ref:'Event', index:true}]
+//});
+//var ChoiceModel = mongoose.model('Choice', ChoiceSchema);
+//
+//var ContinueSchema = new Schema({
+//    event   :   {type: Schema.Types.ObjectId, ref:'Event', index:true},
+//    location:   {type: Schema.Types.ObjectId, ref:'Location', index:true}
+//});
+//var ContinueModel = mongoose.model('Continue', ContinueSchema);
+}
 
 EventSchema.set('toObject', {getters : true});
 
@@ -115,14 +136,13 @@ EventSchema.statics.addItems = function(items, event){
 
 // add branch if branchtype = dice
 EventSchema.statics.addDiceBranch = function(branch, event, cb){
-    
+    console.log('hello from addDiceBranch');
     var self = this || mongoose.model('Event');
-    var dice = new DiceModel();
-    dice.attribute = branch.attribute;
-    dice.difficulty = branch.difficulty;
-    dice.success.type = branch.success.type;
-    dice.failure.type = branch.failure.type;
-    
+    event.dice.attribute = branch.attribute;
+    event.dice.difficulty = branch.difficulty;
+    event.dice.success.type = branch.success.type;
+    event.dice.failure.type = branch.failure.type;
+    console.log('event.dice so far: '+event.dice);
     var locos = [];
     var events = [];
     // sanitize the ids before using in query
@@ -135,16 +155,25 @@ EventSchema.statics.addDiceBranch = function(branch, event, cb){
     
     if(locos.length == 2){
         console.log('expected 2 locations: getting '+locos.length);
+        console.log('sanitized ids '+locos);
         Location.find({'id':{$in : locos}}).exec(function(err, locos){
             if(err){console.log(err); return;}
-            
+            console.log('queried locations'+locos);
             if(locos[0].id == succTrigger){
-                dice.success.location = locos[0]._id;
-                locos.length >1 ? dice.failure.event = locos[1]._id : dice.failure.location = locos[0]._id;
+                console.log('yes it is true');
+                event.dice.success.location = locos[0]._id;
+                console.log('event.dice.success.location '+event.dice.success.location);
+                
+                locos.length >1 ? event.dice.failure.location = locos[1]._id : event.dice.failure.location = locos[0]._id;
+            }else{
+                event.dice.failure.location = locos[0]._id;
+                console.log('event.dice.success.location '+event.dice.success.location);
+                
+                locos.length >1 ? event.dice.success.location = locos[1]._id : event.dice.success.location = locos[0]._id;
+                
             }
-            console.log('dice: trigger two locations '+dice);
-            event.branch.push(dice);
-            console.log('Dicebranch pushed '+event.branch);
+            console.log('dice: trigger two locations '+event.dice);
+            
             return cb(event);
         }); 
     } else if(events.length == 2){
@@ -157,13 +186,11 @@ EventSchema.statics.addDiceBranch = function(branch, event, cb){
             console.log('succesTrigger= '+succTrigger);
             
             if(ev[0].id == succTrigger){
-                dice.success.event = ev[0]._id;
+                event.dice.success.event = ev[0]._id;
                 //check if there are two records= events are different
-                ev.length >1 ? dice.failure.event = ev[1]._id : dice.failure.event = ev[0]._id;                    
+                ev.length >1 ? event.dice.failure.event = ev[1]._id : event.dice.failure.event = ev[0]._id;                    
             }          
-            console.log('dice: trigger two locations '+dice);
-            event.branch.push(dice);
-            console.log('Dicebranch pushed '+event.branch);
+            console.log('dice: trigger two locations '+event.dice);
             return cb(event);
         }); 
     } else {
@@ -173,14 +200,12 @@ EventSchema.statics.addDiceBranch = function(branch, event, cb){
             // if there's only one location and it's for success, failure must be event
             Location.findOne({'id':succTrigger}).exec(function(err, loco){
                 if(err){console.log(err); return;}
-                dice.success.location = loco;
+                event.dice.success.location = loco;
             })
             .then(
                 self.findOne({'id':failTrigger}).exec(function(err, ev){
                     if(err){console.log(err); return;}
-                    dice.success.event = ev;
-                    event.branch.push(dice);
-                    console.log('branch pushed '+event.branch);
+                    event.dice.failure.event = ev;
                     return cb(event);
                 })
             );  
@@ -188,14 +213,12 @@ EventSchema.statics.addDiceBranch = function(branch, event, cb){
         }else {
             self.findOne({'id':succTrigger}).exec(function(err, ev){
                 if(err){console.log(err); return;}
-                dice.success.event = ev;
+                event.dice.success.event = ev;
             })
             .then(
                 Location.findOne({'id':failTrigger}).exec(function(err, loco){
                     if(err){console.log(err); return;}
-                    dice.success.location = loco;
-                    event.branch.push(dice);
-                    console.log('branch pushed '+event.branch);
+                    event.dice.failure.location = loco;
                     return cb(event);
                 })
             );  
@@ -209,30 +232,63 @@ EventSchema.statics.addDiceBranch = function(branch, event, cb){
 
 // add branch if branchtype = continue
 EventSchema.statics.addContinueBranch = function(branch, event, cb){
-    
-    var self = this || mongoose.model('Event');
-    var newBranch = new ContinueModel();
-    // sanitize id before making query
-    var continueTo = Helper.sanitizeNumber(branch.continueTo);
     console.log('hello from addContinueBranch');
+    var self = this || mongoose.model('Event');
+    
+    // if its an event/location, sanitize id before making query
+    if(branch.type != 'continueRand'){
+        var continueTo = Helper.sanitizeNumber(branch.continueTo);
+    }
+    
+    event.continueTo.type = branch.type;
     
     if(branch.type == 'continueLoco'){
         Location.findOne({'id':continueTo}).exec(function(err, loco){
             if(err){console.log(err); return;}
-            newBranch.location = loco._id;
-            console.log('this is the branch-model '+newBranch);
-            event.branch.push(newBranch);
+            event.continueTo.location = loco._id;
             console.log('branch pushed '+event.branch);
             return cb(event);
         }); 
-    }else {
+    }else if(branch.type == 'continueEvent'){
         self.findOne({'id':continueTo}).exec(function(err, doc){
             if(err){console.log(err); return;}
-            newBranch.event = doc._id;
-            event.branch.push(newBranch);
-            return cb(event);});
+            event.continueTo.event = doc._id;
+            return cb(event);
+        });
+    }else {
+        // TODO: get random event before sending to client
+        return cb(event);
     }
 };
+
+// add branch if branchtype = choices
+EventSchema.statics.addChoicesBranch = function(branch, event, cb){
+    
+    var self = this || mongoose.model('Event');
+    
+    // if its an event/location, sanitize id before making query
+//    if(branch.type == 'choiceCustom'){
+        var sanitized = [];
+        
+        // if its custom choices there is an array of ids that need to be sanitized before query
+        branch.events.forEach(function(eve){
+            
+            var ev = Helper.sanitizeNumber(eve);
+            sanitized.push(ev);
+        });
+        
+        // get all events out of db
+        self.find({'id':{$in:sanitized}}).exec(function(err, events){
+           if(err){console.log(err); return;}
+           events.forEach(function(ev){              
+              event.choices.push(ev._id);
+           });
+           ;
+           return cb(event); 
+        });
+//    }
+};
+
 
 
 var EventModel = mongoose.model('Event', EventSchema);

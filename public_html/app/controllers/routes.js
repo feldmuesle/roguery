@@ -65,7 +65,9 @@ module.exports = function(app, passport){
                 return characters;
             })
         .then(function(characters){
-            Event.find().exec(function(err, events){
+            Event.find().populate('flag reqFlag location item dice.failure.location dice.failure.event'+
+                    ' dice.success.location dice.success.event choices continueTo.event continueTo.location'+
+                    ' continueTo.random').exec(function(err, events){
                 if(err){ console.log(err); return;}
                 console.log('events from routes');
                 console.dir(events);

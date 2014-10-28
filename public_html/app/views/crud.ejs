@@ -1,12 +1,5 @@
 <% include ./partials/header.ejs %>
-    <%
-    console.log(flags.length);
-    console.log(locations.length);
-    console.log(items.length);
-    console.log(weapons.length);
-    console.log(attributes.length);
-    console.log(guilds.length);
-    %>
+    
     <!-- display event-list -->
     <div class="row">
         <div class="lists col-xs-12 col-lg-6 col-lg-offset-3">
@@ -14,13 +7,13 @@
             <h3>Events<button id="addEvent" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
             
             <ul id="eventList" class="list-group list-unstyled">
-               <!-- <%for(var i=0; i<weapons.length; i++){%>
+               <%for(var i=0; i<events.length; i++){%>
                     <li class="list-group-item">
-                        <a id="weapon<%=weapons[i].id%>" class="showEvent" href="#"><%=weapons[i].name%></a>
-                        <button class="deleteEvent pull-right btn btn-xs margin" id="eventBtnDel<%=weapons[i].id%>">Delete</button>
-                        <button class="updateEvent pull-right btn btn-xs margin" id="eventBtn<%=weapons[i].id%>">Update</button>                       
+                        <a id="event<%=events[i].id%>" class="showEvent" href="#"><%=events[i].name%></a>
+                        <button class="deleteEvent pull-right btn btn-xs margin" id="eventBtnDel<%=events[i].id%>">Delete</button>
+                        <button class="updateEvent pull-right btn btn-xs margin" id="eventBtn<%=events[i].id%>">Update</button>                       
                     </li>
-               <%}%> -->
+               <%}%>
             </ul>
         </div>
     </div><!-- location-list end -->

@@ -11,11 +11,10 @@ var attrCount = 1;
 var flagCount = 1;
 var choiceCount = 1;
 
-// display modal form for creating eents
+// display modal form for creating events
 
-$('#addEvent').click(function(){
-        console.log('want to create an event?');
-        //make sure the form is cleaned up
+function resetEventForm(){
+    //make sure the form is cleaned up
         $('#createEvent').trigger('reset');
         $('#createEvent input[name=form]').val('createEvent');
         $('#btnCreateEvent').text('create');
@@ -27,13 +26,12 @@ $('#addEvent').click(function(){
         $('#reqFlagFold').hide();
         $('#itemFold').hide();
         $('#attrFold').hide();
-//        $('#diceFold').hide();  // show diceFold by default
-//        $('#succTriggerFold').hide();
-//        $('#failTriggerFold').hide();   
+        $('#diceFold').hide();  // show diceFold by default
+        $('#succTriggerFold').hide();
+        $('#failTriggerFold').hide();   
         $('#choicesFold').hide();
         $('#continueFold').hide();
-//        $('#choiceRandFold').hide();
-        $('#pickChoiceFold').hide();
+        $('#continSelectFold').hide();
         
         foldOut('isChoice', 'isChoiceFold');
         foldOut('isFlagged', 'isFlaggedFold');
@@ -52,9 +50,16 @@ $('#addEvent').click(function(){
         inputSpinner('choiceRandFold', 1, 8, 1);
         inputSpinner('diceFold', 5, 30, 5);
         inputSpinner('attrFold', 1, 150, 0);
-        
-        
-        
+};
+
+$('#addEvent').click(function(){
+        console.log('want to create an event?');
+        resetEventForm();      
+        $('#diceFold').show();  // show diceFold by default
+        $('#succTriggerFold').show();
+        $('#failTriggerFold').show(); 
+        $('#continSelectFold').show();
+        $('#choiceRandFold').show();
         $("#createEvents").modal('show'); 
     });
     
@@ -158,11 +163,17 @@ function foldOutRadio(radio){
                     break;
 
                 case'continueLoco':
+                    $('#continSelectFold').show();
                     populateSelect(locations, 'continueTo');
                     break;
 
                 case'continueEvent':
+                    $('#continSelectFold').show();
                     populateSelect(events, 'continueTo');
+                    break;
+                    
+                case'continueRand':
+                    $('#continSelectFold').hide();
                     break;
 
                 case'choiceRand':
@@ -428,45 +439,7 @@ function removeAddOns(count, buttonId){
             'attributes':   attributes,
             'branchType':   branchType,
             'branch'    :   {}             
-        };
-       
-              
-//       var event = {
-//            'form'      :   form,
-//            'location'  :   location,
-//            'name'      :   name,
-//            'text'      :   text,
-//            'newPara'   :   newPara,
-//            'isChoice'  :   isChoice,
-//            'setFlag'   :   isFlagged,
-//            'branch'  : {
-//                'type'  : branchType,
-//                'dices' :   {
-//                    'attribute'     :   diceAttr,
-//                    'difficulty'    :   difficulty,
-//                    'success'       :   {
-//                            'type'      :   success,
-//                            'location'  :   succTrigger,
-//                            'events'    :   succTrigger
-//                    },
-//                    'failure'       :{
-//                            'type'      :   failure,
-//                            'location'  :   failTrigger,
-//                            'events'    :   failTrigger
-//                            }
-//                },
-//                'continueTo':{
-//                        'event'     : contin,
-//                        'location'  : continueTo
-//                },
-//                'choices':    {
-//                    'type'    :   choices,
-//                    'amount'  :   choiceNumb,
-//                    'events'  :   []
-//                }    
-//            }
-//        };
-        
+        };        
         
         // if it's a choice, set the choice-text
         if(isChoice == 'true'){
@@ -476,8 +449,7 @@ function removeAddOns(count, buttonId){
         // if a flag is set, get the desc.
         if(isFlagged == 'true'){
             event.setFlag = flagDesc;
-        }
-             
+        }             
               
        // if there are any items, push them in items-array
        if(useItem == 'true'){
@@ -544,42 +516,31 @@ function removeAddOns(count, buttonId){
                             'trigger'   :   failTrigger
                             }
                 };
-                
-                // add either event or location
-//                success == 'succLoco'? success.location = failTrigger : success.event =  succTrigger;
-//                failure == 'failLoco'? success.location = failTrigger : success.event =  succTrigger;
                 event.branch = dices;
                 break;
             
             case 'continue':
-                var continueObj ={ 
-                    'type'      : contin,
-                    'continueTo': continueTo};
+                var continueObj ={'type' : contin};
+                if(contin != 'continueRand'){
+                    continueObj.continueTo = continueTo;
+                }
                 event.branch = continueObj;
                 break;
                 
             case 'choices':
                 
-                console.log('hello from branchcase: choice');
                 var choiceBranch = {
                     'type'    :   choices
-                };
-                
-                console.log(choiceBranch);
-                console.log(choices);
-                                
-               // set either choice-array or eventNumb for random events
-                if(choices == 'choiceCustom' && choiceCount > 1){
+                };                                                
+               // set choice-array 
+                if(choiceCount > 1){
                     var choiceArr = [];            
-                    for(var i=0; i<choiceCount; i++){                
-                        var choice = $('#createEvent input[name=choice'+i+']option:selected').val();
+                    for(var i=0; i < choiceCount; i++){                
+                        var choice = $('#createEvent select[name=choice'+i+'] option:selected').val();
                         choiceArr.push(choice);
                     }
                     choiceBranch.events = choiceArr;
-                }else{
-                    choiceBranch.amount = choiceNumb;
-                }
-                
+                }                
                 event.branch = choiceBranch; 
                 break;
         }
@@ -624,4 +585,193 @@ function removeAddOns(count, buttonId){
        console.dir(events);
     });
     
+/*********** UPDATE EVENT ********************/
     
+//button for showing modal form for updation item
+    $(document).on('click','.updateEvent', function(){
+        console.log('want to update event?');
+        // make sure form is clean
+        $('#alertEvent').hide();
+        $('#createEvent').trigger('reset');
+        resetEventForm();  
+        
+        // get id from button-element and item-object from items-array
+        var eventId = this.id.substr(8,this.id.length); // btnEvent = 8 chars
+        var event = getRecordById(events, eventId);
+        console.log('eventId to update: '+eventId);
+ 
+        // populate item in modal form
+        $('#createEvent input[name=form]').val('updateEvent');
+        $('#createEvent input[name=name]').val(event.name);
+        $('#createEvent select[name=location] option:selected').val(event.location.id);
+        $('#createEvent textarea[name=text]').text(event.text);
+        
+        if(event.newPara != false){
+            $('#createEvent input[name=newPara]:checkbox').attr('checked',true);
+        }
+        
+        if(event.isChoice != false){
+            console.log('there is a choice');
+            $('#createEvent input[name=isChoice]:checkbox').attr('checked',true);
+            $('#createEvent input[name=choiceText]').val(event.choiceText);
+            $('#isChoiceFold').show();
+        }
+
+        if(event.setFlag != false){
+            console.log('there is a flag set');
+            $('#createEvent input[name=isFlagged]:checkbox').attr('checked',true);
+            $('#createEvent input[name=flagDesc]').val(event.flag.name);
+            $('#isFlaggedFold').show();
+        }
+        
+        if(event.reqFlag.length > 0){
+            $('#createEvent input[name=reqFlag]:checkbox').attr('checked',true);
+            for(var i=0; i < event.reqFlag.length; i++){
+                if(i != 0){
+                    $('.add-flag').click();
+                    $('#createEvent select[name=flag'+i+']').val(event.reqFlag[i].id).attr('selected','selected');                    
+                }else{
+                    $('#reqFlagFold').show();
+                    $('#createEvent select[name=flag0]').val(event.reqFlag[0].id).attr('selected','selected');
+                }
+            }
+        }
+        
+        if(event.items.length > 0){
+            $('#createEvent input[name=useItem]:checkbox').attr('checked',true);
+            for(var i=0; i < event.items.length; i++){
+                if(i != 0){
+                    $('.add-item').click();
+                    $('#createEvent input[name=itemAction'+i+']:radio[value='+event.items[i].action+']').attr('checked',true);
+                    $('#createEvent select[name=item'+i+']').val(event.items[i].item).attr('selected','selected');                    
+                }else{
+                    $('#itemFold').show();
+                    $('#createEvent input[name=itemAction0]:radio[value='+event.items[i].action+']').attr('checked',true);
+                    $('#createEvent select[name=item0]').val(event.items[0].item).attr('selected','selected');
+                }
+            }
+        }
+        
+        if(event.attributes.length > 0){
+            $('#createEvent input[name=attributes]:checkbox').attr('checked',true);
+            for(var i=0; i < event.attributes.length; i++){
+                if(i != 0){
+                    $('.add-attr').click();
+                    $('#createEvent input[name=attrAction0]:radio[value='+event.attributes[i].action+']').attr('checked',true);
+                    $('#createEvent select[name=attr'+i+']').val(event.attributes[i].attribute).attr('selected','selected');                    
+                    $('#createEvent input[name=attrNumb'+i+']').val(event.attributes[i].amount);
+                }else{
+                    $('#attrFold').show();
+                    $('#createEvent input[name=attrAction0]:radio[value='+event.attributes[0].action+']').attr('checked',true);
+                    $('#createEvent select[name=attr0]').val(event.attributes[0].attribute).attr('selected','selected');
+                    $('#createEvent input[name=attrNumb0]').val(event.attributes[0].amount);
+                }
+            }
+        }
+        
+        //get the right branch-type and display branch
+        switch(event.branchType){
+            case'dice':
+                $('#createEvent input[name=dice]:radio[value='+event.branchType+']').attr('checked',true);
+                $('#createEvent select[name=diceAttr]').val(event.dice.attribute).attr('selected', 'selected');
+                $('#createEvent input[name=difficulty]').val(event.dice.difficulty);
+                $('#createEvent input[name=success]:radio[value='+event.dice.success.type+']').attr('checked',true);
+                $('#createEvent input[name=failure]:radio[value='+event.dice.failure.type+']').attr('checked',true);
+                
+                console.log(event);
+                
+                if(event.dice.success.type == 'succLoco'){
+                    populateSelect(locations, 'succTrigger');
+                    $('#createEvent select[name=succTrigger]').val(event.dice.success.location.id).attr('selected', 'selected');
+                }else{
+                    populateSelect(events, 'succTrigger');
+                    $('#createEvent select[name=succTrigger]').val(event.dice.success.event.id).attr('selected', 'selected');
+                }
+                if(event.dice.failure.type == 'failLoco'){
+                    populateSelect(locations, 'failTrigger');
+                    $('#createEvent select[name=failTrigger]').val(event.dice.failure.location.id).attr('selected', 'selected');
+                }else{
+                    populateSelect(events, 'failTrigger');
+                    $('#createEvent select[name=failTrigger]').val(event.dice.failure.event.id).attr('selected', 'selected');
+                }
+                $('#diceFold').show();
+                break;
+                
+            case'choices':
+                $('#choicesFold').show();
+                $('#createEvent input[name=branchType]:radio[value='+event.branchType+']').attr('checked',true);
+                if(event.choices.length > 0){
+                    $('#createEvent input[name=attributes]:checkbox').attr('checked',true);
+                    for(var i=0; i < event.choices.length; i++){
+                        if(i != 0){
+                            $('.add-choice').click();
+                            $('#createEvent select[name=choice'+i+']').val(event.choices[i].id).attr('selected','selected');                    
+                            
+                        }else{
+                            $('#pickChoiceFold').show();
+                            $('#createEvent select[name=choice0]').val(event.choices[0].id).attr('selected','selected');
+                            
+                        }
+                    }
+                }
+                break;
+                
+            case'continue':
+                // set the radios
+                $('#createEvent input[name=branchType]:radio[value='+event.branchType+']').attr('checked',true);
+                $('#createEvent input[name=continue]:radio[value='+event.continueTo.type+']').attr('checked',true);
+                                  
+                if(event.continueTo.type == 'continueLoco'){
+                    $('#createEvent select[name=continueTo]').val(event.continueTo.location.id).attr('selected','selected');
+                    $('#continSelectFold').show();
+                            
+                }else if(event.continueTo.type == 'continueEvent'){
+                    
+                    populateSelect(events,'continueTo');
+                    $('#createEvent select[name=continueTo]').val(event.continueTo.event.id).attr('selected','selected');
+                    $('#continSelectFold').show();
+                }
+                $('#continueFold').show();                
+                break;
+                
+            case'end':
+                $('#createEvent input[name=branchType]:radio[value='+event.branchType+']').attr('checked',true);
+                break;
+                
+        }
+       
+        $('#eventId').val(event.id);
+
+        console.log(event);
+        $('#btnCreateEvent').text('Update');
+        $("#createEvents").modal('show');
+    });    
+    
+    
+    /************ misc-functions *******************/
+    
+    // misc-functions for helping
+    function getRecordById(recordArray, recordId){
+        for(var i=0; i<recordArray.length; i++){
+                if(recordArray[i].id == recordId){
+                    var room = recordArray[i];
+                    return room;
+                }
+            }
+    }
+    
+    
+    // show success-alert depending on alertId
+    function alertSuccess(alertId, msgString){
+        // make sure it's clean and empty
+        $(alertId).text('');
+        
+        var msg = '<p>'+msgString+'</p>';
+        $(alertId).append(msg);
+        $(alertId).slideDown('slow').fadeIn(3000, function(){
+            setTimeout(function(){
+                $(alertId).fadeOut({duration:1000, queue:false}).slideUp('slow');
+            },2000);
+            
+        });
+    }
