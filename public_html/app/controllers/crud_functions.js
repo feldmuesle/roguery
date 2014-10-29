@@ -50,7 +50,8 @@ function getBranch(branchType, branch, event, cb){
 
 
 exports.createEvent = function(reqBody, id, cb){
-    
+//    console.log('reqBody in createEvent: ');
+//    console.dir(reqBody);
     var location = reqBody.location;
     var isChoice = reqBody.isChoice;
     var setFlag = reqBody.setFlag;
@@ -60,7 +61,6 @@ exports.createEvent = function(reqBody, id, cb){
     var branch = reqBody.branch;       
     console.log(branch);
     console.log('reqFlag is: '+reqFlag);
-    
     
     // create event
     var event = new Event();
@@ -88,44 +88,42 @@ exports.createEvent = function(reqBody, id, cb){
     //if event has a flag set and flags required
     if(setFlag !='false' && reqFlag != 'false'){
         
-        // create new flag and save it in DB
-        Flag.createFlag(setFlag, function(flag){
-            event.setFlag=true;
-            event.flag = flag._id;
-            console.log('flag-callback - event.flag set '+event.flag);
-        }).exec(function(err){
-            if(err){console.log(err); return;}                        
+        // set the location to Object-id
+        Location.findOne({'id':location}).exec(function(err, loco){
+            if(err){console.log(err); return;}
+            event.location = loco._id;
+            console.log('location set '+event.location);                
         })
-        .then(
-            // set the location to Object-id
-            Location.findOne({'id':location}).exec(function(err, loco){
-                if(err){console.log(err); return;}
-                event.location = loco._id;
-                console.log('location set '+event.location);                
-            })
-            .then(function(){
-                // get and sanitize all flag-ids in reqFlag-array
-                reqFlag.forEach(function(flag){
-                    flags.push(Helper.sanitizeNumber(flag));
-                });
-                console.log('sanitized flag-array: '+flags);
+        .then(function(){
+            // get and sanitize all flag-ids in reqFlag-array
+            reqFlag.forEach(function(flag){
+                flags.push(Helper.sanitizeNumber(flag));
+            });
+            console.log('sanitized flag-array: '+flags);
 
-                Flag.find({'id':{$in :flags}}).exec(function(err, flags){
-                    if(err){console.log('reqFlag is '+reqFlag);} 
+            Flag.find({'id':{$in :flags}}).exec(function(err, flags){
+                if(err){console.log('reqFlag is '+reqFlag);} 
 
-                    flags.forEach(function(flag){
-                        event.reqFlag.push(flag._id);
-                    });                                                                       
-                    console.log(event);
-//                                                
-                }).then(function(){
-                    // insert branch depending on branchType
-                    getBranch(branchType, branch, event, function(event){
-                       return cb(event); 
+                flags.forEach(function(flag){
+                    event.reqFlag.push(flag._id);
+                });                                                                       
+                console.log(event);
+
+            }).then(function(){
+                // insert branch depending on branchType
+                getBranch(branchType, branch, event, function(event){
+
+                    // create new flag and save it in DB
+                    Flag.createFlag(setFlag, function(flag){
+                        event.setFlag=true;
+                        event.flag = flag._id;
+                        console.log('flag-callback - event.flag set'+event.setFlag+' '+event.flag);
+                        return cb(event);
                     });
-                });                   
-            })
-        );
+
+                });
+            });                   
+        });
     // if no flag is set but flags required
     }else if( setFlag == 'false' && reqFlag != 'false'){
         // set the setFlag-property to bool
@@ -160,30 +158,28 @@ exports.createEvent = function(reqBody, id, cb){
                 });
             });
     // if flag is set but none required        
-    }else if(setFlag != 'false' && reqFlag == 'false'){  
+    }else if(setFlag != 'false' && reqFlag == 'false'){          
         
-        // create new flag and save it in DB
-        Flag.createFlag(setFlag, function(flag){
-            event.setFlag=true;
-            event.flag = flag._id;
-            console.log('flag-callback - event.flag set '+event.flag);
-        }).exec(function(err){
-            if(err){console.log(err); return;}                        
+        // set the location to Object-id
+        Location.findOne({'id':location}).exec(function(err, loco){
+            if(err){console.log(err); return;}
+            event.location = loco._id;
+            console.log('location set '+event.location);                
         })
-        .then(
-            // set the location to Object-id
-            Location.findOne({'id':location}).exec(function(err, loco){
-                if(err){console.log(err); return;}
-                event.location = loco._id;
-                console.log('location set '+event.location);                
-            })
-            .then(function(){              
-                // insert branch depending on branchType
-                getBranch(branchType, branch, event, function(event){
-                   return cb(event); 
-                });
-            })
-        );
+        .then(function(){              
+            // insert branch depending on branchType
+            getBranch(branchType, branch, event, function(event){
+
+                // create new flag and save it in DB
+                Flag.createFlag(setFlag, function(flag){
+                    event.setFlag=true;
+                    event.flag = flag._id;
+                    console.log('flag-callback - event.flag set'+event.setFlag+' '+event.flag);
+                    return cb(event); 
+                });                   
+            });
+        });
+            
     // no flag set nor required
     }else{
         // set the setFlag-property to bool

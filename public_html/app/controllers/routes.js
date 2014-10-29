@@ -55,41 +55,51 @@ module.exports = function(app, passport){
     //TODO: make only accessible to administrators 
     app.get('/crud', isLoggedIn, function (req, res){
         
-        Guild.find().exec(function(err, guilds){            
+        // define population-query for events
+        var populateQuery = [{path:'flag', select:'name id -_id'}, 
+            {path:'reqFlag', select:'name id -_id'}, {path:'location', select:'name id -_id'}, 
+            {path:'dice.failure.location', select:'name id -_id'},{path:'items', select:'name id -_id'}, 
+            {path:'dice.success.location', select:'name id -_id'}, {path:'dice.success.event', select:'name id -_id'}, 
+            {path:'dice.failure.event', select:'name id -_id'},{path:'choices', select:'name id -_id'}, 
+            {path:'continueTo.location', select:'name id -_id'}, {path:'continueTo.event', select:'name id -_id'}, 
+            {path:'continue.random', select:'name id -_id'} ];
+        
+        // instead of 
+        //'flag reqFlag location items dice.failure.location dice.failure.event'+
+//                    ' dice.success.location dice.success.event choices continueTo.event continueTo.location'+
+//                    ' continueTo.random'
+        
+        Guild.find({},'-_id').exec(function(err, guilds){            
             if(err){ return console.log(err);}
             return guilds;                      
         })
         .then(function(guilds){
-            Character.find().populate('guild weapon inventory').exec(function(err, characters){
+            Character.find({},'-_id').populate('guild weapon inventory','name id -_id').exec(function(err, characters){
                 if(err){ return console.log(err);}
                 return characters;
             })
         .then(function(characters){
-            Event.find().populate('flag reqFlag location item dice.failure.location dice.failure.event'+
-                    ' dice.success.location dice.success.event choices continueTo.event continueTo.location'+
-                    ' continueTo.random').exec(function(err, events){
+            Event.find({}, '-_id').populate(populateQuery).exec(function(err, events){
                 if(err){ console.log(err); return;}
-                console.log('events from routes');
-                console.dir(events);
                 return events;
             }) 
         .then(function(events){
-            Item.find().exec(function(err, items){
+            Item.find({},'-_id').exec(function(err, items){
                 if(err){ console.log(err); return;}
                 return items;
             })
         .then(function(items){
-            Location.find().exec(function(err, locations){
+            Location.find({},'-_id').exec(function(err, locations){
                 if(err){ return console.log(err);}
                 return locations;
             })
         .then(function(locations){
-            Flag.find().exec(function(err, flags){
+            Flag.find({},'-_id').exec(function(err, flags){
                 if(err){ return console.log(err);}
                 return flags;
             })    
         .then(function(flags){
-            Weapon.find().exec(function(err, weapons){
+            Weapon.find({},'-_id').exec(function(err, weapons){
                 
                 // also put all character-attr. in an array
                 var testChar = characters[0].attributes.toObject();
@@ -127,22 +137,22 @@ module.exports = function(app, passport){
     app.get('/game', isLoggedIn, function (req, res){
                 
         console.log('hello from game-routes');
-        Guild.find().exec(function(err, guilds){            
+        Guild.find({},'-_id').exec(function(err, guilds){            
             if(err){ return console.log(err);}
             return guilds;                      
         })
         .then(function(guilds){
-            Character.find().populate('guild weapon inventory').exec(function(err, characters){
+            Character.find({},'-_id').populate('guild weapon inventory','name id -_id').exec(function(err, characters){
                 if(err){ return console.log(err);}
                 return characters;
             })
         .then(function(characters){
-            Weapon.find().exec(function(err, weapons){
+            Weapon.find({},'-_id').exec(function(err, weapons){
                 if(err){ return console.log(err);}
                 return weapons;
             })
         .then(function(weapons){
-            Player.find({user: req.user._id}).exec(function(err, players){
+            Player.find({user: req.user._id}, '-user -_id').exec(function(err, players){
                 if(err){ return console.log(err);}
 
                 res.render('game.ejs', {
@@ -177,45 +187,27 @@ module.exports = function(app, passport){
             Event.find(function(err, events){
                 if(err){console.log(err); return;}
                 var id = Helper.autoIncrementId(events); 
+                
                 Crud.createEvent(req.body, id, function(event){
                     console.log('hello from Crud-callback');
-                    console.log(event);
-                
-                //                event.id = id;
-//                event.name = req.body.name;
-//                event.location = req.body.location;
-//                event.text = req.body.text;
-//                event.newPara = req.body.newPara;
-//                event.isChoice = req.body.isChoice;
-//                event.setFlag = req.body.setFlag;
-//                event.reqFlag = req.body.reqFlag;
-//                event.item = req.body.item;
-//                event.attributes = req.body.attributes;
-//                event.branchType = req.body.branchType;       
-                
-//                console.dir(req.body.attributes);
-//                console.dir(req.body.item);
-//                console.log(req.body.setFlag);  
-                
-                //console.log('event to create: '+event);
-                
-                event.save(function(err){
-                   if(err){
-                        console.log('something went wrong when creating an event.');
-                        console.log('error '+err); 
-                        res.send({
-                            'success'   : false,
-                            'msg'       : 'could not save item',
-                            'errors'    : err.errors});
-                    }else{
-                        events.push(event);
-                        res.send({
-                            'success'   : true,
-                            'msg'       : 'yuppi! - event has been created.',
-                            'events'   :   events
-                        });
-                    }    
-                });  
+                    console.log(event);        
+                    event.save(function(err){
+                       if(err){
+                            console.log('something went wrong when creating an event.');
+                            console.log('error '+err); 
+                            res.send({
+                                'success'   : false,
+                                'msg'       : 'could not save item',
+                                'errors'    : err.errors});
+                        }else{
+                            events.push(event);
+                            res.send({
+                                'success'   : true,
+                                'msg'       : 'yuppi! - event has been created.',
+                                'events'   :   events
+                            });
+                        }    
+                    });  // event.save end
                 }); // Crud.cb end
             }); // event.find end           
         }
@@ -353,30 +345,103 @@ module.exports = function(app, passport){
         }
         
         /*********** UPDATE *********************/
-    
+        
+        if(req.body.form == 'updateEvent'){
+
+            var eventId = Helper.sanitizeNumber(req.body.id);
+            Event.findOne({'id':eventId}, function(err, event){
+               if(err){console.log(err); return;}
+
+               Crud.createEvent(req.body, eventId, function(newEvent){
+                   
+//                    console.log('db-event '+event);
+//                    console.log('new event '+newEvent);
+                    
+                    event.name = newEvent.name;
+                    event.location = newEvent.location;
+                    event.text = newEvent.text;
+                    event.newPara = newEvent.newPara;
+                    event.isChoice = newEvent.isChoice;
+                    event.choiceText = newEvent.choiceText;
+                    event.id = newEvent.id;
+                    event.dice = newEvent.dice;
+                    event.continueTo = newEvent.continueTo;
+                    event.items = newEvent.items;
+                    event.attributes = newEvent.attributes;
+                    event.reqFlag = newEvent.reqFlag;
+                    event.choices = newEvent.choices;
+                    event.branchType = newEvent.branchType;
+                    
+                    console.log('db event '+event);
+                    // update or delete flag from db-event
+                    if(event.setFlag == true && newEvent.setFlag == false){
+                        // delete the flag from db if not required from any other event
+                        console.log('delete flag from db');
+                        // find flag and remove it if not req by other events
+                        Flag.findOne({'_id':event.flag}).exec(function(err, flag){
+                            if(err){console.log(err); return;}
+                            
+                            flag.remove(function(err){                                
+                                if(err){
+                                    // pre-remove middleware will prevent removal if flag is required by other events
+                                    // Keep flag and save update ant return ajax-call
+                                    event.saveUpdateAndReturnAjax(res);
+                                    console.log(err); return;
+                                }
+                                console.log('flag has been removed');
+                                event.setFlag = false;
+                                event.flag = null;                               
+                                // save update ant return ajax-call
+                                event.saveUpdateAndReturnAjax(res);
+                            });                                           
+                        });                       
+                        
+                    }else if (event.setFlag == true && newEvent.setFlag == true){
+                        console.log('update flag in db');
+                        // TODO: get flagdesc from req.body for name-update
+                        var flagName = Helper.sanitizeString(req.body.setFlag);
+                        Flag.update({'_id':event.flag},{'name':flagName}, function(err, flag){
+                            if(err){console.log(err); return;}
+                            console.log('flag has been updated');
+                        });
+                        event.setFlag = true;
+                        // save update ant return ajax-call
+                                event.saveUpdateAndReturnAjax(res);
+                    }else {
+                        event.flag = newEvent.flag;
+                        event.setFlag = newEvent.setFlag;
+                        // save update ant return ajax-call
+                                event.saveUpdateAndReturnAjax(res);
+                    }           
+                    console.log('updated event '+event);             
+                });
+            });
+        }// update item end
+        
         if(req.body.form == 'updateItem'){
 
             var itemId = Helper.sanitizeNumber(req.body.id);
             Item.findOne({'id':itemId}, function(err, item){
                if(err){console.log(err); return;}
-
+                console.log('db-item '+item);
                 item.name = req.body.name;
 
                 item.save(function(err){
+                    console.log('item saved '+item);
                     if(err){
                         console.log('something went wrong when updating a item.');
                         console.log('error '+err); 
                         res.send({
-                            'success'   : false,
-                            'msg'       : 'could not update item',
-                            'errors'    : err.errors});
+                            'success'   :   false,
+                            'msg'       :   'could not update item',
+                            'errors'    :   err.errors});
                     }else{
                         Item.find(function(err, items){
                             if(err){ return console.log(err);}
                             res.send({
-                                'success'   : true,
-                                'msg'       : 'yuppi! - item has been updated.',
-                                'items'   :   items
+                                'success'   :   true,
+                                'msg'       :   'yuppi! - item has been updated.',
+                                'items'     :   items
                             });
 
                         });  

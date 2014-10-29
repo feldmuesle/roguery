@@ -218,7 +218,8 @@ $(document).ready(function(){
                 // show success-message
                 alertSuccess('#itemSuccess',data['msg']);
                 items = data['items'];
-                updateItemList();
+                updateCrudList( items, 'itemList', 'item', 'showItem',
+                    'itemBtnDel', 'deleteItem', 'itemBtn', 'updateItem');
                 // clear all inputs in form
                 $('#createItem').trigger('reset');
                 
@@ -369,6 +370,20 @@ $(document).ready(function(){
         $('#btnCreateGuild').text('Update');
         $("#createGuilds").modal('show');
     });
+    
+    function updateCrudList(entity, listId, linkId, linkClass, btnDelId, btnDelClass, btnUpId, btnUpClass){
+        console.log('hello from update crud list');
+        var html='';
+        for(var i=0; i<entity.length; i++){
+            html =  html+'<li class="list-group-item">'+
+                        '<a id="'+linkId+entity[i].id+'" class="'+linkClass+'" href="#">'+entity[i].name+'</a>'+
+                        '<button class="'+btnDelClass+' pull-right btn btn-xs margin" id="'+btnDelId+entity[i].id+'">Delete</button>'+
+                        '<button class="'+btnUpClass+' pull-right btn btn-xs" id="'+btnUpId+entity[i].id+'">Update</button>'+                       
+                    '</li>';            
+        }
+        console.log('html'+html);
+        $(document).find('#'+listId).html(html);
+    }
     
     /************ misc-functions *******************/
     

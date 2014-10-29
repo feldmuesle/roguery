@@ -21,6 +21,7 @@ ItemSchema.pre('save', function(next){
     console.log('hello from pre-save: '+self.name);
     self.name = Helper.sanitizeString(self.name);
     self._id  = self.name;
+    console.log('item to update: '+self);
     next();
 });
 

@@ -68,7 +68,7 @@ EventSchema.pre('save', function(next){
     next();
 });
 
-var EventModel = mongoose.model('Item', EventSchema);
+var EventModel = mongoose.model('Event', EventSchema);
 module.exports = EventModel;
 
 // create some items

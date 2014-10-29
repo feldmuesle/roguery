@@ -2,6 +2,7 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var Event = require('./event1.js');
 var Helper = require('../controllers/helper_functions.js');
 
 //validators
@@ -19,6 +20,26 @@ FlagSchema.pre('save', function(next){
     var self = this || mongoose.model('Flag');
     self.name = Helper.sanitizeString(self.name);
     next();
+});
+
+//restrict remove to flags who are'nt req in any other events
+FlagSchema.pre('remove', function(next){
+    console.log('hello from flag pre remove');
+    var self = this || mongoose.model('Flag');
+    console.log('flag id to be removed: '+self._id);
+    self.model('Event').find({'reqFlag': mongoose.Types.ObjectId(self._id)},{multi: true}, 
+        function(err, events){        
+            if(err){console.log(err); return;}
+            
+            // throw err if there are events referrencing to this flag
+            if(events.length > 0){
+                var newEr = new Error('Cannot remove flag because of events referencing to it.');
+                next(newEr);
+            }else{
+                // no events referencing. Flag can be removed
+                next();
+            }        
+     });    
 });
 
 /****** statics ************/

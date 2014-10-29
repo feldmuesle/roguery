@@ -106,6 +106,32 @@ EventSchema.pre('save', function(next){
     next();
 });
 
+/*********** methods *************/
+EventSchema.methods.saveUpdateAndReturnAjax = function(res){
+    
+    var event = this || mongoose.model('Event');
+        event.save(function(err){
+            if(err){
+                console.log('something went wrong when updating a event.');
+                console.log('error '+err); 
+                res.send({
+                    'success'   : false,
+                    'msg'       : 'could not update event',
+                    'errors'    : err.errors});
+            }else{
+                EventModel.find({},'-_id',function(err, events){
+                    if(err){ return console.log(err);}
+                    res.send({
+                        'success'   : true,
+                        'msg'       : 'yuppi! - event has been updated.',
+                        'events'   :   events
+                    });
+
+                });  
+            }   
+        });     
+};
+
 /********** statics *************/
 
 // insert attributes if there are any
@@ -158,7 +184,7 @@ EventSchema.statics.addDiceBranch = function(branch, event, cb){
         console.log('sanitized ids '+locos);
         Location.find({'id':{$in : locos}}).exec(function(err, locos){
             if(err){console.log(err); return;}
-            console.log('queried locations'+locos);
+            
             if(locos[0].id == succTrigger){
                 console.log('yes it is true');
                 event.dice.success.location = locos[0]._id;
