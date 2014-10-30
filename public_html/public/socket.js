@@ -12,6 +12,7 @@ var character;
 
 // constants
 var MAXSUM = 130;  // max-sum of attributes add-up
+var ATTRNUM = 12;  // number of attributes
 
 $(document).ready(function(){   
 

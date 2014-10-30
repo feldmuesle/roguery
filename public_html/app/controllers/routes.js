@@ -179,6 +179,8 @@ module.exports = function(app, passport){
         
         console.log('the form sent is: '+req.body.form);
         
+        
+        
         /********** CREATE ***************/
         // event
         if(req.body.form == 'createEvent'){
@@ -210,6 +212,51 @@ module.exports = function(app, passport){
                     });  // event.save end
                 }); // Crud.cb end
             }); // event.find end           
+        }
+        
+        // location
+        if(req.body.form == 'createLocation'){
+            
+            console.log('a new location wants to be created');
+            var event = Helper.sanitizeNumber(req.body.event);
+            
+            Event.find({'id':event},'_id').exec(function(err, event){
+                if(err){console.log(err); return;}
+                return event;
+            })
+            .then(function(event){
+                 Location.find({},'-_id',function(err, locations){
+                    if(err){console.log(err); return;}
+                    var id = Helper.autoIncrementId(locations); 
+                    var location = new Location();
+                    location.id = id;
+                    location.name = req.body.name;
+                    location.text = req.body.text;
+                    location.start = req.body.start;
+                    location.event = event._id;
+
+                    console.log('location to create: '+location);
+
+                    location.save(function(err){
+                       if(err){
+                            console.log('something went wrong when creating an location.');
+                            console.log('error '+err); 
+                            res.send({
+                                'success'   :   false,
+                                'msg'       :   'could not save location',
+                                'errors'    :   err.errors});
+                        }else{
+                            locations.push(location);
+                            res.send({
+                                'success'   :   true,
+                                'msg'       :   'yuppi! - location has been created.',
+                                'locations' :   locations
+                            });
+                            console.log('locations are:' +locations);
+                        }    
+                    });        
+                });      
+            });    
         }
         
         if(req.body.form == 'createWeapon'){
@@ -311,37 +358,55 @@ module.exports = function(app, passport){
         
         if(req.body.form == 'createCharacter'){
             
-            console.log('a new character wants to be created');
-            Character.find(function(err, characters){
+            var characterObj = req.body.character;
+            // sanitize values used in query to get obj.ref
+            var guild = Helper.sanitizeString(characterObj.guild);
+            var weapon = Helper.sanitizeString(characterObj.weapon);
+            
+            Guild.findOne({'name':guild},'_id').exec(function(err,guild){
                 if(err){console.log(err); return;}
-                var id = Helper.autoIncrementId(characters); 
-                var character = new Character(req.body.character);
-                character.id = id;
-//                character.name = req.body.character.name;
-                
-                console.log('character to create: '+character);
-                console.log('character recieved: ');
-                console.dir(req.body.character);
-                
-                
-                character.save(function(err){
-                   if(err){
-                        console.log('something went wrong when creating an characters.');
-                        console.log('error '+err); 
-                        res.send({
-                            'success'   : false,
-                            'msg'       : 'could not save characters',
-                            'errors'    : err.errors});
-                    }else{
-                        characters.push(character);
-                        res.send({
-                            'success'   :   true,
-                            'msg'       :   'yuppi! - characters has been created.',
-                            'characters':   characters
-                        });
-                    }    
-                });        
-            });            
+                return guild;
+            }).then( function(guild){
+                Weapon.findOne({'name':weapon},'_id').exec(function(err,weapon){
+                    if(err){console.log(err); return;}
+                    return weapon;
+                }).then( function(weapon){
+                    console.log('a new character wants to be created');
+                    Character.find(function(err, characters){
+                        if(err){console.log(err); return;}
+                        var id = Helper.autoIncrementId(characters); 
+                        characterObj.guild = guild._id;
+                        characterObj.weapon = weapon._id;
+                        var character = new Character(characterObj);
+                        character.id = id;
+        //                character.name = req.body.character.name;
+
+                        console.log('character to create: '+character);
+                        console.log('character recieved: ');
+                        console.dir(req.body.character);
+
+
+                        character.save(function(err){
+                           if(err){
+                                console.log('something went wrong when creating an characters.');
+                                console.log('error '+err); 
+                                res.send({
+                                    'success'   : false,
+                                    'msg'       : 'could not save characters',
+                                    'errors'    : err.errors});
+                            }else{
+                                characters.push(character);
+                                res.send({
+                                    'success'   :   true,
+                                    'msg'       :   'yuppi! - characters has been created.',
+                                    'characters':   characters
+                                });
+                            }    
+                        });        
+                    });           
+                });
+            });
+             
         }
         
         /*********** UPDATE *********************/
@@ -418,16 +483,55 @@ module.exports = function(app, passport){
             });
         }// update item end
         
+        if(req.body.form == 'updateLocation'){
+
+            var locationId = Helper.sanitizeNumber(req.body.id);
+            Event.find({'id':event},'_id').exec(function(err, event){
+                if(err){console.log(err); return;}
+                return event;
+            })
+            .then(function(event){
+                Location.findOne({'id':locationId}, function(err, location){
+                   if(err){console.log(err); return;}
+
+                    location.name = req.body.name;
+                    location.text = req.body.text;
+                    location.start = req.body.start;
+                    location.event = event._id;
+
+                    location.save(function(err){                    
+                        if(err){
+                            console.log('something went wrong when updating a location.');
+                            console.log('error '+err); 
+                            res.send({
+                                'success'   :   false,
+                                'msg'       :   'could not update item',
+                                'errors'    :   err.errors});
+                        }else{
+                            Location.find({},'-_id').populate('event','-_id').exec(function(err, locations){
+                                if(err){ return console.log(err);}
+                                res.send({
+                                    'success'   :   true,
+                                    'msg'       :   'yuppi! - item has been updated.',
+                                    'locations' :   locations
+                                });
+
+                            });  
+                        }    
+                    });
+                });
+            });
+        }// update item end
+        
         if(req.body.form == 'updateItem'){
 
             var itemId = Helper.sanitizeNumber(req.body.id);
             Item.findOne({'id':itemId}, function(err, item){
                if(err){console.log(err); return;}
-                console.log('db-item '+item);
+
                 item.name = req.body.name;
 
-                item.save(function(err){
-                    console.log('item saved '+item);
+                item.save(function(err){                    
                     if(err){
                         console.log('something went wrong when updating a item.');
                         console.log('error '+err); 
@@ -436,7 +540,7 @@ module.exports = function(app, passport){
                             'msg'       :   'could not update item',
                             'errors'    :   err.errors});
                     }else{
-                        Item.find(function(err, items){
+                        Item.find({},'-_id',function(err, items){
                             if(err){ return console.log(err);}
                             res.send({
                                 'success'   :   true,
@@ -467,7 +571,7 @@ module.exports = function(app, passport){
                             'msg'       : 'could not update weapon',
                             'errors'    : err.errors});
                     }else{
-                        Weapon.find(function(err, weapons){
+                        Weapon.find({},'-_id',function(err, weapons){
                             if(err){ return console.log(err);}
                             res.send({
                                 'success'   : true,
@@ -498,7 +602,7 @@ module.exports = function(app, passport){
                             'msg'       : 'could not update guild',
                             'errors'    : err.errors});
                     }else{
-                        Guild.find(function(err, guilds){
+                        Guild.find({},'-_id',function(err, guilds){
                             if(err){ return console.log(err);}
                             res.send({
                                 'success'   :  true,
@@ -517,12 +621,23 @@ module.exports = function(app, passport){
             var characterUp = req.body.character;
             console.log('character to update: '+characterUp);
             var characterId = Helper.sanitizeNumber(characterUp.id);
-            Character.findOne({'id':characterId}, function(err, character){
+            var guild = Helper.sanitizeString(characterUp.guild);
+            var weapon = Helper.sanitizeString(characterUp.weapon);
+            
+            Guild.findOne({'name':guild},'_id').exec(function(err,guild){
+                if(err){console.log(err); return;}
+                return guild;
+            }).then( function(guild){
+                Weapon.findOne({'name':weapon},'_id').exec(function(err,weapon){
+                if(err){console.log(err); return;}
+                return weapon;
+            }).then( function(weapon){
+                Character.findOne({'id':characterId}, function(err, character){
                if(err){console.log(err); return;}
 
                 character.name = characterUp.name;
-                character.guild = characterUp.guild;
-                character.weapon = characterUp.weapon;
+                character.guild = guild._id;
+                character.weapon = weapon._id;
                 character.attributes = {};
                 character.inventory = [];
                 
@@ -535,22 +650,27 @@ module.exports = function(app, passport){
                         console.log('something went wrong when updating a character.');
                         console.log('error '+err); 
                         res.send({
-                            'success'   : false,
-                            'msg'       : 'could not update character',
-                            'errors'    : err.errors});
+                            'success'   :   false,
+                            'msg'       :   'could not update character',
+                            'errors'    :   err.errors});
                     }else{
-                        Character.find(function(err, characters){
+                        Character.find({},'-_id').populate('guild weapon inventory','name id -_id')
+                            .exec(function(err, characters){
                             if(err){ return console.log(err);}
                             res.send({
-                                'success'   :  true,
-                                'msg'       :  'yuppi! - character has been updated.',
-                                'characters':  characters
+                                'success'       :   true,
+                                'msg'           :   'yuppi! - character has been updated.',
+                                'characters'    :   characters
                             });
 
                         });  
                     }    
                 });
             });
+            });
+            });
+            
+            
         }// update character end
     });
     

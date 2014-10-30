@@ -26,7 +26,8 @@ function getRandAttributes(max, attributesNum){
     attributes.stamina = stamina;
     attributes.maxStam = maxStam;
     
-    var keys = ['charisma','duelling', 'scouting', 'roguery', 'magic', 'healing', 'luck'];
+    var keys = ['charisma','duelling', 'scouting', 'heroism', 'roguery',
+                    'magic', 'healing', 'luck', 'streetwise'];
     
     for(var i=0; i < keys.length; i++) {
         
@@ -43,7 +44,8 @@ function getRandAttributes(max, attributesNum){
 // spinner for number-inputs
 
 function inputSpinner(foldId, step, max, min){
-    
+    $('#'+foldId).find('.spinner .btn:first-of-type').unbind('click');
+    $('#'+foldId).find('.spinner .btn:last-of-type').unbind('click');
         
     // arrow up
     $('#'+foldId).find('.spinner .btn:first-of-type').on('click', function(e) {

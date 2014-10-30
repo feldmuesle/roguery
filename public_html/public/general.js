@@ -38,7 +38,7 @@ function displayRandCharacter(){
 function createRandCharacter(){
     var rand = getRandomNumber(0,characters.length-1);
     var rand2 = getRandomNumber(0,characters.length-1);
-    var values = getRandAttributes(MAXSUM,10);
+    var values = getRandAttributes(MAXSUM,11);
     
     var character = {
         name : characters[rand].name,
@@ -80,6 +80,8 @@ function setRandCharacter(){
         '<dd id="duelling">'+character.attributes.duelling+'<span class="statDesc" id="duellingDesc"> agile</span></dd>';
     var scouting = '<dt><span class="glyphicon glyphicon-move"></span> Scouting </dt>'+
         '<dd id="scouting">'+character.attributes.scouting+'<span class="statDesc" id="scoutingDesc"> lost</span></dd>';
+    var heroism = '<dt><span class="glyphicon glyphicon-move"></span> Heroism </dt>'+
+        '<dd id="heroism">'+character.attributes.heroism+'<span class="statDesc" id="heroismDesc"> wicked</span></dd>';
     var roguery = '<dt><span class="glyphicon glyphicon-fire"></span> Roguery </dt>'+
         '<dd id="roguery">'+character.attributes.roguery+'<span class="statDesc" id="rogueryDesc"> bad ass</span></dd>';
     var magic = '<dt><span class="glyphicon glyphicon-flash"></span> Magic </dt>'+
@@ -87,12 +89,14 @@ function setRandCharacter(){
     var healing = '<dt><span class="glyphicon glyphicon-move"></span> Healing </dt>'+
         '<dd id="healing">'+character.attributes.healing+'<span class="statDesc" id="healingDesc"> miserable</span></dd>';
     var luck = '<dt><span class="glyphicon glyphicon-fire"></span> Luck </dt>'+
-        '<dd id="luck">lucky'+character.attributes.luck+'<span class="statDesc" id="staminaDesc"> blessed</span></dd>';
+        '<dd id="luck">lucky'+character.attributes.luck+'<span class="statDesc" id="luckDesc"> blessed</span></dd>';
+    var streetwise = '<dt><span class="glyphicon glyphicon-fire"></span> Heroism </dt>'+
+        '<dd id="streetwise">blank'+character.attributes.streetwise+'<span class="statDesc" id="streetwiseDesc"> blessed</span></dd>';
     var coins = '<dt><span class="glyphicon glyphicon-flash"></span> Coins </dt>'+
         '<dd id="coins">'+character.attributes.coins+'</dd>';
     
-    stats.push(name, guild, stamina, charisma, duelling, scouting,
-                    roguery, magic, healing, luck, coins);
+    stats.push(name, guild, stamina, charisma, duelling, scouting, heroism,
+                    roguery, magic, healing, luck, streetwise, coins);
     
     // append all stats
     for(var i=0; i<stats.length; i++){

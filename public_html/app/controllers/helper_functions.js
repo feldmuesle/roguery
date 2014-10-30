@@ -28,7 +28,12 @@ exports.sanitizeString = function(string){
 // strip everything thats not a number
 exports.sanitizeNumber = function (numb){
     console.log('number to sanitize: '+numb);
-    return numb.replace(/[^0-9]/g, '');
+    if(numb !='undefined' && numb != null){
+        return numb.replace(/[^0-9]/g, '');
+    }else {
+        console.log('number to sanitized is undefined');
+    }
+    
 };
 
 /********** calculations *******************/
@@ -58,7 +63,7 @@ exports.autoIncrementId = function(mongooseArray){
     if (largest > -1){
             return largest + 1; 
     }else {
-        return 0;
+        return 1;
     }
      
 };

@@ -109,6 +109,15 @@ EventSchema.pre('save', function(next){
 /*********** methods *************/
 EventSchema.methods.saveUpdateAndReturnAjax = function(res){
     
+    // define population-query for events
+        var populateQuery = [{path:'flag', select:'name id -_id'}, 
+            {path:'reqFlag', select:'name id -_id'}, {path:'location', select:'name id -_id'}, 
+            {path:'dice.failure.location', select:'name id -_id'},{path:'items', select:'name id -_id'}, 
+            {path:'dice.success.location', select:'name id -_id'}, {path:'dice.success.event', select:'name id -_id'}, 
+            {path:'dice.failure.event', select:'name id -_id'},{path:'choices', select:'name id -_id'}, 
+            {path:'continueTo.location', select:'name id -_id'}, {path:'continueTo.event', select:'name id -_id'}, 
+            {path:'continue.random', select:'name id -_id'} ];
+    
     var event = this || mongoose.model('Event');
         event.save(function(err){
             if(err){
@@ -119,8 +128,11 @@ EventSchema.methods.saveUpdateAndReturnAjax = function(res){
                     'msg'       : 'could not update event',
                     'errors'    : err.errors});
             }else{
-                EventModel.find({},'-_id',function(err, events){
+                EventModel.find({},'-_id').populate(populateQuery).exec(function(err, events){
                     if(err){ return console.log(err);}
+                    
+                    console.log('events sent back after update:');
+                    console.dir(events);
                     res.send({
                         'success'   : true,
                         'msg'       : 'yuppi! - event has been updated.',
@@ -182,9 +194,9 @@ EventSchema.statics.addDiceBranch = function(branch, event, cb){
     if(locos.length == 2){
         console.log('expected 2 locations: getting '+locos.length);
         console.log('sanitized ids '+locos);
-        Location.find({'id':{$in : locos}}).exec(function(err, locos){
+        Location.find({'id':{$in : [1,2]}}).exec(function(err, locos){
             if(err){console.log(err); return;}
-            
+            console.log('hello from find dice-locos');
             if(locos[0].id == succTrigger){
                 console.log('yes it is true');
                 event.dice.success.location = locos[0]._id;

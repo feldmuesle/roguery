@@ -27,8 +27,8 @@ function resetEventForm(){
         $('#itemFold').hide();
         $('#attrFold').hide();
         $('#diceFold').hide();  // show diceFold by default
-        $('#succTriggerFold').hide();
-        $('#failTriggerFold').hide();   
+//        $('#succTriggerFold').hide();
+//        $('#failTriggerFold').hide();   
         $('#choicesFold').hide();
         $('#continueFold').hide();
         $('#continSelectFold').hide();
@@ -91,7 +91,7 @@ function createInputWithSpinner(name){
     var btnUp = '<button class="btn btn-default"><i class="fa fa-caret-up"></i></button>';
     var btnDown = '<button class="btn btn-default"><i class="fa fa-caret-down"></i></button>';
     var btnGroup = '<div class="input-group-btn-vertical">'+btnUp+btnDown+'</div>';
-    var input = '<input type="number" min="1" max="7" class="form-control" name="'+name+'" value="0">';
+    var input = '<input type="number" class="form-control" name="'+name+'" value="0">';
     var inputGroup = '<div class="input-group spinner">'+input+btnGroup+'</div>';
     
     return inputGroup;                
@@ -195,25 +195,6 @@ function foldOutRadio(radio){
     });
 }
 
-// make also dynamic radios from added inputs interactive
-//for (var i=0; i<itemCounts; i++){
-//    var name = 'itemAction'+i;
-//    if(i== 0){
-//        name = 'itemAction';
-//    }    
-//    $('#createEvent input[name='+name+']').on('change',function (){
-//        if($('#createEvent input[name='+name+']:checked')){
-//            var value = $('#createEvent input[name='+name+']:checked').val();
-//            
-//            switch(value){
-//                
-//                case'': 
-//                    break;
-//            }
-//        }
-//    });
-//}
-
 // populate a select dynamically 
 function populateSelect(array, name){
     var select = $('#createEvent select[name='+name+']');
@@ -270,6 +251,7 @@ $('.add-attr').click(function(){
                 $(element).remove();
                 attrCount --;
                 next--;
+                
             });
     
     console.log('using items: '+attrCount);
@@ -421,7 +403,7 @@ function removeAddOns(count, buttonId){
        var failure = $('#createEvent input[name=failure]:checked').val(); 
        var contin = $('#createEvent input[name=continue]:checked').val(); 
        var continueTo = $('#createEvent select[name=continueTo] option:selected').val(); 
-       var choices = $('#createEvent input[name=choices]:checked').val();       
+       var choices = $('#createEvent input[name=branchtype]:checked').val();       
        var choiceNumb = $('#createEvent input[name=choiceNumb]').val();
        
        console.log('continueTo= '+continueTo);
@@ -533,7 +515,7 @@ function removeAddOns(count, buttonId){
                     'type'    :   choices
                 };                                                
                // set choice-array 
-                if(choiceCount > 1){
+                if(choiceCount > 0){
                     var choiceArr = [];            
                     for(var i=0; i < choiceCount; i++){                
                         var choice = $('#createEvent select[name=choice'+i+'] option:selected').val();
@@ -568,7 +550,7 @@ function removeAddOns(count, buttonId){
             }else{
                 
                 // close modal 
-                $('#CreateEvents').modal('hide');
+                $('#createEvents').modal('hide');
                 // reset modal-button again
                 $('#createEvent input[name=form]').val('createEvent');
                 $('#btnCreateEvent').text('create');
@@ -576,13 +558,13 @@ function removeAddOns(count, buttonId){
                 // show success-message
                 alertSuccess('#eventSuccess',data['msg']);
                 events = data['events'];
-                updateItemList();
+                updateEventList();
                 // clear all inputs in form
                 $('#createEvent').trigger('reset');
-                
+                console.dir(events);
             }
        });
-       console.dir(events);
+       
     });
     
 /*********** UPDATE EVENT ********************/
@@ -593,6 +575,7 @@ function removeAddOns(count, buttonId){
         // make sure form is clean
         $('#alertEvent').hide();
         $('#createEvent').trigger('reset');
+        $('#createEvent input:checkbox').removeAttr('checked');
         resetEventForm();  
         
         // get id from button-element and item-object from items-array
@@ -653,6 +636,7 @@ function removeAddOns(count, buttonId){
         }
         
         if(event.attributes.length > 0){
+            console.log('attributes.length = '+event.attributes.lenght);
             $('#createEvent input[name=attributes]:checkbox').attr('checked',true);
             for(var i=0; i < event.attributes.length; i++){
                 if(i != 0){
@@ -701,7 +685,7 @@ function removeAddOns(count, buttonId){
                 $('#choicesFold').show();
                 $('#createEvent input[name=branchType]:radio[value='+event.branchType+']').attr('checked',true);
                 if(event.choices.length > 0){
-                    $('#createEvent input[name=attributes]:checkbox').attr('checked',true);
+//                    $('#createEvent input[name=choices]:checkbox').attr('checked',true);
                     for(var i=0; i < event.choices.length; i++){
                         if(i != 0){
                             $('.add-choice').click();
@@ -747,6 +731,20 @@ function removeAddOns(count, buttonId){
         $("#createEvents").modal('show');
     });    
     
+
+    function updateEventList(){
+        console.log('hello from update crud list');
+        var html='';
+        for(var i=0; i<events.length; i++){
+            html =  html+'<li class="list-group-item">'+
+                        '<a id="event'+events[i].id+'" class="showEvent" href="#">'+events[i].name+'</a>'+
+                        '<button class="deleteEvent pull-right btn btn-xs margin" id="eventBtnDel'+events[i].id+'">Delete</button>'+
+                        '<button class="updateEvent pull-right btn btn-xs" id="eventBtn'+events[i].id+'">Update</button>'+                       
+                    '</li>';            
+        }
+        
+        $('#eventList').html(html);
+    }
     
     /************ misc-functions *******************/
     

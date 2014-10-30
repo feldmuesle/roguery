@@ -7,7 +7,8 @@ var MAXSUM = 130;
 $(document).ready(function(){
     
     // hide alert-windows for now
-    $('#alertEvent').hide(); 
+    $('#alertEvent').hide();
+    $('#alertLocation').hide();
     $('#alertItem').hide();    
     $('#alertWeapon').hide();
     $('#alertCharacter').hide();
@@ -22,6 +23,14 @@ $(document).ready(function(){
     
     /******** SHOW MODAL FORMS ********/
     
+    $('#addLocation').click(function(){
+        console.log('want to create a location?');
+        //make sure the form is cleaned up
+        $('#createLocation').trigger('reset');
+        $('#createLocation input[name=form]').val('createLocation');
+        $('#btnCreateLocation').text('create');
+        $("#createLocations").modal('show'); 
+    });
     
     
     $('#addItem').click(function(){
@@ -66,11 +75,71 @@ $(document).ready(function(){
 
         
     /******** CREATE ************/
+    // create new location or update location
+    $('#btnCreateLocation').click(function(){
     
-    
+        //empty validation-alert
+        $('#alertLocation').text(''); 
+        
+       var form = $('#createLocation input[name=form]').val();
+       console.log(form);
+       var start = $('#createLocation input[name=start]');
+       var name = $('#createLocation input[name=name]').val();
+       var text = $('#createLocation textarea[name=text]').val();
+       var event = $('#createLocation select[name=locationTrigger] option:selected').val();
+       console.log(start);
+       
+       var location = {
+           'form'   :   form,
+           'name'   :   name,
+           'text'   :   text,
+           'event'  :   event
+       };
+       
+       $(start).is(':checked')? location.start = true : location.start = false;
+       
+       if(form == 'updateLocation'){
+           console.log('location to update: id '+$('#locationId').val());
+           location.id = $('#locationId').val();
+       }
+       console.log(location);
+       //$.post('/crud',JSON.stringify(item));
+       $.post('/crud',location, function(data){
+           console.log('hello back from server');
+           if(!data['success']){
+                var errors = data['errors'];
+                console.log(typeof errors);
+                $('#alertLocation').show();
+                $('#alertLocation').append('<h3>'+data['msg']+'</h3>');
+                for(var key in errors){
+                    var err = errors[key];
+                    console.log('error-message: '+err.message);
+                    $('#alertLocation').append('<p>'+err.message+'</p>');
+                };
+            }else{
+                
+                // close modal 
+                $('#createLocations').modal('hide');
+                // reset modal-button again
+                $('#createLocations input[name=form]').val('createLocation');
+                $('#btnCreateLocation').text('create');
+                
+                // show success-message
+                alertSuccess('#locationSuccess',data['msg']);
+                locations = data['locations'];
+                updateCrudList( locations, 'locationList', 'location', 'showLocation',
+                    'locationBtnDel', 'deleteLocation', 'locationBtn', 'updateLocation');
+                // clear all inputs in form
+                $('#createLocation').trigger('reset');
+                
+            }
+       });
+       console.dir(locations);
+    });
     
     
     // create new character
+    // btnPlay because form is also used by user when starting the game and customizing his character
     $('#btnPlay').click(function(){
         //empty validation-alert
         $('#alertCharacter').text('');
@@ -111,7 +180,8 @@ $(document).ready(function(){
                 // show success-message
                 alertSuccess('#characterSuccess',data['msg']);
                 characters = data['characters'];
-                updateItemList();
+                updateCrudList( characters, 'charactersList', 'character', 'showCharacter',
+                    'characterBtnDel', 'deleteCharacter', 'characterBtn', 'updateCharacter');
                 // clear all inputs in form
                 $('#customizeCharacter').trigger('reset');
                 
@@ -165,7 +235,8 @@ $(document).ready(function(){
                 // show success-message
                 alertSuccess('#guildSuccess',data['msg']);
                 guilds = data['guilds'];
-                updateItemList();
+                updateCrudList( guilds, 'guildList', 'guild', 'showGuild',
+                    'guildBtnDel', 'deleteGuild', 'guildBtn', 'updateGuild');
                 // clear all inputs in form
                 $('#createGuild').trigger('reset');
                 
@@ -265,7 +336,7 @@ $(document).ready(function(){
             }else{
                 
                 // close modal 
-                $('#createWeapon').modal('hide');
+                $('#createWeapons').modal('hide');
                 // reset modal-button again
                 $('#createWeapon input[name=form]').val('createWeapon');
                 $('#btnCreateWeapon').text('create');
@@ -273,7 +344,8 @@ $(document).ready(function(){
                 // show success-message
                 alertSuccess('#weaponSuccess',data['msg']);
                 weapons = data['weapons'];
-                updateItemList();
+                updateCrudList( weapons, 'weaponList', 'weapon', 'showWeapon',
+                    'weaponBtnDel', 'deleteWeapon', 'weaponBtn', 'updateWeapon');
                 // clear all inputs in form
                 $('#createWeapon').trigger('reset');
                 
@@ -283,6 +355,38 @@ $(document).ready(function(){
     });
     
     /********** UPDATE MODAL FORMS *********************/
+    //button for showing modal form for updation item
+    $(document).on('click','.updateLocation', function(){
+        console.log('want to update location?');
+        // make sure form is clean
+        $('#alertLocation').hide();
+        $('#createLocation').trigger('reset');
+        
+        // get id from button-element and item-object from items-array
+        var locationId = this.id.substr(11,this.id.length); // btnLocation = 11 chars
+        var location = getRecordById(locations, locationId);
+        console.log('locationId to update: '+locationId);
+        console.log(locations);
+ 
+        // populate item in modal form
+        $('#createLocation input[name=form]').val('updateLocation');
+        $('#createLocation input[name=name]').val(location.name);
+        $('#createLocation textarea[name=text]').html(location.text);
+        if(location.event){
+            $('#createLocation select[name=locationTrigger]').val(location.event.id).attr('selected', 'selected');
+        }
+        
+        
+        if(location.start){
+            $('#createLocation input[name=start]').val(location.start).attr('checked', true);
+        }        
+        $('#locationId').val(locationId);
+
+        console.log(location);
+        $('#btnCreateLocation').text('Update');
+        $("#createLocations").modal('show');
+    });
+    
     
     //button for showing modal form for updation item
     $(document).on('click','.updateItem', function(){
@@ -310,7 +414,7 @@ $(document).ready(function(){
     $(document).on('click','.updateCharacter', function(){
         console.log('want to update character?');
         // make sure form is clean
-        $('#alertItem').hide();
+        $('#alertCharacter').hide();
         $('#customizeCharacter').trigger('reset');
         
         // get id from button-element and item-object from items-array
@@ -381,8 +485,8 @@ $(document).ready(function(){
                         '<button class="'+btnUpClass+' pull-right btn btn-xs" id="'+btnUpId+entity[i].id+'">Update</button>'+                       
                     '</li>';            
         }
-        console.log('html'+html);
-        $(document).find('#'+listId).html(html);
+        
+        $('#'+listId).html(html);
     }
     
     /************ misc-functions *******************/

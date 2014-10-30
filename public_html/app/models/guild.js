@@ -7,7 +7,6 @@ var Helper = require('../controllers/helper_functions.js');
 var valEmpty = [Helper.valEmpty, 'The field \'{PATH}:\' must just not be empty.'];
 
 var GuildSchema = new mongoose.Schema({
-    _id     : {type:String, unique:true},
     id      : {type: Number, unique:true},
     name    : {type:String, trim:true, lowercase:true, unique:true, validate:valEmpty}
 });
@@ -17,7 +16,6 @@ GuildSchema.pre('save', function(next){
     // sanitize all strings
     var self = this || mongoose.model('Guild');
     self.name = Helper.sanitizeString(self.name);
-    self._id  = self.name;
     next();
 });
 
