@@ -68,6 +68,12 @@ exports.autoIncrementId = function(mongooseArray){
      
 };
 
+// get random index of array
+exports.getRandomArrayItem = function(array){
+   
+    var rand = Math.floor(Math.random()* array.length);
+    return array[rand];
+};
 
 // get random value within range
 var getRandomNumber = function(min, max){

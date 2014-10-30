@@ -11,7 +11,8 @@ var valEmpty = [Helper.valEmpty, 'The field \'{PATH}:\' must just not be empty.'
 var PlayerSchema = Schema({
    character    :   [Character.schema],
    user         :   {type:Schema.ObjectId, ref:'User'},
-   flags        :   [{type:Schema.ObjectId, ref:'Flag', index:true}]
+   flags        :   [{type:Schema.ObjectId, ref:'Flag', index:true}],
+   event        :   {type:Schema.ObjectId, ref:'Flag', index:true}
 });
 
 PlayerSchema.set('toObject', {getters : true});
@@ -23,12 +24,35 @@ PlayerSchema.pre('save', function(next){
     next();
 });
 
-PlayerSchema.statics.createNew = function (character, userId){
-  console.log('create new Player');
-  var player = new PlayerModel();
-  player.character = character;
-  player.user = mongoose.Types.ObjectId(userId);
-  return player;
+PlayerSchema.statics.createNew = function (character, userId, cb){
+    console.log('create new Player');
+    var self = this || mongoose.model('Player');
+    // sanitize values used for getting objectIds of guild and weapon
+    var guildId = Helper.sanitizeNumber(JSON.stringify(character.guild.id));
+    var weaponId = Helper.sanitizeNumber(JSON.stringify(character.weapon.id));
+    var guild = self.model('Guild');
+    var weapon = self.model('Weapon');
+    var player = new PlayerModel();
+    
+    
+    guild.findOne({'id': guildId},'_id').exec(function(err, guild){
+        if(err){console.log(err); return;}
+        return guild;
+    })
+    .then(function(guild){
+        weapon.findOne({'id': weaponId},'_id').exec(function(err, weapon){
+            if(err){console.log(err); return;}
+            return weapon;
+        })
+        .then(function(weapon){
+            character.guild = guild._id;
+                character.weapon = weapon._id;
+                player.character = character;
+                player.user = mongoose.Types.ObjectId(userId);
+                return cb(player);
+        });
+    });
+  
 };
 
 var PlayerModel = mongoose.model('Player', PlayerSchema);
