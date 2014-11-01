@@ -6,7 +6,6 @@
 var socket = io.connect();
 
 // initialize variables
-var player;
 var character;
 
 
@@ -55,8 +54,38 @@ $(document).ready(function(){
     
     socket.on('startGame', function(data){
         console.log('start game with player');
-        player = data['player'];
+        character = data['character'];
+        console.log('character recieved back '+character);
         gameInit();
+        displayPlayerStats(character);
+    });
+    
+    socket.on('output', function(data){
+        
+        var type = data['type'];
+        var text = data['text'];
+        console.dir(data);
+        console.log(text);
+        appendToChat('story', capitaliseFirstLetter(text));
+    });
+    
+    socket.on('updateAttr', function(data){
+        var attribute = data['attribute'];
+        var amount = data['amount'];
+        var action = data['action'];
+        action == 'loose' ? action='-' : action='+';
+        var msg = attribute+' '+action+amount;
+        appendToChat('info', capitaliseFirstLetter(msg));
+    });
+    
+    socket.on('rollDice', function(data){
+        var attribute = data['attribute'];
+        var difficulty = data['difficulty'];
+        var outcome = data['outcome'];
+        var advanced = data['advanced'];
+        
+        var msg = attribute+' roll, difficulty '+difficulty +' - You '+outcome;
+        appendToChat('dices', capitaliseFirstLetter(msg));
     });
 
 });

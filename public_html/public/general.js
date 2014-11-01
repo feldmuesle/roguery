@@ -18,16 +18,80 @@ $(function(){
     $('#loadGame1').click(function(){loadGame();});
     //$('#newGame').click(function(){slideGameSignup();});
     $('#startGame').click(function(){displayRandCharacter();});
-    $('#btnChatSubmit').click(function(){sendMessage(); return;});
-    $('#chatInput').keypress(function(e){
-    
-        var key = e.which;
-    if(key == '13'){ //send message if user clicks enter
-        sendMessage();
-        return;
-    }
+//    $('#btnChatSubmit').click(function(){sendMessage(); return;});
+//    $('#chatInput').keypress(function(e){
+//
+//            var key = e.which;
+//        if(key == '13'){ //send message if user clicks enter
+//            sendMessage();
+//            return;
+//        }
+//    });
 });
-});
+
+// set screen-height, hide startup-form and show the game!!
+function gameInit(){
+    setAutoHeight();
+    $('#game').show();
+    $('#profile').show();
+    $('#playerlist').show();
+    $('#roomPlayerlist').show();
+    $('#chatWrapper').show();
+    $('.thumbnail').show();
+    $('#pseudoSet').hide();
+    $('#chatInput').focus();
+}
+
+// display character with attributes
+function displayPlayerStats(character){
+        console.log('hello from display PlayerSats');
+        var stats =[];
+               
+        var name = '<dt>Name </dt><dd id="name">'+character.name+'</dd>';
+        var guild = '<dt><span class="glyphicon glyphicon-flag"></span> Guild: </dt><dd>'+character.guild.name+'</dd>';
+        var stamina = '<dt><span class="glyphicon glyphicon-heart"></span> Stamina </dt>'+
+            '<dd id="stamina">'+character.attributes.stamina+'<span id="maxStam">/'+character.attributes.maxStam+'</span>'+
+            '<span class="statDesc" id="staminaDesc"> moderate</span></dd>';
+        var charisma='<dt><span class="glyphicon glyphicon-fire"></span> Charisma </dt>'+
+            '<dd id="charisma">'+character.attributes.charisma+'<span class="statDesc" id="charismaDesc"> likeable</span></dd>';
+        var duelling = '<dt><span class="glyphicon glyphicon-flash"></span> Duelling </dt>'+
+            '<dd id="duelling">'+character.attributes.duelling+'<span class="statDesc" id="duellingDesc"> agile</span></dd>';
+        var scouting = '<dt><span class="glyphicon glyphicon-move"></span> Scouting </dt>'+
+            '<dd id="scouting">'+character.attributes.scouting+'<span class="statDesc" id="scoutingDesc"> lost</span></dd>';
+        var heroism = '<dt><span class="glyphicon glyphicon-move"></span> Heroism </dt>'+
+            '<dd id="heroism">'+character.attributes.heroism+'<span class="statDesc" id="heroismDesc"> wicked</span></dd>';
+        var roguery = '<dt><span class="glyphicon glyphicon-fire"></span> Roguery </dt>'+
+            '<dd id="roguery">'+character.attributes.roguery+'<span class="statDesc" id="rogueryDesc"> bad ass</span></dd>';
+        var magic = '<dt><span class="glyphicon glyphicon-flash"></span> Magic </dt>'+
+            '<dd id="magic">'+character.attributes.magic+'<span class="statDesc" id="magicDesc"> moderate</span></dd>';
+        var healing = '<dt><span class="glyphicon glyphicon-move"></span> Healing </dt>'+
+            '<dd id="healing">'+character.attributes.healing+'<span class="statDesc" id="healingDesc"> miserable</span></dd>';
+        var luck = '<dt><span class="glyphicon glyphicon-fire"></span> Luck </dt>'+
+            '<dd id="luck">lucky'+character.attributes.luck+'<span class="statDesc" id="luckDesc"> blessed</span></dd>';
+        var streetwise = '<dt><span class="glyphicon glyphicon-fire"></span> Heroism </dt>'+
+            '<dd id="streetwise">blank'+character.attributes.streetwise+'<span class="statDesc" id="streetwiseDesc"> blessed</span></dd>';
+        var coins = '<dt><span class="glyphicon glyphicon-flash"></span> Coins </dt>'+
+            '<dd id="coins">'+character.attributes.coins+'</dd>';
+
+        stats.push(name, guild, stamina, charisma, duelling, scouting, heroism,
+                    roguery, magic, healing, luck, streetwise, coins);
+        var playerstats = '<h3>Profile</h3>';
+        for(var i=0; i< stats.length; i++){
+            playerstats = playerstats + stats[i];            
+        }
+        $('#profile').html(playerstats);
+    };
+
+/*********** Text-stream - story ***************/
+
+// append li to text-window
+function appendToChat(cssClass, text){
+    $('<li class="'+cssClass+'">'+text+'</li>').hide().appendTo('#chatEntries').slideDown('fast');
+}
+
+
+/******* character generator ****************/
+
 // initialize game with random playing character - show in modal window
 function displayRandCharacter(){
     console.log('show playing character');
@@ -164,6 +228,7 @@ function customizeCharacter(character){
     // set weapon
     $('#customizeCharacter select[name=weapon]').val(character.weapon.name).attr('selected','selected');
 }
+
 // get customized playing-character
 function getCustomized (){
     var character = {};
@@ -181,6 +246,7 @@ function getCustomized (){
     console.dir(character);
     return character;
 }
+
 // sum up all attribute-values
 function sumAttributes(attribute){
     var sum = 0;
@@ -195,18 +261,7 @@ function sumAttributes(attribute){
     console.log('sumAttribute: sum='+sum);
     return sum;
 }
-// set screen-height, hide startup-form and show the game!!
-function gameInit(){
-    setAutoHeight();
-    $('#game').show();
-    $('#profile').show();
-    $('#playerlist').show();
-    $('#roomPlayerlist').show();
-    $('#chatWrapper').show();
-    $('.thumbnail').show();
-    $('#pseudoSet').hide();
-    $('#chatInput').focus();
-}
+
 // display validation for sum up of attribute-values
 function validateSum (attributes){
     var sum = sumAttributes(attributes);

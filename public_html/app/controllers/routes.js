@@ -185,31 +185,37 @@ module.exports = function(app, passport){
         // event
         if(req.body.form == 'createEvent'){
             
+            var populate = Event.getPopuQuery();
             console.log('a new event wants to be created');
-            Event.find(function(err, events){
+            Event.find({},'-_id').populate(populate).exec(function(err, events){
                 if(err){console.log(err); return;}
                 var id = Helper.autoIncrementId(events); 
                 
                 Crud.createEvent(req.body, id, function(event){
                     console.log('hello from Crud-callback');
-                    console.log(event);        
-                    event.save(function(err){
-                       if(err){
-                            console.log('something went wrong when creating an event.');
-                            console.log('error '+err); 
-                            res.send({
-                                'success'   : false,
-                                'msg'       : 'could not save item',
-                                'errors'    : err.errors});
-                        }else{
-                            events.push(event);
-                            res.send({
-                                'success'   : true,
-                                'msg'       : 'yuppi! - event has been created.',
-                                'events'   :   events
-                            });
-                        }    
-                    });  // event.save end
+                    console.log(event);
+                    event.saveUpdateAndReturnAjax(res);
+//                    event.save(function(err){
+//                       if(err){
+//                            console.log('something went wrong when creating an event.');
+//                            console.log('error '+err); 
+//                            res.send({
+//                                'success'   : false,
+//                                'msg'       : 'could not save item',
+//                                'errors'    : err.errors});
+//                        }else{
+//                            Event.populate(event,'-_id', populate, function(err, event){
+//                                if(err){console.log(err); return;}
+//                                events.push(event);
+//                                res.send({
+//                                    'success'   : true,
+//                                    'msg'       : 'yuppi! - event has been created.',
+//                                    'events'   :   events
+//                                });
+//                            });
+//                            
+//                        }    
+//                    });  // event.save end
                 }); // Crud.cb end
             }); // event.find end           
         }
@@ -476,7 +482,7 @@ module.exports = function(app, passport){
                         event.flag = newEvent.flag;
                         event.setFlag = newEvent.setFlag;
                         // save update ant return ajax-call
-                                event.saveUpdateAndReturnAjax(res);
+                        event.saveUpdateAndReturnAjax(res);
                     }           
                     console.log('updated event '+event);             
                 });
@@ -484,13 +490,17 @@ module.exports = function(app, passport){
         }// update item end
         
         if(req.body.form == 'updateLocation'){
-
+            // sanitize values used in queries
             var locationId = Helper.sanitizeNumber(req.body.id);
-            Event.find({'id':event},'_id').exec(function(err, event){
+            var eventId = Helper.sanitizeNumber(req.body.event);
+            
+            // get event-object id used for referrencing
+            Event.findOne({'id':eventId},'_id').exec(function(err, event){
                 if(err){console.log(err); return;}
                 return event;
             })
             .then(function(event){
+                
                 Location.findOne({'id':locationId}, function(err, location){
                    if(err){console.log(err); return;}
 
@@ -505,14 +515,14 @@ module.exports = function(app, passport){
                             console.log('error '+err); 
                             res.send({
                                 'success'   :   false,
-                                'msg'       :   'could not update item',
+                                'msg'       :   'could not update location',
                                 'errors'    :   err.errors});
                         }else{
                             Location.find({},'-_id').populate('event','-_id').exec(function(err, locations){
                                 if(err){ return console.log(err);}
                                 res.send({
                                     'success'   :   true,
-                                    'msg'       :   'yuppi! - item has been updated.',
+                                    'msg'       :   'yuppi! - location has been updated.',
                                     'locations' :   locations
                                 });
 

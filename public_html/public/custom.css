@@ -45,7 +45,8 @@ thumbnails = #F7EDBF;
 /********* sidebar *****************/
 
 #sidebar{    
-    
+    min-height: 350px;
+    margin-bottom: 30px;
 }
 
 /**************** buttons *****************/
@@ -58,11 +59,6 @@ thumbnails = #F7EDBF;
 }
 
 /***************** list-styles *************/
-
-#playerlist li{
-    display: inline-block;
-    float:left;
-}
 
 .dl-horizontal dt{
     width: 100px;
@@ -80,6 +76,19 @@ thumbnails = #F7EDBF;
     background-color: #Fefefe;
 }
 
+/*** profile - playerstats *****/
+#profile {
+    width:100%;
+    overflow:hidden;
+}
+#profile dt {
+    float:left;
+    width:50%; /* adjust the width; make sure the total of both is 100% */
+}
+#profile dd {
+    float:left;
+    width:50%; /* adjust the width; make sure the total of both is 100% */
+}
 
 
 /**chat***************/
@@ -90,7 +99,7 @@ thumbnails = #F7EDBF;
 #chatWrapper{
     bottom: 0px; 
     position: relative;
-    height: 300px;
+    max-height: 360px;
     overflow-y: hidden;
     background-color: #Fefefe;
     border-radius: 25px;
@@ -101,7 +110,8 @@ thumbnails = #F7EDBF;
 
 #chatEntries{
     position: absolute;
-    bottom: 60px;
+    bottom: 10px;
+    padding-right: 45px;
     
 }
 
@@ -115,16 +125,6 @@ thumbnails = #F7EDBF;
     
 }
 
-#chatControls { 
-    position: absolute;
-    bottom: -20px;
-    z-index: 10;
-    height: 70px; 
-}
-
-#chatInput:focus{
-    border: 2px solid #F7EDBF;
-}
 
 /******** forms ***************/
 #fields .dynamic{

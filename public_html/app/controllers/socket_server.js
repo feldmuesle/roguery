@@ -5,10 +5,13 @@
 // get all the models we need
 var Helper = require('./helper_functions.js');
 //var User = require('../models/user.js');
+var Storyteller = require('./storyteller.js');
 var Game = require('./game_functions.js');
 
 // set global variables we need
 var clients = []; //array of users that are currently connected
+
+exports.clients = clients;
 var numUsers =0;
 // constants
 var MAXSUM = 130; // sum attributes must sum up to
@@ -24,6 +27,7 @@ var addSocket = function(socket, user){
         clients.push(client);
         numUsers++;
         console.log('socket added to clientArray');
+        console.log('socket added: '+client.socket);
         
         
     } else {
@@ -55,9 +59,20 @@ module.exports.response = function(socket){
                 var userId = clients[index].user;
                 Game.startGame(character, userId, function(data){
                     
-                    var player = data;
+                    var player = data['player'];
+                    var event = data['event'];
+                    var location = data['location'];
+                    var character = player.character[0];
+                    var storyteller = new Storyteller(socket);
+                    
                     // start the game client-side
-                    socket.emit('startGame', player);
+                    socket.emit('startGame', {'character':character});
+                    socket.emit('output', {'type':'location', 'text':location.text});
+                    
+                    Game.runEventChain(storyteller, player, event, function(action){
+                        console.log('hello from trigger event-callback');
+                    });
+                    
                 });
             }            
             

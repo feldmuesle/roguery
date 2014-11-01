@@ -77,9 +77,12 @@ exports.getRandomArrayItem = function(array){
 
 // get random value within range
 var getRandomNumber = function(min, max){
+    
     return Math.floor(Math.random() * (max - min + 1)) + min;
 
 };
+
+exports.getRandomNumber = getRandomNumber;
 
 // set characters attributes random, but must add on to max
 exports.getRandAttributes = function(max, attributesNum){

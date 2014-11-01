@@ -12,7 +12,8 @@ var PlayerSchema = Schema({
    character    :   [Character.schema],
    user         :   {type:Schema.ObjectId, ref:'User'},
    flags        :   [{type:Schema.ObjectId, ref:'Flag', index:true}],
-   event        :   {type:Schema.ObjectId, ref:'Flag', index:true}
+   event        :   {type:Schema.ObjectId, ref:'Flag', index:true},
+   gameSave     :   {type:Boolean, default:false}
 });
 
 PlayerSchema.set('toObject', {getters : true});
@@ -49,7 +50,14 @@ PlayerSchema.statics.createNew = function (character, userId, cb){
                 character.weapon = weapon._id;
                 player.character = character;
                 player.user = mongoose.Types.ObjectId(userId);
-                return cb(player);
+                player.save(function(err,player){
+                    if(err){console.log(err); return;}
+                   //repopulate
+                   self.populate(player,'character.weapon character.guild',function(err, player){
+                       if(err){console.log(err); return;}
+                       return cb(player);
+                   });
+                });                
         });
     });
   

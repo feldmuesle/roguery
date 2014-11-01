@@ -46,6 +46,10 @@ function resetEventForm(){
         foldOutRadio('choices');
         foldOutRadio('continue');
         
+        populateSelect(locations,'location');
+        populateSelect(locations,'succTrigger');
+        populateSelect(locations,'failTrigger');
+        
         //activate input-spinners for inputs of type number (-> function declared in helper.js)
         inputSpinner('choiceRandFold', 1, 8, 1);
         inputSpinner('diceFold', 5, 30, 5);

@@ -41,6 +41,11 @@ function getRandAttributes(max, attributesNum){
     return attributes;  
 };
 
+function capitaliseFirstLetter(string)
+{
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 // spinner for number-inputs
 
 function inputSpinner(foldId, step, max, min){
