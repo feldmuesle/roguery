@@ -63,6 +63,23 @@ PlayerSchema.statics.createNew = function (character, userId, cb){
   
 };
 
+/******* methods **********************/
+PlayerSchema.methods.looseAttr = function(attr, amount){
+    var self = this || mongoose.model('Player');
+    var own = self.character[0].attributes[attr];
+    if(own - amount > 0){
+        self.character[0].attributes[attr] -= amount;
+    }else {
+        self.character[0].attributes[attr] = 0;
+        if(attr == 'stamina'){
+            console.log('it all became too much for you, you died');
+            return 'dead';
+        }
+    }
+    console.log('new '+attr+': '+self.character[0].attributes[attr]);
+    return self;
+};
+
 var PlayerModel = mongoose.model('Player', PlayerSchema);
 module.exports = PlayerModel;
 

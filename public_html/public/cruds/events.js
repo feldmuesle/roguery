@@ -429,6 +429,7 @@ function removeAddOns(count, buttonId){
         
         // if it's a choice, set the choice-text
         if(isChoice == 'true'){
+            console.log('this event is a choice!');
             event.isChoice = choiceText;
         }
         
@@ -470,7 +471,7 @@ function removeAddOns(count, buttonId){
             var attributes = [];
             
             for(var i=0; i<attrCount; i++){
-                var attrAction = $('#createEvent input[name=attrAction'+i+']').val();
+                var attrAction = $('#createEvent input[name=attrAction'+i+']:checked').val();
                 var attr = $('#createEvent select[name=attr'+i+'] option:selected').val();
                 var attrNumb = $('#createEvent input[name=attrNumb'+i+']').val();
                 
@@ -645,7 +646,7 @@ function removeAddOns(count, buttonId){
             for(var i=0; i < event.attributes.length; i++){
                 if(i != 0){
                     $('.add-attr').click();
-                    $('#createEvent input[name=attrAction0]:radio[value='+event.attributes[i].action+']').attr('checked',true);
+                    $('#createEvent input[name=attrAction]:radio[value='+event.attributes[i].action+']').attr('checked',true);
                     $('#createEvent select[name=attr'+i+']').val(event.attributes[i].attribute).attr('selected','selected');                    
                     $('#createEvent input[name=attrNumb'+i+']').val(event.attributes[i].amount);
                 }else{

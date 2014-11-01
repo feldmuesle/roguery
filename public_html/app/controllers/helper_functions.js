@@ -12,8 +12,7 @@ exports.valEmpty = function(val){
         return val.length > 0;
     }else {
         return false;
-    }
-    
+    }    
 };
 
 // strip all 'mal-chars' and replace with ''
@@ -32,17 +31,16 @@ exports.sanitizeNumber = function (numb){
         return numb.replace(/[^0-9]/g, '');
     }else {
         console.log('number to sanitized is undefined');
-    }
-    
+    }    
 };
 
 /********** calculations *******************/
 
 // get index of assoc-array by key and value
 exports.getIndexByKeyValue = function(array, key, value){
-    console.log('key = '+key);
-    console.log('value='+value);
-    console.dir(array);
+//    console.log('key = '+key);
+//    console.log('value='+value);
+//    console.dir(array);
     for (var i = 0; i< array.length; i++){
         if (array[i][key] == value){
             return i;
@@ -105,29 +103,5 @@ exports.getRandAttributes = function(max, attributesNum){
 
 
 
-// get attribute-description depending on amount
-var getAttributDesc = function(attribute, value){
-  switch(true){
-        case(value < 5):
-            switch(attribute){
-                
-            }
-            break;
 
-        case(9 > value >=5):
-            break;
-            
-        case(14 > value <=9):
-            break;
-            
-        case(20 > value <=14):
-            break;    
-            
-        case(25 > value <=20):
-            break;  
-        
-        case(value >=25):
-            break;    
-  }  
-};
 

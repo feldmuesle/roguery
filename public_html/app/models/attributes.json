@@ -1,55 +1,89 @@
 {
-    "attributes": {
-        "poor"  : {
+        "horrible"  : {
             "stamina"   :   "nearly dying",
-            "charisma"  :   "hated",    
+            "charisma"  :   "none existing",    
             "duelling"  :   "hopeless",
-            "scouting"  :   "lost",
-            "roguery"   :   "naiv",
-            "magic"     :   "none",
+            "scouting"  :   "get's lost in the backyard",
+            "roguery"   :   "null",
+            "magic"     :   "powerless",
+            "healing"   :   "null",
+            "luck"      :   "cursed",
+            "heroism"   :   "wicked",
+            "streetwise":   "babe in the woods"
+        },
+        
+        "poor"  : {
+            "stamina"   :   "sickly",
+            "charisma"  :   "repulsive",    
+            "duelling"  :   "clumsy",
+            "scouting"  :   "terrible",
+            "roguery"   :   "terrible",
+            "magic"     :   "poor",
+            "healing"   :   "terrible",
+            "luck"      :   "ill-stared",
+            "heroism"   :   "corrupt",
+            "streetwise":   "clueless"            
+        },
+        
+        "fair"  : {
+            "stamina"   :   "unhealthy",
+            "charisma"  :   "despised",    
+            "duelling"  :   "slow",
+            "scouting"  :   "poor",
+            "roguery"   :   "poor",
+            "magic"     :   "fair",
             "healing"   :   "poor",
-            "luck"      :   "cursed"            
+            "luck"      :   "mediocre",
+            "heroism"   :   "selfish",
+            "streetwise":   "foolish"            
         },
         "alright"  : {
-            "stamina"   :   "nearly dying",
-            "charisma"  :   "hated",    
-            "duelling"  :   "hopeless",
-            "scouting"  :   "lost",
-            "roguery"   :   "naiv",
-            "magic"     :   "none",
-            "healing"   :   "poor",
-            "luck"      :   "cursed"            
+            "stamina"   :   "unremarkable",
+            "charisma"  :   "innocuous",    
+            "duelling"  :   "average",
+            "scouting"  :   "mediocre",
+            "roguery"   :   "mediocre",
+            "magic"     :   "moderate",
+            "healing"   :   "mediocre",
+            "luck"      :   "lucky",
+            "heroism"   :   "wavering",
+            "streetwise":   "unwise"            
         },
         "good"  : {
-            "stamina"   :   "nearly dying",
-            "charisma"  :   "hated",    
-            "duelling"  :   "hopeless",
-            "scouting"  :   "lost",
-            "roguery"   :   "naiv",
-            "magic"     :   "none",
-            "healing"   :   "poor",
-            "luck"      :   "lucky"            
+            "stamina"   :   "healthy",
+            "charisma"  :   "likeable",    
+            "duelling"  :   "agile",
+            "scouting"  :   "good",
+            "roguery"   :   "good",
+            "magic"     :   "considerable",
+            "healing"   :   "good",
+            "luck"      :   "auspicious",
+            "heroism"   :   "good-hearted",
+            "streetwise":   "alert"            
         },
         "perfect"  : {
-            "stamina"   :   "nearly dying",
-            "charisma"  :   "hated",    
-            "duelling"  :   "hopeless",
-            "scouting"  :   "lost",
-            "roguery"   :   "naiv",
-            "magic"     :   "none",
-            "healing"   :   "poor",
-            "luck"      :   "cursed"           
+            "stamina"   :   "robust",
+            "charisma"  :   "charming",    
+            "duelling"  :   "dangerous",
+            "scouting"  :   "terrific",
+            "roguery"   :   "great",
+            "magic"     :   "superb",
+            "healing"   :   "superb",
+            "luck"      :   "charmed",
+            "heroism"   :   "bold",
+            "streetwise":   "crafty"           
         },
         "excellent"  : {
-            "stamina"   :   "nearly dying",
-            "charisma"  :   "hated",    
-            "duelling"  :   "hopeless",
-            "scouting"  :   "lost",
-            "roguery"   :   "naiv",
-            "magic"     :   "none",
-            "healing"   :   "poor",
-            "luck"      :   "blessed"         
+            "stamina"   :   "unstoppable",
+            "charisma"  :   "mesmerising",    
+            "duelling"  :   "deadly",
+            "scouting"  :   "legendary",
+            "roguery"   :   "legendary",
+            "magic"     :   "overwhelming",
+            "healing"   :   "excellent",
+            "luck"      :   "blessed",
+            "heroism"   :   "heroic",
+            "streetwise":   "cunning as a shithouse rat"         
         }
-        
-    }
+       
 }

@@ -7,6 +7,7 @@ var socket = io.connect();
 
 // initialize variables
 var character;
+var attrDesc; // the description for attribute-amounts
 
 
 // constants
@@ -15,6 +16,8 @@ var ATTRNUM = 12;  // number of attributes
 
 $(document).ready(function(){   
 
+
+/********* interaction with game **********/
     $('#play').click(function(){
            console.log('character from random: ');
            var data = {
@@ -44,12 +47,24 @@ $(document).ready(function(){
        }       
     });
     
+    //click a choice
+    $(document).on('click','.choice', function(){
+        console.log('you clicked a choice');
+        var self = this;
+        var choiceId = self.id.substr(6,this.id.length); // choice = 6 chars
+        socket.emit('choiceMade', {'choice':choiceId});
+    });
+    
     // in case data has been tempered and escaped client-side-validation
     socket.on('notValid', function(data){
         console.log('hello from NotValid socket');
         console.dir(data);
        character = data;
        customizeCharacter(character);
+    });
+    
+    socket.on('initialize', function(data){
+        attrDesc = data['attrDesc'];
     });
     
     socket.on('startGame', function(data){
@@ -64,18 +79,20 @@ $(document).ready(function(){
         
         var type = data['type'];
         var text = data['text'];
-        console.dir(data);
-        console.log(text);
         appendToChat('story', capitaliseFirstLetter(text));
     });
     
     socket.on('updateAttr', function(data){
+        character = data['character'];
         var attribute = data['attribute'];
         var amount = data['amount'];
         var action = data['action'];
         action == 'loose' ? action='-' : action='+';
         var msg = attribute+' '+action+amount;
         appendToChat('info', capitaliseFirstLetter(msg));
+        
+        var value = character.attributes[attribute];
+        updatePlayerStats(attribute, value);
     });
     
     socket.on('rollDice', function(data){
@@ -85,7 +102,24 @@ $(document).ready(function(){
         var advanced = data['advanced'];
         
         var msg = attribute+' roll, difficulty '+difficulty +' - You '+outcome;
+        if(advanced){
+            msg = attribute+' roll, difficulty '+difficulty +' ADVANCED! - You '+outcome;
+        }
         appendToChat('dices', capitaliseFirstLetter(msg));
+    });
+    
+    socket.on('choices', function(data){
+        console.log('hello form choices');
+        var choices = data['choices'];
+        var list = '<ul>';
+        for(var i=0; i<choices.length; i++){
+            var choice = '<li id="choice'+choices[i].id+'" class="choice">'+choices[i].choiceText+'</li>';
+            list += choice;
+        }
+        list += '</ul>';
+        console.log('append to chat '+list);
+        
+        appendToChat('dices', list);
     });
 
 });

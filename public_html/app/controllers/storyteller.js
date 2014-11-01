@@ -14,10 +14,11 @@ var storyTeller = function Storyteller (socket){
         self.socket.emit('output', {'text':text});
     };
     
-    self.updateAttr = function(attribute, amount, action){
+    self.updateAttr = function(character, attribute, amount, action){
         console.log(action +' '+amount+' '+attribute);  
         console.log('hello from storyteller-listener write: sending msg to client');
         var data = {
+            'character': character,
             'attribute': attribute,
             'action'   : action,
             'amount'   : amount

@@ -114,7 +114,7 @@ EventSchema.methods.saveUpdateAndReturnAjax = function(res){
         {path:'reqFlag', select:'name id -_id'}, {path:'location', select:'name id -_id'}, 
         {path:'dice.failure.location', select:'name id -_id'},{path:'items', select:'name id -_id'}, 
         {path:'dice.success.location', select:'name id -_id'}, {path:'dice.success.event', select:'name id -_id'}, 
-        {path:'dice.failure.event', select:'name id -_id'},{path:'choices', select:'name id -_id'}, 
+        {path:'dice.failure.event', select:'name id -_id'},{path:'choices', select:'name id'}, 
         {path:'continueTo.location', select:'name id -_id'}, {path:'continueTo.event', select:'name id -_id'}, 
         {path:'continue.random', select:'name id -_id'} ];
     
@@ -156,7 +156,7 @@ EventSchema.statics.getPopuQuery = function(){
         {path:'reqFlag', select:'name id -_id'}, {path:'location', select:'name id -_id'}, 
         {path:'dice.failure.location', select:'name id -_id'},{path:'items', select:'name id -_id'}, 
         {path:'dice.success.location', select:'name id -_id'}, {path:'dice.success.event', select:'name id -_id'}, 
-        {path:'dice.failure.event', select:'name id -_id'},{path:'choices', select:'name id -_id'}, 
+        {path:'dice.failure.event', select:'name id -_id'},{path:'choices', select:'name id choiceText'}, 
         {path:'continueTo.location', select:'name id -_id'}, {path:'continueTo.event', select:'name id -_id'}, 
         {path:'continue.random', select:'name id -_id'} ];
     

@@ -21,7 +21,7 @@ thumbnails = #F7EDBF;
 @import url(http://fonts.googleapis.com/css?family=Source+Code+Pro:500,700,600);
 
 #wrapper{
-    margin:0px 10px;
+    margin:0px auto;
 }
 
 #topBar{
@@ -91,7 +91,7 @@ thumbnails = #F7EDBF;
 }
 
 
-/**chat***************/
+/** chat ***************/
 .highlight{
     font-weight: bold;
 }
@@ -115,18 +115,21 @@ thumbnails = #F7EDBF;
     
 }
 
-/*#chatEntries li:first-child { 
-    position: absolute; 
-    bottom: 0; 
-}*/
-
 #chatEntries li.help {
     font-weight: bold;
     
 }
+/*choices*/
+li.choice {
+    font-weight: bold;
+}
+li.choice:hover {
+    cursor: pointer;
+    color: #0b97c4;
+}
 
 
-/******** forms ***************/
+/******** FORMS ***************/
 #fields .dynamic{
     margin-bottom: 15px;
 }

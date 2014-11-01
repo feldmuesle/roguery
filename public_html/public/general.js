@@ -6,13 +6,14 @@ $(function(){
     $('#game').hide();
     $('#chatWrapper').hide();
     $('#profile').hide();
-    $('#playerlist').hide();
-    $('#roomPlayerlist').hide();
+//    $('#playerlist').hide();
+//    $('#roomPlayerlist').hide();
     $('#gameSignup').hide();
     $('#alert').hide();
     $('#alertSum').hide();
+    $('#alertCharacter').hide();
     $('#validSum').hide();
-    $('#pseudoInput').focus();
+//    $('#pseudoInput').focus();
     $('.thumbnail').hide();
     $('#loadGame').click(function(){loadGame();});
     $('#loadGame1').click(function(){loadGame();});
@@ -42,45 +43,77 @@ function gameInit(){
     $('#chatInput').focus();
 }
 
-// display character with attributes
-function displayPlayerStats(character){
-        console.log('hello from display PlayerSats');
-        var stats =[];
+function getStatsList(character){
+    var stats =[];
                
         var name = '<dt>Name </dt><dd id="name">'+character.name+'</dd>';
         var guild = '<dt><span class="glyphicon glyphicon-flag"></span> Guild: </dt><dd>'+character.guild.name+'</dd>';
         var stamina = '<dt><span class="glyphicon glyphicon-heart"></span> Stamina </dt>'+
             '<dd id="stamina">'+character.attributes.stamina+'<span id="maxStam">/'+character.attributes.maxStam+'</span>'+
-            '<span class="statDesc" id="staminaDesc"> moderate</span></dd>';
+            '<span class="statDesc" id="staminaDesc"> '+getAttributDesc('stamina',character.attributes.stamina)+'</span></dd>';
         var charisma='<dt><span class="glyphicon glyphicon-fire"></span> Charisma </dt>'+
-            '<dd id="charisma">'+character.attributes.charisma+'<span class="statDesc" id="charismaDesc"> likeable</span></dd>';
+            '<dd id="charisma">'+character.attributes.charisma+
+            '<span class="statDesc" id="charismaDesc"> '+getAttributDesc('charisma',character.attributes.charisma)+'</span></dd>';
         var duelling = '<dt><span class="glyphicon glyphicon-flash"></span> Duelling </dt>'+
-            '<dd id="duelling">'+character.attributes.duelling+'<span class="statDesc" id="duellingDesc"> agile</span></dd>';
+            '<dd id="duelling">'+character.attributes.duelling+
+            '<span class="statDesc" id="duellingDesc"> '+getAttributDesc('duelling',character.attributes.duelling)+'</span></dd>';
         var scouting = '<dt><span class="glyphicon glyphicon-move"></span> Scouting </dt>'+
-            '<dd id="scouting">'+character.attributes.scouting+'<span class="statDesc" id="scoutingDesc"> lost</span></dd>';
+            '<dd id="scouting">'+character.attributes.scouting+
+            '<span class="statDesc" id="scoutingDesc"> '+getAttributDesc('scouting',character.attributes.scouting)+'</span></dd>';
         var heroism = '<dt><span class="glyphicon glyphicon-move"></span> Heroism </dt>'+
-            '<dd id="heroism">'+character.attributes.heroism+'<span class="statDesc" id="heroismDesc"> wicked</span></dd>';
+            '<dd id="heroism">'+character.attributes.heroism+
+            '<span class="statDesc" id="heroismDesc"> '+getAttributDesc('heroism',character.attributes.heroism)+'</span></dd>';
         var roguery = '<dt><span class="glyphicon glyphicon-fire"></span> Roguery </dt>'+
-            '<dd id="roguery">'+character.attributes.roguery+'<span class="statDesc" id="rogueryDesc"> bad ass</span></dd>';
+            '<dd id="roguery">'+character.attributes.roguery+
+            '<span class="statDesc" id="rogueryDesc"> '+getAttributDesc('roguery',character.attributes.roguery)+'</span></dd>';
         var magic = '<dt><span class="glyphicon glyphicon-flash"></span> Magic </dt>'+
-            '<dd id="magic">'+character.attributes.magic+'<span class="statDesc" id="magicDesc"> moderate</span></dd>';
+            '<dd id="magic">'+character.attributes.magic+
+            '<span class="statDesc" id="magicDesc"> '+getAttributDesc('magic',character.attributes.magic)+'</span></dd>';
         var healing = '<dt><span class="glyphicon glyphicon-move"></span> Healing </dt>'+
-            '<dd id="healing">'+character.attributes.healing+'<span class="statDesc" id="healingDesc"> miserable</span></dd>';
+            '<dd id="healing">'+character.attributes.healing+
+            '<span class="statDesc" id="healingDesc"> '+getAttributDesc('healing',character.attributes.healing)+'</span></dd>';
         var luck = '<dt><span class="glyphicon glyphicon-fire"></span> Luck </dt>'+
-            '<dd id="luck">lucky'+character.attributes.luck+'<span class="statDesc" id="luckDesc"> blessed</span></dd>';
+            '<dd id="luck">'+character.attributes.luck+
+            '<span class="statDesc" id="luckDesc"> '+getAttributDesc('luck',character.attributes.luck)+'</span></dd>';
         var streetwise = '<dt><span class="glyphicon glyphicon-fire"></span> Heroism </dt>'+
-            '<dd id="streetwise">blank'+character.attributes.streetwise+'<span class="statDesc" id="streetwiseDesc"> blessed</span></dd>';
+            '<dd id="streetwise"> '+character.attributes.streetwise+
+            '<span class="statDesc" id="streetwiseDesc"> '+getAttributDesc('streetwise',character.attributes.streetwise)+'</span></dd>';
         var coins = '<dt><span class="glyphicon glyphicon-flash"></span> Coins </dt>'+
             '<dd id="coins">'+character.attributes.coins+'</dd>';
 
         stats.push(name, guild, stamina, charisma, duelling, scouting, heroism,
                     roguery, magic, healing, luck, streetwise, coins);
+                    
+        return stats;
+}
+
+// display character with attributes
+function displayPlayerStats(character){
+        console.log('hello from display PlayerSats');
+        
+        var stats = getStatsList(character);        
         var playerstats = '<h3>Profile</h3>';
+        
         for(var i=0; i< stats.length; i++){
             playerstats = playerstats + stats[i];            
         }
         $('#profile').html(playerstats);
     };
+    
+    // update single attribute in playerStats
+    function updatePlayerStats(attribute, newValue){
+        console.log('hello from updatePlayerStats');
+        
+        if(attribute == 'stamina'){
+            console.log('update stamina');
+            // if its stamina, also display maxStam-span
+            var maxStam = '<span id="maxStam">/'+character.attributes.maxStam+'</span>';
+            $('#profile').find('#'+attribute).html(newValue+maxStam);
+            return;
+        }
+        // pick the right dd-element
+        $('#profile').find('#'+attribute).html(newValue);
+    }
 
 /*********** Text-stream - story ***************/
 
@@ -88,7 +121,6 @@ function displayPlayerStats(character){
 function appendToChat(cssClass, text){
     $('<li class="'+cssClass+'">'+text+'</li>').hide().appendTo('#chatEntries').slideDown('fast');
 }
-
 
 /******* character generator ****************/
 
@@ -118,6 +150,43 @@ function createRandCharacter(){
         return character;
     };
     
+
+    
+// get attribute-description depending on amount
+var getAttributDesc = function(attribute, value){
+    var key='';
+    
+    switch(true){
+        case(value <= 3):
+            key = 'horrible';
+            break;
+
+        case(7 > value >=4):
+            key = 'poor';
+            break;
+
+        case(10 > value >=7):
+            key = 'fair';
+            break;
+
+        case(13 > value <=10):
+            key = 'alright';
+            break;    
+
+        case(16 > value <=13):
+            key = 'good';
+            break;  
+        
+        case(21 > value <=16):
+              key = 'perfect';
+              break;
+
+        case(value >=21):
+            key = 'excellent';
+            break;    
+    }      
+    return attrDesc[key][attribute];
+};
     
 // populate modal with random character data
 function setRandCharacter(){
@@ -133,34 +202,8 @@ function setRandCharacter(){
     //clear lists to make sure no old data is left
     display.html('');
     inventory.html('<dt class="dlHeading">Inventory</dt>');
-    var name = '<dt>Name </dt><dd id="name">'+character.name+'</dd>';
-    var guild = '<dt><span class="glyphicon glyphicon-flag"></span> Guild: </dt><dd>'+character.guild.name+'</dd>';
-    var stamina = '<dt><span class="glyphicon glyphicon-heart"></span> Stamina </dt>'+
-        '<dd id="stamina">'+character.attributes.stamina+'<span id="maxStam">/'+character.attributes.maxStam+'</span>'+
-        '<span class="statDesc" id="staminaDesc"> moderate</span></dd>';
-    var charisma='<dt><span class="glyphicon glyphicon-fire"></span> Charisma </dt>'+
-        '<dd id="charisma">'+character.attributes.charisma+'<span class="statDesc" id="charismaDesc"> likeable</span></dd>';
-    var duelling = '<dt><span class="glyphicon glyphicon-flash"></span> Duelling </dt>'+
-        '<dd id="duelling">'+character.attributes.duelling+'<span class="statDesc" id="duellingDesc"> agile</span></dd>';
-    var scouting = '<dt><span class="glyphicon glyphicon-move"></span> Scouting </dt>'+
-        '<dd id="scouting">'+character.attributes.scouting+'<span class="statDesc" id="scoutingDesc"> lost</span></dd>';
-    var heroism = '<dt><span class="glyphicon glyphicon-move"></span> Heroism </dt>'+
-        '<dd id="heroism">'+character.attributes.heroism+'<span class="statDesc" id="heroismDesc"> wicked</span></dd>';
-    var roguery = '<dt><span class="glyphicon glyphicon-fire"></span> Roguery </dt>'+
-        '<dd id="roguery">'+character.attributes.roguery+'<span class="statDesc" id="rogueryDesc"> bad ass</span></dd>';
-    var magic = '<dt><span class="glyphicon glyphicon-flash"></span> Magic </dt>'+
-        '<dd id="magic">'+character.attributes.magic+'<span class="statDesc" id="magicDesc"> moderate</span></dd>';
-    var healing = '<dt><span class="glyphicon glyphicon-move"></span> Healing </dt>'+
-        '<dd id="healing">'+character.attributes.healing+'<span class="statDesc" id="healingDesc"> miserable</span></dd>';
-    var luck = '<dt><span class="glyphicon glyphicon-fire"></span> Luck </dt>'+
-        '<dd id="luck">lucky'+character.attributes.luck+'<span class="statDesc" id="luckDesc"> blessed</span></dd>';
-    var streetwise = '<dt><span class="glyphicon glyphicon-fire"></span> Heroism </dt>'+
-        '<dd id="streetwise">blank'+character.attributes.streetwise+'<span class="statDesc" id="streetwiseDesc"> blessed</span></dd>';
-    var coins = '<dt><span class="glyphicon glyphicon-flash"></span> Coins </dt>'+
-        '<dd id="coins">'+character.attributes.coins+'</dd>';
-    
-    stats.push(name, guild, stamina, charisma, duelling, scouting, heroism,
-                    roguery, magic, healing, luck, streetwise, coins);
+
+    var stats = getStatsList(character);
     
     // append all stats
     for(var i=0; i<stats.length; i++){
@@ -281,6 +324,7 @@ function validateSum (attributes){
         return true;
     }
 }
+
 // adjust height of chatlist to current window
 function setAutoHeight(){
     var windowH = $(document).height();

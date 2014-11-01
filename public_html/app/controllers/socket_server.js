@@ -26,25 +26,28 @@ var addSocket = function(socket, user){
         var client = {'user':user, 'socket':socket};
         clients.push(client);
         numUsers++;
-        console.log('socket added to clientArray');
-        console.log('socket added: '+client.socket);
-        
+        console.log('socket added to clientArray');      
         
     } else {
-        console.log('user already registered');
-    }
-    
+        console.log('user already registered, no new client added.');
+    }    
 };
 
 // socket-response and listeners
 module.exports.response = function(socket){
     console.log('hello from socket-response'); 
-    console.log('socketId '+socket.id);    
+    console.log('socketId '+socket.id); 
+    
+    { // send AttributeDescription to client
+        var attrDesc = Game.getAttrDescriptions();
+        socket.emit('initialize', {'attrDesc':attrDesc});
+        
+    }
         
     socket.on('play', function(data){
-        console.log(data);
-        var character = data['character'];
         
+        var character = data['character'];
+        // add the socket together with user to clientsarray
         addSocket(socket, data['user']);
         
         // check first if the character has the right amount of attributes
@@ -54,7 +57,7 @@ module.exports.response = function(socket){
             
             // get userId from clients-array by socket and start the game
             var index = Helper.getIndexByKeyValue(clients, 'user',data['user']);
-            console.log('index ='+index);
+            
             if(index != null){
                 var userId = clients[index].user;
                 Game.startGame(character, userId, function(data){
@@ -64,13 +67,32 @@ module.exports.response = function(socket){
                     var location = data['location'];
                     var character = player.character[0];
                     var storyteller = new Storyteller(socket);
+                    //store player together with socket
+                    clients[index].player = player;                    
                     
                     // start the game client-side
                     socket.emit('startGame', {'character':character});
                     socket.emit('output', {'type':'location', 'text':location.text});
                     
-                    Game.runEventChain(storyteller, player, event, function(action){
+                    Game.runEventChain(storyteller, player, event, function(data){
                         console.log('hello from trigger event-callback');
+                        var continType = data['continType'];
+                        var player = data['player'];
+                        
+                        //store player together with socket
+                        clients[index].player = player;                        
+                        
+                        console.log('continType = '+continType);
+                        if(continType == 'choices'){
+                            var choices = data['choices'];
+                            socket.emit('choices', {'choices':choices});
+                            
+                        }else if(continType == 'location'){
+                            
+                        }else {
+                            // you have come to the end!
+                        }
+                        
                     });
                     
                 });
@@ -81,6 +103,44 @@ module.exports.response = function(socket){
             console.log(data);
             socket.emit('notValid', data);
         }
+        
+    });
+    
+    socket.on('choiceMade', function(data){
+        var choiceId = data['choice'];
+        
+        // get player out from clients-array by socket 
+        var index = Helper.getIndexByKeyValue(clients, 'socket',socket);
+        var player = clients[index].player;
+        var storyteller = new Storyteller(socket);
+        
+        // fetch entire chosen event from db and run new eventChain
+        Game.getChoice(choiceId, function(event){
+            console.log('hello from getChoice callback, event= '+event);
+            Game.runEventChain(storyteller, player, event, function(data){
+               ;
+                var continType = data['continType'];
+                var player = data['player'];
+
+                //store player together with socket
+                clients[index].player = player;
+                console.log('continType = '+continType);
+                if(continType == 'choices'){
+                    var choices = data['choices'];
+                    socket.emit('choices', {'choices':choices});
+
+                }else if(continType == 'location'){
+
+                }else {
+                    // you have come to the end!
+                    console.log('you have come to the end!');
+                }
+
+            });
+        });
+        
+        
+        
         
     });
     

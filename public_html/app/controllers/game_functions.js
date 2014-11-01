@@ -10,6 +10,7 @@ var Player = require('../models/player.js');
 var Guild = require('../models/guild.js');
 var Weapon = require('../models/weapon.js');
 var Character = require('../models/character.js');
+var attrDesc = require('../models/attributes.json');
 
 var Helper = require('./helper_functions.js');
 
@@ -60,7 +61,7 @@ function rollSuperDice(player, storyteller, attribute, difficulty){
 }
 
 function rollDices(diceBranch, storyteller, player){
-    console.log('storyteller from within roll dices');
+    console.log('roll dices');
     
     // get attribute
     var attribute = diceBranch.attribute;
@@ -101,6 +102,7 @@ function rollDices(diceBranch, storyteller, player){
     }else{
         console.log('you got beaten!');
         // tell player about outcome of dice-rolls
+                       
         var outcome = {
             'attribute':attribute,
             'difficulty':difficulty,
@@ -108,16 +110,24 @@ function rollDices(diceBranch, storyteller, player){
             'advanced':false
         };
         storyteller.rollDice(outcome);
+        
+        //special for magic-rolls beat-up: loose 1 or 2 stamina(rand)
+        if(attribute == 'magic'){
+            var rand = Helper.getRandomNumber(1,2);
+            player.character[0].attributes.stamina -= rand;
+            storyteller.updateAttr(player.character[0], attribute, rand, 'loose');
+        }
+        
         continType = diceBranch.failure.type;
         
         if(continType == 'succLoco'){
             continueTo = diceBranch.failure.location;
             continType = 'location';
-            console.log('success continue to location: '+diceBranch.failure.location.name);
+            console.log('failure continue to location: '+diceBranch.failure.location.name);
         }else{
             continueTo = diceBranch.failure.event;
             continType = 'event';
-            console.log('success continue to event: '+diceBranch.failure.event.name);
+            console.log('failure continue to event: '+diceBranch.failure.event.name);
         }
     }
     
@@ -139,14 +149,26 @@ function runEvent(storyteller, player, event){
         for(var i=0; i<event.attributes.length; i++){
             var evAttr = event.attributes[i];
             if(evAttr.action == 'loose'){
-                player.character[0].attributes[evAttr.attribute] -= evAttr.amount;
-                console.log('player looses '+evAttr.amount+' of '+evAttr.attribute);
-                storyteller.updateAttr(evAttr.attribute, evAttr.amount, 'loose');
+                var character = player.character[0];
+                player = player.looseAttr(evAttr.attribute, evAttr.amount);
                 
+                // check if player is dead by loosing to much stamina
+                if(player == 'dead'){
+                    // end the game
+                    event.branchType = 'end'; 
+                    character.attributes['stamina'] = 0;
+                    
+                }else{
+                    character = player.character[0];
+                }
+                console.log('player looses '+evAttr.amount+' of '+evAttr.attribute);
+                storyteller.updateAttr(character, evAttr.attribute, evAttr.amount, 'loose');
+                                                
             }else{
                 player.character[0].attributes[evAttr.attribute] += evAttr.amount;
+                var character = player.character[0];
                 console.log('player gains '+evAttr.amount+' of '+evAttr.attribute);
-                storyteller.updateAttr(evAttr.attribute, evAttr.amount, 'gain');
+                storyteller.updateAttr(character, evAttr.attribute, evAttr.amount, 'gain');
             }
         }
     }
@@ -201,6 +223,10 @@ function runEvent(storyteller, player, event){
             break;
             
         case'end':
+            
+            if(player == 'dead'){
+                continType = 'dead';
+            }
             break;
             
     } 
@@ -221,10 +247,8 @@ function processOutcome( continueChain, storyteller, result, callback ) {
     if(continueChain){
         
         if(continType == 'choices') {
-            console.log('choices given, let player decide');
-            console.log(result['choices']);     
+            console.log('processOutcome: choices given, let player decide');    
             var choices = result['choices'];
-            console.log(choices);
             next.choices = result['choices']; // expect array of objId
             processOutcome(false,storyteller, next, callback);
             //query events to get choices-text, ids
@@ -233,12 +257,11 @@ function processOutcome( continueChain, storyteller, result, callback ) {
         } else {
             var continueTo = result['continueTo'];
             //continue chain and trigger next event/location
-            console.log('trigger new '+continType);
-        //        console.dir(result);
+            console.log('processOutcome: trigger new '+continType);
+
             if(continType == 'event'){
                 // get new event from db and trigger a new event
                 var opts = Event.getPopuQuery();
-                console.log('eventId'+continueTo.id);
                 Event.findOne({'id': continueTo.id}).populate(opts).exec(function(err,event1){
                     if(err){console.log(err); return;}
                     console.log('to do: fire new event');
@@ -249,7 +272,7 @@ function processOutcome( continueChain, storyteller, result, callback ) {
                 // trigger a new location
                 Location.findOne({'id': continueTo.id}).populate('event','id,name,-_id').exec(function(err,loco1){
                     if(err){console.log(err); return;}
-                    return event1;
+                    return loco1;
                 }).then(function(loco1){
                     next.continueTo = loco1;
                     console.log('to do: fire new location');
@@ -318,9 +341,8 @@ exports.runEventChain = function(storyteller, player, event, cb){
         next.player = endResult['player'];
         
         if(continType == 'choices') {
-            console.log('choices given, let player decide');
-            console.log(result['choices']);        
-            next.choices = result['choices']; // expect array of objId
+            console.log('choices given, let player decide');        
+            next.choices = endResult['choices']; // expect array of objId
             return cb(next);
             //query events to get choices-text, ids
             //stop the chain and return cb with choices
@@ -331,6 +353,18 @@ exports.runEventChain = function(storyteller, player, event, cb){
         }
     });  
 };
+
+// get a choice by eventId
+exports.getChoice = function(eventId, cb){
+    var id = Helper.sanitizeNumber(eventId);
+    var opts = Event.getPopuQuery();
+    Event.findOne({'id':id}).populate(opts).exec(function(err, event){
+       if(err){console.log(err); return;}
+       return cb(event);
+    });
+};
+
+
 
 // check if attributes sum up to maxsum
 exports.checkAttributeSum = function (attributes, maxSum){
@@ -346,4 +380,8 @@ exports.checkAttributeSum = function (attributes, maxSum){
     var valid = (sum == maxSum) ? true : false;
     console.log(valid);
     return valid;
+};
+
+exports.getAttrDescriptions = function(){
+    return attrDesc;
 };
