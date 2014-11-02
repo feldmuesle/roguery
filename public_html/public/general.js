@@ -6,28 +6,18 @@ $(function(){
     $('#game').hide();
     $('#chatWrapper').hide();
     $('#profile').hide();
-//    $('#playerlist').hide();
-//    $('#roomPlayerlist').hide();
     $('#gameSignup').hide();
     $('#alert').hide();
     $('#alertSum').hide();
     $('#alertCharacter').hide();
     $('#validSum').hide();
 //    $('#pseudoInput').focus();
-    $('.thumbnail').hide();
-    $('#loadGame').click(function(){loadGame();});
-    $('#loadGame1').click(function(){loadGame();});
+//    $('.thumbnail').hide();
+//    $('#loadGame').click(function(){loadGame();});
+//    $('#loadGame1').click(function(){loadGame();});
     //$('#newGame').click(function(){slideGameSignup();});
     $('#startGame').click(function(){displayRandCharacter();});
-//    $('#btnChatSubmit').click(function(){sendMessage(); return;});
-//    $('#chatInput').keypress(function(e){
-//
-//            var key = e.which;
-//        if(key == '13'){ //send message if user clicks enter
-//            sendMessage();
-//            return;
-//        }
-//    });
+    
 });
 
 // set screen-height, hide startup-form and show the game!!
@@ -75,11 +65,11 @@ function getStatsList(character){
         var luck = '<dt><span class="glyphicon glyphicon-fire"></span> Luck </dt>'+
             '<dd id="luck">'+character.attributes.luck+
             '<span class="statDesc" id="luckDesc"> '+getAttributDesc('luck',character.attributes.luck)+'</span></dd>';
-        var streetwise = '<dt><span class="glyphicon glyphicon-fire"></span> Heroism </dt>'+
+        var streetwise = '<dt><span class="glyphicon glyphicon-fire"></span> Streetwise </dt>'+
             '<dd id="streetwise"> '+character.attributes.streetwise+
             '<span class="statDesc" id="streetwiseDesc"> '+getAttributDesc('streetwise',character.attributes.streetwise)+'</span></dd>';
         var coins = '<dt><span class="glyphicon glyphicon-flash"></span> Coins </dt>'+
-            '<dd id="coins">'+character.attributes.coins+'</dd>';
+            '<dd id="coins">20</dd>';
 
         stats.push(name, guild, stamina, charisma, duelling, scouting, heroism,
                     roguery, magic, healing, luck, streetwise, coins);
@@ -100,20 +90,20 @@ function displayPlayerStats(character){
         $('#profile').html(playerstats);
     };
     
-    // update single attribute in playerStats
-    function updatePlayerStats(attribute, newValue){
-        console.log('hello from updatePlayerStats');
-        
-        if(attribute == 'stamina'){
-            console.log('update stamina');
-            // if its stamina, also display maxStam-span
-            var maxStam = '<span id="maxStam">/'+character.attributes.maxStam+'</span>';
-            $('#profile').find('#'+attribute).html(newValue+maxStam);
-            return;
-        }
-        // pick the right dd-element
-        $('#profile').find('#'+attribute).html(newValue);
+// update single attribute in  
+function updatePlayerStats(attribute, newValue){
+    console.log('hello from updatePlayerStats');
+
+    if(attribute == 'stamina'){
+        console.log('update stamina');
+        // if its stamina, also display maxStam-span
+        var maxStam = '<span id="maxStam">/'+character.attributes.maxStam+'</span>';
+        $('#profile').find('#'+attribute).html(newValue+maxStam);
+        return;
     }
+    // pick the right dd-element
+    $('#profile').find('#'+attribute).html(newValue);
+}
 
 /*********** Text-stream - story ***************/
 
@@ -126,26 +116,57 @@ function appendToChat(cssClass, text){
 
 // initialize game with random playing character - show in modal window
 function displayRandCharacter(){
-    console.log('show playing character');
-    setRandCharacter();
+    console.log('show random playing character');
+    var opts = createRandOpts();
+    character = createRandCharacter(opts);
+    setCharacter(character);
     $('#displayCharacter').modal('show');
 }
-//create a random character
-function createRandCharacter(){
+// display character when clicking on thumbnail
+$('.thumbnail').click(function(){
+    var charId = this.id.substr(5,this.id.length); // thumb = 5 chars
+    character = getRecordById(characters, charId);
+    setCharacter(character);
+    $('#displayCharacter').modal('show');
+
+});
+// create rand name, pick random guild & weapon for clients get random character
+function createRandOpts(){
+    var rand1 = getRandomNumber(0,characters.length-1);
     var rand = getRandomNumber(0,characters.length-1);
-    var rand2 = getRandomNumber(0,characters.length-1);
-    var values = getRandAttributes(MAXSUM,11);
     
-    var character = {
+    
+    var opts = {
+        weapon : characters[rand1].weapon,
         name : characters[rand].name,
-        guild: characters[rand].guild,
-        weapon: characters[rand2].weapon,
+        guild : characters[rand].guild
+    };
+    return opts;
+}
+
+
+//create a random character
+function createRandCharacter(opts){        
+    console.log('create random character');
+    var character = {
+        weapon :opts.weapon,
+        name : opts.name,
+        guild : opts.guild,
         inventory : [],
         attributes:{}
     };
-    for(var key in characters[rand].attributes){
+      
+    
+    var values = getRandAttributes(MAXSUM);
+    
+    for(var key in values){
         character.attributes[key] = values[key];
     }
+    // set maxStam to rand. more than stamina
+    
+    
+    // set amount of coins to 20 as default
+    character.attributes.coins = COINS;
     console.dir(character);
         return character;
     };
@@ -154,45 +175,56 @@ function createRandCharacter(){
     
 // get attribute-description depending on amount
 var getAttributDesc = function(attribute, value){
-    var key='';
+    var key;;
+    console.log('value is: '+value);
     
     switch(true){
         case(value <= 3):
             key = 'horrible';
+            console.log('horrible');
             break;
 
-        case(7 > value >=4):
+        case((7 > value)&&(value>=4)):
             key = 'poor';
+            console.log('poor');
             break;
 
-        case(10 > value >=7):
+        case((10 > value)&&(value>=7)):
             key = 'fair';
+            console.log('fair');
             break;
 
-        case(13 > value <=10):
+        case((13 > value) && (value >=10)):
             key = 'alright';
+            console.log('alright');
             break;    
 
-        case(16 > value <=13):
+        case((16 > value)&& (value >=13)):
             key = 'good';
+            console.log('good');
             break;  
         
-        case(21 > value <=16):
+        case((21 > value) && (value >=16)):
               key = 'perfect';
+              console.log('perfect');
               break;
 
         case(value >=21):
             key = 'excellent';
+            console.log('excellent');
             break;    
     }      
+    console.log('key is: '+key);
+    console.log('attribute is '+attribute);
+    
     return attrDesc[key][attribute];
 };
     
 // populate modal with random character data
-function setRandCharacter(){
+function setCharacter(character){
     var stats = [];
     var count = 0;
-    character = createRandCharacter();
+    
     console.dir(character);
     // get DOM-elemnts
     var inventory = $('#inventory');
@@ -202,7 +234,7 @@ function setRandCharacter(){
     //clear lists to make sure no old data is left
     display.html('');
     inventory.html('<dt class="dlHeading">Inventory</dt>');
-
+    console.log('image to display = '+character.guild.image);
     var stats = getStatsList(character);
     
     // append all stats
@@ -222,17 +254,25 @@ function setRandCharacter(){
             inventory.append(item);
             count++;
         }
+        
         // set height depending on the length of inventory
-        $('#displayBody').height(300+(10*count));
+        $('#displayBody').height(300+(10*count));  
     }
+    
+    //set image according to guild
+    $('#avatar').find('img').attr('src','./images/'+character.guild.image);
 }
+
 // get another random character
 $('#character').click(function(){
-    setRandCharacter();
+    var opts = createRandOpts();
+    character = createRandCharacter(opts);
+    setCharacter(character);
 });
     
 // customize random character
 $('#customize').click(function(){
+    $('#customizeCharacter').trigger('reset');
     customizeCharacter(character);
     console.log(character);
 });
@@ -240,7 +280,7 @@ $('#customize').click(function(){
 // populate modal with update-form for character with data
 function customizeCharacter(character){
     console.log('hello from character modal customization');
-    console.dir(character.name);
+    console.dir(character);
     $('#characterForms').modal('show');
 
     // reset the form
@@ -257,7 +297,8 @@ function customizeCharacter(character){
     });
     
     $('#customizeCharacter input[name=name]').val(character.name);
-    $('#customizeCharacter select[name=guild]').val(character.guild.name).attr('selected','selected');
+    $('#customizeCharacter select[name=guild]').val(character.guild.id).attr('selected','selected');
+    
     
         // loop through all attributes and set them according to character
     for(var key in character.attributes){
@@ -269,11 +310,12 @@ function customizeCharacter(character){
     // check if attributes sum up - they should by default, but just in case
     var sum = validateSum(character.attributes);
     // set weapon
-    $('#customizeCharacter select[name=weapon]').val(character.weapon.name).attr('selected','selected');
+    $('#customizeCharacter select[name=weapon]').val(character.weapon.id).attr('selected','selected');
 }
 
 // get customized playing-character
 function getCustomized (){
+    
     var character = {};
     character.name = $('#customizeCharacter input[name=name]').val();
     character.guild = $('#customizeCharacter select[name=guild]').val();
@@ -281,21 +323,32 @@ function getCustomized (){
     character.inventory =[] ;
     character.attributes = {};
     
-    for (var key in characters[0].attributes){ // characters[0} - use a character as mold for attributes
-        console.log('get attributes from form: '+key);
-        character.attributes[key] = $('#customizeCharacter input[name='+key+']').val();
+    var attributes = ['stamina','charisma','duelling', 'scouting', 'heroism', 'roguery',
+                    'magic', 'healing', 'luck', 'streetwise'];
+    
+    for (var i=0; i<attributes.length; i++){ 
+        console.log('get attributes from form: '+attributes[i]);
+        character.attributes[attributes[i]] = $('#customizeCharacter input[name='+attributes[i]+']').val();
     }
+    
+    // get random amount higher than 
+    var stamina = character.attributes.stamina;
+    var rand = getRandomNumber(1,5);
+    character.attributes.maxStam = parseInt(stamina)+rand;
+    console.log('stamina from getCustomized: '+stamina);
+    console.log('maxstam from getCustomized: '+character.attributes.maxStam);
+    character.attributes.coins = COINS;
     console.log('updated character ');
     console.dir(character);
     return character;
 }
 
 // sum up all attribute-values
-function sumAttributes(attribute){
+function sumAttributes(attributes){
     var sum = 0;
-    for(var key in attribute){
+    for(var key in attributes){
         // take only real attributes
-        if(key != 'maxStam'){
+        if(key != 'maxStam' && key != 'coins'){
             var value = $('#customizeCharacter input[name='+key+']').next('input').val();
             console.log(key+' ='+value);
             sum += parseInt(value);

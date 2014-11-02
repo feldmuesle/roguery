@@ -14,7 +14,8 @@ var clients = []; //array of users that are currently connected
 exports.clients = clients;
 var numUsers =0;
 // constants
-var MAXSUM = 130; // sum attributes must sum up to
+var MAXSUM = 100; // sum attributes must sum up to
+var COINS = 20; // default amount for coins;
 
 // add socket to array of current connected sockets
 var addSocket = function(socket, user){
@@ -101,7 +102,8 @@ module.exports.response = function(socket){
         }else{
             console.log('character is not valid - sending alert back');
             console.log(data);
-            socket.emit('notValid', data);
+            
+            socket.emit('notValid', data['character']);
         }
         
     });

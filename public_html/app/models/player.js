@@ -28,9 +28,18 @@ PlayerSchema.pre('save', function(next){
 PlayerSchema.statics.createNew = function (character, userId, cb){
     console.log('create new Player');
     var self = this || mongoose.model('Player');
-    // sanitize values used for getting objectIds of guild and weapon
-    var guildId = Helper.sanitizeNumber(JSON.stringify(character.guild.id));
-    var weaponId = Helper.sanitizeNumber(JSON.stringify(character.weapon.id));
+    var guildId;
+    var weaponId;
+    // check if the guildId is a string or in an object
+    if(character.guild.id){
+        // sanitize values used for getting objectIds of guild and weapon
+        guildId = Helper.sanitizeNumber(JSON.stringify(character.guild.id));
+        weaponId = Helper.sanitizeNumber(JSON.stringify(character.weapon.id));
+    }else{
+        guildId = Helper.sanitizeNumber(character.guild);
+        weaponId = Helper.sanitizeNumber(character.weapon);
+    }   
+    
     var guild = self.model('Guild');
     var weapon = self.model('Weapon');
     var player = new PlayerModel();

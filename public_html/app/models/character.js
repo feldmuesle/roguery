@@ -9,26 +9,26 @@ var Item = require('./item.js');
 var Weapon = require('./weapon.js');
 var Guild = require('./guild.js');
 var valEmpty = [Helper.valEmpty, 'The field \'{PATH}:\' must just not be empty.'];
-var values = Helper.getRandAttributes(130,12);
+var values = Helper.getRandAttributes(120,10);
 
 var CharacterSchema = new Schema({
     id          :   Number,
-    name        :   {type:String, trim:true, lowercase:true, validate:valEmpty},
+    name        :   {type:String, trim:true, validate:valEmpty},
     guild       :   {type: Schema.Types.ObjectId, ref:'Guild', index:true},
     gender      :   {type:String, trim:true, default:'male'},
     attributes  : {
             stamina  :   {type : Number, default:values[0]},
-            maxStam  :   {type : Number, default:values[1]},
-            charisma :   {type : Number, default:values[2]},    
-            duelling :   {type : Number, default:values[3]},
-            scouting :   {type : Number, default:values[4]},
-            roguery  :   {type : Number, default:values[5]},
-            heroism  :   {type : Number, default:values[6]},
-            streetwise:  {type : Number, default:values[7]},    
-            magic    :   {type : Number, default:values[8]},
-            healing  :   {type : Number, default:values[9]},
-            luck     :   {type : Number, default:values[10]},
-            coins    :   {type : Number, default:values[11]}
+            maxStam  :   {type : Number, default:values[0]+5},
+            charisma :   {type : Number, default:values[1]},    
+            duelling :   {type : Number, default:values[2]},
+            scouting :   {type : Number, default:values[3]},
+            roguery  :   {type : Number, default:values[4]},
+            heroism  :   {type : Number, default:values[5]},
+            streetwise:  {type : Number, default:values[6]},    
+            magic    :   {type : Number, default:values[7]},
+            healing  :   {type : Number, default:values[8]},
+            luck     :   {type : Number, default:values[9]},
+            coins    :   {type : Number, default:20}
         },
     inventory   :   [{type: Schema.Types.ObjectId, ref:'Item', index:true}],
     weapon      :   {type: Schema.Types.ObjectId, ref:'Weapon', index:true}
@@ -40,19 +40,25 @@ CharacterSchema.set('toObject', {getters : true});
 //
 //sanitize strings before saving
 CharacterSchema.pre('save', function(next){
+    
     var self = this || mongoose.model('Character');
+    // sanitize strings
     self.name = Helper.sanitizeString(self.name);
+    
+    //set maxStam to random bit higher than stamina
+//    var stamina = Helper.sanitizeNumber(JSON.stringify(self.attributes.stamina));
+//    var rand = Helper.getRandomNumber(1,5);
+//    console.log('maxstam result: '+stamina +rand);
+//    self.attributes.maxStam = stamina + rand;
 //    var attr = self.attributes.toObject();
-//    var attrib = Object.keys(attr);
-//    console.log('self '+self);
-//    console.log('self attributes '+self.attributes);
-//    console.dir(attr);
-//    console.log('self attributes '+attrib);
 //    for(var key in attr){
 //        if(attr.hasOwnProperty(key)){
 //            console.log('pre save character-attributes: '+key);
 //            var value = attr[key];
-//            attr[key] = Helper.sanitizeNumber(parseInt(value));
+//            self.attributes[key] = Helper.sanitizeNumber(JSON.stringify(value));
+//            if(key =='maxStam'){
+//                self.attributes[key] = Helper.sanitizeNumber(JSON.stringify(attr['stamina']));
+//            }
 //        }      
 //    }
     next();
@@ -61,6 +67,9 @@ CharacterSchema.pre('save', function(next){
 CharacterSchema.statics.createForPlayer = function(charObj){
     var model = this || mongoose.model('Character');
     var character = new model();
+    // set amount of coins to default
+    character.attributes.coins = COINS;
+    
     Guild.find({'name':charObj.guild.name}).exec(function(err, guild){
         if(err){console.log(err); return;}        
         character.guild = guild._id;

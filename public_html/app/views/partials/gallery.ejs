@@ -1,0 +1,27 @@
+<!-- This file contains the characters gallery -->
+<div id="gallery" class="row">
+        <div class="col-xs-8 col-xs-offset-2 col-sm-6 col-sm-offset-3 col-lg-6 col-lg-offset-3">
+            <div id="heading" class="row">
+                <div class="col-sm-8">
+                    <h2><span class="fa fa-sign-in"></span> choose a character</h2>
+                </div>
+                <div class="col-sm-4"> or
+                    <button id="startGame" type="button" class="btn btn-default btn-sm">Pick random</button>
+                    <% if (games.length > 0){%>
+                        <button id="viewSaved" type="button" class="btn btn-default btn-sm">View saved</button>
+                    <%}%>
+                </div>
+            </div>            
+            <div class="row">
+                <%for( var i=0; i<characters.length; i++){%>
+                    <div class="brik col-xs-4 col-md-3">
+                        <div id="thumb<%=characters[i].id%>" class="fadeImg thumbnail">
+                            <img src="./images/<%=characters[i].guild.image%>">
+                        <p class="caption"><%=characters[i].name%> - <%=characters[i].guild.name%></p>
+                        </div>                    
+                    </div>                                    
+                <%}%>
+                
+            </div>
+        </div>
+    </div>

@@ -1,107 +1,10 @@
 <% include ./partials/header.ejs %>
-    
-        <div id="pseudoSet" class="row">
-            <div class="col-xs-8 col-xs-offset-2 col-sm-6 col-sm-offset-3 col-lg-4 col-lg-offset-4">
-
-                <h1><span class="fa fa-sign-in"></span> almost there</h1>
-                <!-- show any messages that come back with authentication -->
-                 <div id="alert" class="alert alert-danger"></div>
-
-                 <% if (games.length > 0){%>
-                    <form id="gameChoice" action="/game" method="post">
-                        <div class="form-group text-center">
-                            <button id="loadGame" type="button" class="btn btn-info btn-lg">View saved game</button>
-                        </div>
-                        <div class="form-group text-center">
-                            <button id="startGame" type="button" class="btn btn-info btn-lg">Play new game</button>
-                        </div>
-                         <div id="form-group">
-                            <p class="text-center">When starting a new game your former game will be overridden</p>
-                        </div>
-                    </form>
-                    <!-- FORM TO SLIDE OPEN WHEN NEWGAME-BUTTON CLICKED -->
-                    <form id="gameSignup" action="/game" method="post">
-                        <h3>configure your player, please</h3>
-                        <div class="form-group">
-                            <label>Nickname</label>
-                            <input id="pseudoInput" type="text" class="form-control" name="nickname">
-                        </div>
-                        <div class="form-group">
-                            <label>Gender</label>
-                            <div>
-                                <label class="radio-inline">
-                                <input type="radio" name="gender" id="inlineRadio1" value="male" checked> male
-                                </label>
-                                <label class="radio-inline">
-                                  <input type="radio" name="gender" id="inlineRadio2" value="female"> female
-                                </label>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Choose guild</label>
-                            <select id="playerclass" class="form-control" name="guild">
-
-                                <%for( var i=0; i<guilds.length; i++){%>
-                                    <option value="<%=guilds[i].name%>"><%=guilds[i].name%></option>
-                                <%}%>
-                            </select>
-                        </div>
-                        <div class="form-group text-center">
-                            <button id="startGame1" type="button" class="btn btn-info btn-lg">Start new game</button>
-                            <% if (games.length > 0){%>
-                                <button id="loadGame1" type="button" class="btn btn-info btn-lg">Load former game</button>
-                            <%}%>
-                        </div>
-                    </form>          
-        
-                <%}else{%>
-                <form id="gameSignupVisible" action="/game" method="post">
-                    <h3>configure your player, please</h3>
-                    <div class="form-group">
-                        <label>Nickname</label>
-                        <input id="pseudoInput" type="text" class="form-control" name="nickname">
-                    </div>
-                    <div class="form-group">
-                        <label>Gender</label>
-                        <div>
-                            <label class="radio-inline">
-                            <input type="radio" name="gender" id="inlineRadio1" value="male" checked> male
-                            </label>
-                            <label class="radio-inline">
-                              <input type="radio" name="gender" id="inlineRadio2" value="female"> female
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Choose guild</label>
-                        <select id="playerclass" class="form-control" name="guild">
-                            
-                            <%for( var i=0; i<guilds.length; i++){%>
-                                <option value="<%=guilds[i].name%>"><%=guilds[i].name%></option>
-                            <%}%>
-                        </select>
-                    </div>
-                    <div class="form-group text-center">
-                        <button id="startGame" type="button" class="btn btn-info btn-lg">Start new game</button>
-                        
-                    </div>
-                </form>
-                
-                <%}%>
-                </div> <!-- form-column end -->
-
-                <% include ./partials/characterModal.ejs %>
-                <% include ./partials/characterForm.ejs %>
-                </div> <!--row end -->
-                
-        
-        <div id="game" class="row">        
-            
-            
-            
+<!-- row containing character-gallery -->
+    <% include ./partials/gallery.ejs %>
+<div id="game" class="row">               
             <section id="sidebar" class="col-sm-4 col-md-3  
                             col-lg-3  col-sm-push-8 col-md-push-7 col-lg-push-7">
-                <div class="thumbnail col-xs-12 col-sm-12">
+                <div class="profileBox col-xs-12 col-sm-12">
                     <dl id="profile"></dl>
                 </div>
             </section>
@@ -110,6 +13,14 @@
                 <ul id="chatEntries" class="list-unstyled"><li><li></ul>                
             </section>
         </div>
+<!-- start row for modals -->
+        <div id="pseudoSet" class="row">            
+            <% include ./partials/characterModal.ejs %>
+            <% include ./partials/characterForm.ejs %>            
+        </div> <!--row end -->
+                
+        
+        
 
 </div>
 <script>  

@@ -2,6 +2,7 @@
  * This file contains helper-functions for general calculations, random picks etc...
  */
 
+// misc-functions for helping
 // get random index of given array
 getRandomIndex = function(array){
    
@@ -10,6 +11,18 @@ getRandomIndex = function(array){
     return array[rand];
 };
 
+// get a certain record by its id
+function getRecordById(recordArray, recordId){
+    for(var i=0; i<recordArray.length; i++){
+            if(recordArray[i].id == recordId){
+                var room = recordArray[i];
+                return room;
+            }
+        }
+}
+
+
+
 // get random value within range
 function getRandomNumber(min, max){
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -17,17 +30,17 @@ function getRandomNumber(min, max){
 };
 
 // set characters attributes random, but must add on to max
-function getRandAttributes(max, attributesNum){
+function getRandAttributes(max){
     var attributes = {};
     var stamina = getRandomNumber(5,18);
-    var maxStam = getRandomNumber(stamina+1,20); // max must be always higher than stamina
+    var maxStam = getRandomNumber(stamina+1,stamina+5); // max must be always higher than stamina (max 5 higher)
     var currsum = stamina;
     
     attributes.stamina = stamina;
     attributes.maxStam = maxStam;
     
     var keys = ['charisma','duelling', 'scouting', 'heroism', 'roguery',
-                    'magic', 'healing', 'luck', 'streetwise'];
+                    'magic', 'healing', 'luck'];
     
     for(var i=0; i < keys.length; i++) {
         
@@ -35,9 +48,9 @@ function getRandAttributes(max, attributesNum){
        currsum += attributes[keys[i]];
        console.log('after '+keys[i]+', value='+attributes[keys[i]]+',cursum = '+currsum);
     }
-    attributes.coins = max - currsum;
-    console.log('coins cursum = '+currsum);
-    console.log( 'random attributes generated: sum='+(max - currsum - parseInt(attributes.coins)));
+    attributes.streetwise = max - currsum;
+    console.log('last attribute cursum = '+currsum);
+    console.log( 'random attributes generated: sum='+(max - currsum - parseInt(attributes.streetwise)));
     return attributes;  
 };
 

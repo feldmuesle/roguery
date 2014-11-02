@@ -371,7 +371,7 @@ exports.checkAttributeSum = function (attributes, maxSum){
     var sum=0;
     
     for( var key in attributes){
-        if(key != 'maxStam'){
+        if(key != 'maxStam' && key !='coins'){
             var value = attributes[key];
             sum += parseInt(value);
         }        

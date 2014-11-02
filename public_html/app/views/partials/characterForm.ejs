@@ -21,7 +21,7 @@
                         <select id="playerclass" class="form-control" name="guild">
                             
                             <%for( var i=0; i<guilds.length; i++){%> 
-                                <option value="<%=guilds[i].name%>"><%=guilds[i].name%></option>
+                                <option value="<%=guilds[i].id%>"><%=guilds[i].name%></option>
                             <%}%> 
                         </select>
                     </div>
@@ -98,13 +98,6 @@
                             <input class="value col-xs-2 col-xs-offset-1" type="text">
                         </div>
                     </div>
-                    <div>
-                        <label>Coins</label>
-                        <div class="col-xs-12">
-                            <input class="range col-xs-9" type="range" min="0" max="35" name="coins">
-                            <input class="value col-xs-2 col-xs-offset-1" type="text" >
-                        </div>
-                    </div>
                     </div>  <!-- formgroup attributes - end -->
                     <!-- formgroup inventory start -->
                     <div class="form-group">
@@ -114,7 +107,7 @@
                             <select id="playerclass" class="form-control" name="weapon">
 
                                 <%for( var i=0; i<weapons.length; i++){%> 
-                                    <option value="<%=weapons[i].name%>"><%=weapons[i].name%></option>
+                                    <option value="<%=weapons[i].id%>"><%=weapons[i].name%></option>
                                 <%}%> 
                             </select>
                         </div>

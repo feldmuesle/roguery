@@ -102,11 +102,15 @@ module.exports = function(app, passport){
             Weapon.find({},'-_id').exec(function(err, weapons){
                 
                 // also put all character-attr. in an array
-                var testChar = characters[0].attributes.toObject();
+                var char = new Character();
+                var testChar= char.toObject();
                 var attributes = Object.keys(testChar);
                 // remove maxStamina
                 var index = attributes.indexOf('maxStam');
                 attributes.splice(index,1);
+                
+                //get the images for the guilds
+                var images  = Guild.getImages();
 
                 console.log(attributes);
                 
@@ -120,6 +124,7 @@ module.exports = function(app, passport){
                    'events'     :   events,     
                    'attributes' :   attributes,
                    'guilds'     :   guilds,
+                   'images'     :   images,
                    'items'      :   items,
                    'locations'  :   locations,
                    'flags'      :   flags  
@@ -142,7 +147,10 @@ module.exports = function(app, passport){
             return guilds;                      
         })
         .then(function(guilds){
-            Character.find({},'-_id').populate('guild weapon inventory','name id -_id').exec(function(err, characters){
+            var opts = [{path:'weapon', select:'name id -_id'}, 
+                        {path:'inventory', select:'name id -_id'}, 
+                        {path:'guild', select:'name id image -_id'}];
+            Character.find({},'-_id').populate(opts).exec(function(err, characters){
                 if(err){ return console.log(err);}
                 return characters;
             })
@@ -306,6 +314,7 @@ module.exports = function(app, passport){
                 var guild = new Guild();
                 guild.id = id;
                 guild.name = req.body.name;
+                guild.image = req.body.image;
 
                 console.log('guild to create: '+guild);
 
@@ -366,14 +375,14 @@ module.exports = function(app, passport){
             
             var characterObj = req.body.character;
             // sanitize values used in query to get obj.ref
-            var guild = Helper.sanitizeString(characterObj.guild);
-            var weapon = Helper.sanitizeString(characterObj.weapon);
+            var guild = Helper.sanitizeNumber(characterObj.guild);
+            var weapon = Helper.sanitizeNumber(characterObj.weapon);
             
-            Guild.findOne({'name':guild},'_id').exec(function(err,guild){
+            Guild.findOne({'id':guild},'_id').exec(function(err,guild){
                 if(err){console.log(err); return;}
                 return guild;
             }).then( function(guild){
-                Weapon.findOne({'name':weapon},'_id').exec(function(err,weapon){
+                Weapon.findOne({'id':weapon},'_id').exec(function(err,weapon){
                     if(err){console.log(err); return;}
                     return weapon;
                 }).then( function(weapon){
@@ -602,6 +611,7 @@ module.exports = function(app, passport){
                if(err){console.log(err); return;}
 
                 guild.name = req.body.name;
+                guild.image = req.body.image;
 
                 guild.save(function(err){
                     if(err){
@@ -631,14 +641,14 @@ module.exports = function(app, passport){
             var characterUp = req.body.character;
             console.log('character to update: '+characterUp);
             var characterId = Helper.sanitizeNumber(characterUp.id);
-            var guild = Helper.sanitizeString(characterUp.guild);
-            var weapon = Helper.sanitizeString(characterUp.weapon);
+            var guild = Helper.sanitizeNumber(characterUp.guild);
+            var weapon = Helper.sanitizeNumber(characterUp.weapon);
             
-            Guild.findOne({'name':guild},'_id').exec(function(err,guild){
+            Guild.findOne({'id':guild},'_id').exec(function(err,guild){
                 if(err){console.log(err); return;}
                 return guild;
             }).then( function(guild){
-                Weapon.findOne({'name':weapon},'_id').exec(function(err,weapon){
+                Weapon.findOne({'id':weapon},'_id').exec(function(err,weapon){
                 if(err){console.log(err); return;}
                 return weapon;
             }).then( function(weapon){
@@ -682,6 +692,32 @@ module.exports = function(app, passport){
             
             
         }// update character end
+    
+        
+        
+        /********* DELETE **************/      
+        if(req.body.delete == 'itemDel'){
+            var itemId = Helper.sanitizeNumber(req.body.itemId);
+            Item.findOne({'id':itemId},function(err, item){
+                if(err){console.error(err); return;}
+               
+                item.remove(function(err){
+                    if(err){console.log(err); return;}
+                   
+                    Item.find(function(err, items){
+                        if(err){console.log(err); return;}
+
+                        res.send({
+                            'success':   true,
+                            'msg'    :   'item has been removed.',
+                            'items'  :   items
+                        }); 
+                    });
+                });
+               console.log('item has been removed');
+           }); 
+        }
+    
     });
     
     

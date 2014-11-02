@@ -11,26 +11,30 @@ var attrDesc; // the description for attribute-amounts
 
 
 // constants
-var MAXSUM = 130;  // max-sum of attributes add-up
-var ATTRNUM = 12;  // number of attributes
+var MAXSUM = 100;  // max-sum of attributes add-up
+//
+var COINS = 20 // default amount for coins
+//var ATTRNUM = 12;  // number of attributes
 
 $(document).ready(function(){   
 
 
 /********* interaction with game **********/
     $('#play').click(function(){
-           console.log('character from random: ');
-           var data = {
-               user : user,
-               character : character
-           };
-           socket.emit('play', data);
-           console.dir(data);
+        // hide the gallery
+        $('#gallery').hide();
+        console.log('character from random: ');
+        var data = {
+            user : user,
+            character : character
+        };
+        socket.emit('play', data);
+        console.dir(data);
     });
     
     $('#btnPlay').click(function(){
         // close modal and get values from form
-        $('#characterForms').modal('hide');
+        
         var character = getCustomized();
         
        // if it's valid, send it to the server and start the game
@@ -44,6 +48,7 @@ $(document).ready(function(){
            socket.emit('play', data);
            console.log('attributes adjusted - socket.play');
            console.dir(data);
+           $('#characterForms').modal('hide');
        }       
     });
     
@@ -64,7 +69,9 @@ $(document).ready(function(){
     });
     
     socket.on('initialize', function(data){
+        console.log('game is initialized');
         attrDesc = data['attrDesc'];
+        console.log(attrDesc);
     });
     
     socket.on('startGame', function(data){

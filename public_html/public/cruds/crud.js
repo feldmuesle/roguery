@@ -2,7 +2,8 @@
  * This file contains all functionality cencerning crud
  */
 
-var MAXSUM = 130;
+var MAXSUM = 100;
+var COINS = 20;
 
 $(document).ready(function(){
     
@@ -63,14 +64,28 @@ $(document).ready(function(){
     $('#addCharacter').click(function(){
         console.log('want to create an guild?');
         //make sure the form is cleaned up
-        $('#customizeCharacter').trigger('reset');
+//        $('#customizeCharacter').trigger('reset');
         $('#customizeCharacter input[name=form]').val('createCharacter');
         $('#btnPlay').text('create');
-        var character = createRandCharacter();
+        
+        // create a random character
+        var rand = getRandomNumber(0,weapons.length-1);
+        var rand1 = getRandomNumber(0,guilds.length-1);  
+        var opts = {
+            weapon :weapons[rand],
+            name : 'O\'my Nahme',
+            guild : guilds[rand1]
+        };
+        
+        var character = createRandCharacter(opts);
+        console.log('crud-character: ');
+                console.dir(character);
         customizeCharacter(character);
         // empty the name-field though since we never want two characters with the same name
         $('#customizeCharacter input[name=name]').val('');
-        $("#characterForms").modal('show'); 
+        $('#customizeCharacter input[name=form]').val('createCharacter');
+        $('#btnPlay').text('create');
+//        $("#characterForms").modal('show'); 
     });
 
         
@@ -199,10 +214,12 @@ $(document).ready(function(){
        var form = $('#createGuild input[name=form]').val();
        console.log(form);
        var name = $('#createGuild input[name=name]').val();
+       var image = $('#createGuild select[name=image]').val();
        
        var guild = {
            'form'   :   form,
-           'name'   :   name
+           'name'   :   name,
+           'image'  :   image
        };
        
        if(form == 'updateGuild'){
@@ -421,7 +438,7 @@ $(document).ready(function(){
         var characterId = this.id.substr(12,this.id.length); // btnItem = 12 chars
         var character = getRecordById(characters, characterId);
         console.log('characterId to update: '+characterId);
- 
+        console.dir(character);
         // populate character in modal form
         customizeCharacter(character);
         $('#customizeCharacter input[name=form]').val('updateCharacter');
@@ -468,6 +485,7 @@ $(document).ready(function(){
         // populate item weaponin modal form
         $('#createGuild input[name=form]').val('updateGuild');
         $('#createGuild input[name=name]').val(guild.name);
+        $('#createGuild select[name=image]').val(guild.image).attr('selected', 'selected');
         $('#guildId').val(guild.id);
 
         console.log(guilds);
@@ -489,17 +507,73 @@ $(document).ready(function(){
         $('#'+listId).html(html);
     }
     
+ /********** DELETE ************/
+ // button for deleting item
+    $(document).on('click','.deleteItem', function(){
+        
+        console.log('want to delete?');
+        var itemId = this.id.substr(10,this.id.length); //because del-button-name has 10 chars before id starts
+        console.log('itemId to delete: '+itemId);
+        $.post('/crud', {
+            'itemId'    :   itemId,
+            'delete'   :    'itemDel'
+        }, function(data){
+            if(data['success']){
+                alertSuccess('#itemSuccess', data['msg']);
+                items = data['items'];
+                updateCrudList( items, 'itemList', 'item', 'showItem',
+                    'itemBtnDel', 'deleteItem', 'itemBtn', 'updateItem');
+                console.log(data['items']);
+            }
+        });
+
+    });
+    
+    // button for deleting guild
+    $(document).on('click','.deleteGuild', function(){
+        
+        console.log('want to delete?');
+        var guildId = this.id.substr(11,this.id.length); //because del-button-name has 11 chars before id starts
+        console.log('guildId to delete: '+guildId);
+        $.post('/crud', {
+            'itemId'    :   guildId,
+            'delete'   :    'guildDel'
+        }, function(data){
+            if(data['success']){
+                alertSuccess('#guildSuccess', data['msg']);
+                guilds = data['guilds'];
+                updateCrudList( guilds, 'guildList', 'guild', 'showGuild',
+                    'guildBtnDel', 'deleteGuild', 'guildBtn', 'updateGuild');
+                console.log(data['guilds']);
+            }
+        });
+
+    });
+    
+    // button for deleting guild
+    $(document).on('click','.deleteWeapon', function(){
+        
+        console.log('want to delete?');
+        var weaponId = this.id.substr(11,this.id.length); //because del-button-name has 11 chars before id starts
+        console.log('weaponId to delete: '+weaponId);
+        $.post('/crud', {
+            'weaponId'    :   weaponId,
+            'delete'   :    'weaponDel'
+        }, function(data){
+            if(data['success']){
+                alertSuccess('#weaponSuccess', data['msg']);
+                weapons = data['weapons'];
+                updateCrudList( weapons, 'weaponList', 'weapon', 'showWeapon',
+                    'weaponBtnDel', 'deleteWeapon', 'weaponBtn', 'updateWeapon');
+                console.log(data['weapons']);
+            }
+        });
+
+    });
+    
     /************ misc-functions *******************/
     
-    // misc-functions for helping
-    function getRecordById(recordArray, recordId){
-        for(var i=0; i<recordArray.length; i++){
-                if(recordArray[i].id == recordId){
-                    var room = recordArray[i];
-                    return room;
-                }
-            }
-    }
+    
     
     
     // show success-alert depending on alertId

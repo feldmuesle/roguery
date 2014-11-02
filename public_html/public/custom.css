@@ -25,10 +25,10 @@ thumbnails = #F7EDBF;
 }
 
 #topBar{
-    height:50px;
+/*    height:50px;
     background-color: #382313;
     padding: 7px 0;
-    color: #fff;
+    color: #fff;*/
     
 }
 
@@ -37,7 +37,6 @@ thumbnails = #F7EDBF;
 }
 
 #game{
-    background-color: #2E221F;
     padding-top: 25px;
     
 }
@@ -69,7 +68,7 @@ thumbnails = #F7EDBF;
     margin-left:0;
 }
 
-.thumbnail{
+.profileBox{
     padding: 10px;
     margin-right: 10px;
     border-radius: 25px;
@@ -257,6 +256,68 @@ li.exitDesc{
 
 dt.dlHeading{
     width:100%;
+}
+
+/*** gallery *******/
+#gallery{
+    margin-bottom: 25px;
+}
+
+#gallery div.brik{
+    padding:5px;
+}
+
+#gallery img{
+    width: 100%;
+    height: 130px;
+    overflow: hidden;
+}
+
+.fadeImg:after{
+    -moz-box-shadow: inset 0 0 10em #fff;  
+    -webkit-box-shadow: inset 0 0 10em #fff;   
+    box-shadow: inset 0 0 8em #fff;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    content: "";
+}
+
+#gallery .thumbnail:hover{
+    border: 1px solid #2E221F;
+}
+
+#gallery .thumbnail{
+    padding: 10px 10px 0px;
+    margin: 0px;
+    border-radius: 15px;
+    background-color: #Fefefe;
+}
+
+#gallery .thumbnail .caption {
+padding: 5px 0px;
+height: 50px;
+color: #333;
+}
+
+#gallery .thumbnail p.caption{
+    margin:0px;
+/*    font-size: 80%;*/
+    font-family: serif;
+    font-style: italic;
+    font-weight: bold;
+
+}
+
+#heading{
+    margin-bottom: 15px;
+}
+
+#heading h2{
+    margin:0px;
 }
 
 /******** Modals ************/

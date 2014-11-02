@@ -8,7 +8,8 @@ var valEmpty = [Helper.valEmpty, 'The field \'{PATH}:\' must just not be empty.'
 
 var GuildSchema = new mongoose.Schema({
     id      : {type: Number, unique:true},
-    name    : {type:String, trim:true, lowercase:true, unique:true, validate:valEmpty}
+    name    : {type:String, trim:true, lowercase:true, unique:true, validate:valEmpty},
+    image   : {type:String, trim:true, validate:valEmpty}
 });
 
 GuildSchema.pre('save', function(next){
@@ -16,8 +17,19 @@ GuildSchema.pre('save', function(next){
     // sanitize all strings
     var self = this || mongoose.model('Guild');
     self.name = Helper.sanitizeString(self.name);
+    self.image = Helper.sanitizeString(self.image);
     next();
 });
+
+// get images-array
+GuildSchema.statics.getImages = function(){
+    // image-array of guild-images
+    var images = ['elf.jpg', 'healer.jpg', 'troll.jpg', 'courtesan.jpg', 'dwarf.jpg', 'faun.jpg',
+        'gnome.jpg', 'hunterPrincess.jpg', 'ninja.jpg', 'pirate.jpg', 'witchPrincess.jpg', 
+        'friendlyTroll.jpg'];
+    return images;
+
+};
 
 
 //update guild
