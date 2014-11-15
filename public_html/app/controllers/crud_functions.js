@@ -48,8 +48,8 @@ function getBranch(branchType, branch, event, cb){
     }
 }
 
-
-exports.createEvent = function(reqBody, id, cb){
+// this creates an Mongoose-event and sets all properties according to req-event and returns it
+var createEvent = function(reqBody, id, cb){
 //    console.log('reqBody in createEvent: ');
 //    console.dir(reqBody);
     var location = reqBody.location;
@@ -78,6 +78,7 @@ exports.createEvent = function(reqBody, id, cb){
     if(isChoice !='false'){
         event.choiceText = isChoice;
         event.isChoice = true;
+        //console.log('choiceText is set: '+isChoice);
     }
     
     // there are four possible cases of promise-chains,
@@ -92,14 +93,14 @@ exports.createEvent = function(reqBody, id, cb){
         Location.findOne({'id':location}).exec(function(err, loco){
             if(err){console.log(err); return;}
             event.location = loco._id;
-            console.log('location set '+event.location);                
+            console.log('location set '+event.location.name);                
         })
         .then(function(){
             // get and sanitize all flag-ids in reqFlag-array
             reqFlag.forEach(function(flag){
                 flags.push(Helper.sanitizeNumber(flag));
             });
-            console.log('sanitized flag-array: '+flags);
+            //console.log('sanitized flag-array: '+flags);
 
             Flag.find({'id':{$in :flags}}).exec(function(err, flags){
                 if(err){console.log('reqFlag is '+reqFlag);} 
@@ -133,14 +134,14 @@ exports.createEvent = function(reqBody, id, cb){
             Location.findOne({'id':location}).exec(function(err, loco){
                 if(err){console.log(err); return;}
                 event.location = loco._id;
-                console.log('location set '+event.location);                
+                console.log('location set '+event.location.name);                
             })
             .then(function(){
                 // get and sanitize all flag-ids in reqFlag-array
                 reqFlag.forEach(function(flag){
                     flags.push(Helper.sanitizeNumber(flag));
                 });
-                console.log('sanitized flag-array: '+flags);
+                //console.log('sanitized flag-array: '+flags);
 
                 Flag.find({'id':{$in :flags}}).exec(function(err, flags){
                     if(err){console.log('reqFlag is '+reqFlag);} 
@@ -197,4 +198,578 @@ exports.createEvent = function(reqBody, id, cb){
                 });
         });
     }
+};
+
+//this is the actual Crud-function saving a new event and sending a response back to the client
+exports.createEvent = function(res, req){
+    var populate = Event.getPopuQuery();
+    console.log('a new event wants to be created');
+    Event.find({},'-_id').populate(populate).exec(function(err, events){
+        if(err){console.log(err); return;}
+        var id = Helper.autoIncrementId(events); 
+
+        createEvent(req.body, id, function(event){
+            console.log('hello from Crud-callback');
+            console.log(event);
+            event.saveUpdateAndReturnAjax(res);
+        }); // Crud.cb end
+    }); // event.find end    
+};
+
+exports.createWeapon = function (res, req){
+    
+    // get all records there are to find next id 
+    Weapon.find(function(err, weapons){
+        if(err){console.log(err); return;}
+        var id = Helper.autoIncrementId(weapons); 
+        var weapon = new Weapon();
+        weapon.id = id;
+        weapon.name = req.body.name;
+
+        console.log('weapon to create: '+weapon);
+
+        weapon.save(function(err){
+           if(err){
+                console.log('something went wrong when creating an weapon.');
+                console.log('error '+err); 
+                res.send({
+                    'success'   : false,
+                    'msg'       : 'could not save weapon',
+                    'errors'    : err.errors});
+            }else{
+                weapons.push(weapon);
+                res.send({
+                        'success'   : true,
+                        'msg'       : 'yuppi! - weapon has been created.',
+                        'weapons'   :  weapons
+                });  
+            }    
+        });        
+    });            
+};
+
+exports.createItem = function(res, req){
+    // get all records there are to find next id 
+    Item.find(function(err, items){
+        if(err){console.log(err); return;}
+        var id = Helper.autoIncrementId(items); 
+        var item = new Item();
+        item.id = id;
+        item.name = req.body.name;
+
+        console.log('item to create: '+item);
+
+        item.save(function(err){
+           if(err){
+                console.log('something went wrong when creating an item.');
+                console.log('error '+err); 
+                res.send({
+                    'success'   : false,
+                    'msg'       : 'could not save item',
+                    'errors'    : err.errors});
+            }else{
+                // add new item to items-array
+                items.push(item);
+                res.send({
+                    'success'   : true,
+                    'msg'       : 'yuppi! - item has been created.',
+                    'items'   :   items
+                });
+            }    
+        });        
+    });              
+};
+
+exports.createGuild = function(res, req){
+    console.log('a new guild wants to be created');
+    Guild.find(function(err, guilds){
+        if(err){console.log(err); return;}
+        var id = Helper.autoIncrementId(guilds); 
+        var guild = new Guild();
+        guild.id = id;
+        guild.name = req.body.name;
+        guild.image = req.body.image;
+
+        console.log('guild to create: '+guild);
+
+        guild.save(function(err){
+           if(err){
+                console.log('something went wrong when creating an guild.');
+                console.log('error '+err); 
+                res.send({
+                    'success'   : false,
+                    'msg'       : 'could not save guild',
+                    'errors'    : err.errors});
+            }else{
+                guilds.push(guild);
+                res.send({
+                        'success'  : true,
+                        'msg'      : 'yuppi! - guild has been created.',
+                        'guilds'   :  guilds
+                });  
+            }    
+        });        
+    });            
+};
+
+exports.createLocation = function(res, req){
+    console.log('a new location wants to be created');
+    var event = Helper.sanitizeNumber(req.body.event);
+    
+    // first get the object-id for event used for referrencing
+    Event.find({'id':event},'_id').exec(function(err, event){
+        if(err){console.log(err); return;}
+        return event;
+    })
+    .then(function(event){
+         Location.find({},'-_id',function(err, locations){
+            if(err){console.log(err); return;}
+            var id = Helper.autoIncrementId(locations); 
+            var location = new Location();
+            location.id = id;
+            location.name = req.body.name;
+            location.text = req.body.text;
+            location.start = req.body.start;
+            location.event = event._id;
+
+            console.log('location to create: '+location);
+
+            location.save(function(err){
+               if(err){
+                    console.log('something went wrong when creating an location.');
+                    console.log('error '+err); 
+                    res.send({
+                        'success'   :   false,
+                        'msg'       :   'could not save location',
+                        'errors'    :   err.errors});
+                }else{
+                    locations.push(location);
+                    res.send({
+                        'success'   :   true,
+                        'msg'       :   'yuppi! - location has been created.',
+                        'locations' :   locations
+                    });                    
+                }    
+            });        
+        });      
+    });    
+};
+
+exports.createCharacter = function(res, req){
+    var characterObj = req.body.character;
+    // sanitize values used in query to get obj.ref
+    var guild = Helper.sanitizeNumber(characterObj.guild);
+    var weapon = Helper.sanitizeNumber(characterObj.weapon);
+
+    Guild.findOne({'id':guild},'_id').exec(function(err,guild){
+        if(err){console.log(err); return;}
+        return guild;
+    }).then( function(guild){
+        Weapon.findOne({'id':weapon},'_id').exec(function(err,weapon){
+            if(err){console.log(err); return;}
+            return weapon;
+        }).then( function(weapon){
+            console.log('a new character wants to be created');
+            Character.find(function(err, characters){
+                if(err){console.log(err); return;}
+                var id = Helper.autoIncrementId(characters); 
+                characterObj.guild = guild._id;
+                characterObj.weapon = weapon._id;
+                // throw characterObj inside and get automatically new mongoos-character
+                var character = new Character(characterObj);
+                character.id = id;
+//                character.name = req.body.character.name;
+
+                console.log('character to create: '+character);
+                console.log('character recieved: ');
+                console.dir(req.body.character);
+
+
+                character.save(function(err){
+                   if(err){
+                        console.log('something went wrong when creating an characters.');
+                        console.log('error '+err); 
+                        res.send({
+                            'success'   : false,
+                            'msg'       : 'could not save characters',
+                            'errors'    : err.errors});
+                    }else{
+                        characters.push(character);
+                        res.send({
+                            'success'   :   true,
+                            'msg'       :   'yuppi! - characters has been created.',
+                            'characters':   characters
+                        });
+                    }    
+                });        
+            });           
+        });
+    });
+};
+
+exports.updateLocation = function(res, req){
+    // sanitize values used in queries
+    var locationId = Helper.sanitizeNumber(req.body.id);
+    var eventId = Helper.sanitizeNumber(req.body.event);
+
+    // get event-object id used for referrencing
+    Event.findOne({'id':eventId},'_id').exec(function(err, event){
+        if(err){console.log(err); return;}
+        return event;
+    })
+    .then(function(event){
+
+        Location.findOne({'id':locationId}, function(err, location){
+           if(err){console.log(err); return;}
+
+            location.name = req.body.name;
+            location.text = req.body.text;
+            location.start = req.body.start;
+            location.event = event._id;
+
+            location.save(function(err){                    
+                if(err){
+                    console.log('something went wrong when updating a location.');
+                    console.log('error '+err); 
+                    res.send({
+                        'success'   :   false,
+                        'msg'       :   'could not update location',
+                        'errors'    :   err.errors});
+                }else{
+                    Location.find({},'-_id').populate('event','-_id').exec(function(err, locations){
+                        if(err){ return console.log(err);}
+                        res.send({
+                            'success'   :   true,
+                            'msg'       :   'yuppi! - location has been updated.',
+                            'locations' :   locations
+                        });
+
+                    });  
+                }    
+            });
+        });
+    });
+};
+
+exports.updateGuild = function(res, req){
+    var guildId = Helper.sanitizeNumber(req.body.id);
+    Guild.findOne({'id':guildId}, function(err, guild){
+       if(err){console.log(err); return;}
+
+        guild.name = req.body.name;
+        guild.image = req.body.image;
+
+        guild.save(function(err){
+            if(err){
+                console.log('something went wrong when updating a guild.');
+                console.log('error '+err); 
+                res.send({
+                    'success'   : false,
+                    'msg'       : 'could not update guild',
+                    'errors'    : err.errors});
+            }else{
+                Guild.find({},'-_id',function(err, guilds){
+                    if(err){ return console.log(err);}
+                    res.send({
+                        'success'   :  true,
+                        'msg'       :  'yuppi! - guild has been updated.',
+                        'guilds'    :  guilds
+                    });
+
+                });  
+            }    
+        });
+    });
+};
+
+exports.updateCharacter = function(res,req){
+    var characterUp = req.body.character;
+    console.log('character to update: '+characterUp);
+    var characterId = Helper.sanitizeNumber(characterUp.id);
+    var guild = Helper.sanitizeNumber(characterUp.guild);
+    var weapon = Helper.sanitizeNumber(characterUp.weapon);
+
+    Guild.findOne({'id':guild},'_id').exec(function(err,guild){
+        if(err){console.log(err); return;}
+        return guild;
+    }).then( function(guild){
+        Weapon.findOne({'id':weapon},'_id').exec(function(err,weapon){
+        if(err){console.log(err); return;}
+        return weapon;
+    }).then( function(weapon){
+        Character.findOne({'id':characterId}, function(err, character){
+       if(err){console.log(err); return;}
+
+        character.name = characterUp.name;
+        character.guild = guild._id;
+        character.weapon = weapon._id;
+        character.attributes = {};
+        character.inventory = [];
+
+        for(var key in characterUp.attributes){
+            character.attributes[key] = characterUp.attributes[key];
+        }
+
+        character.save(function(err){
+            if(err){
+                console.log('something went wrong when updating a character.');
+                console.log('error '+err); 
+                res.send({
+                    'success'   :   false,
+                    'msg'       :   'could not update character',
+                    'errors'    :   err.errors});
+            }else{
+                Character.find({},'-_id').populate('guild weapon inventory','name id -_id')
+                    .exec(function(err, characters){
+                    if(err){ return console.log(err);}
+                    res.send({
+                        'success'       :   true,
+                        'msg'           :   'yuppi! - character has been updated.',
+                        'characters'    :   characters
+                    });
+
+                });  
+            }    
+        });
+    });
+    });
+    });
+};
+
+exports.updateItem = function(res, req){
+    var itemId = Helper.sanitizeNumber(req.body.id);
+    Item.findOne({'id':itemId}, function(err, item){
+       if(err){console.log(err); return;}
+
+        item.name = req.body.name;
+
+        item.save(function(err){                    
+            if(err){
+                console.log('something went wrong when updating a item.');
+                console.log('error '+err); 
+                res.send({
+                    'success'   :   false,
+                    'msg'       :   'could not update item',
+                    'errors'    :   err.errors});
+            }else{
+                Item.find({},'-_id',function(err, items){
+                    if(err){ return console.log(err);}
+                    res.send({
+                        'success'   :   true,
+                        'msg'       :   'yuppi! - item has been updated.',
+                        'items'     :   items
+                    });
+
+                });  
+            }    
+        });
+    });
+};
+
+exports.updateWeapon = function(res, req){
+    var weaponId = Helper.sanitizeNumber(req.body.id);
+    Weapon.findOne({'id':weaponId}, function(err, weapon){
+        if(err){console.log(err); return;}
+        //TODO: if no weapon is found it should send error instead of returning!
+        weapon.name = req.body.name;
+
+        weapon.save(function(err){
+            if(err){
+                console.log('something went wrong when updating a weapon.');
+                console.log('error '+err); 
+                res.send({
+                    'success'   : false,
+                    'msg'       : 'could not update weapon',
+                    'errors'    : err.errors});
+            }else{
+                Weapon.find({},'-_id',function(err, weapons){
+                    if(err){ return console.log(err);}
+                    res.send({
+                        'success'   : true,
+                        'msg'       : 'yuppi! - weapon has been updated.',
+                        'weapons'   :   weapons
+                    });
+
+                });  
+            }    
+        });
+    });  
+};
+
+exports.updateEvent = function(res, req){
+    var eventId = Helper.sanitizeNumber(req.body.id);
+    Event.findOne({'id':eventId}, function(err, event){
+       if(err){console.log(err); return;}
+       console.log('update event - event was found.');
+       createEvent(req.body, eventId, function(newEvent){
+
+//                    console.log('db-event '+event);
+//                    console.log('new event '+newEvent);
+            // set all fields except for the set-flag property 
+            event.name = newEvent.name;
+            event.location = newEvent.location;
+            event.text = newEvent.text;
+            event.newPara = newEvent.newPara;
+            event.isChoice = newEvent.isChoice;
+            event.choiceText = newEvent.choiceText;
+            event.id = newEvent.id;
+            event.dice = newEvent.dice;
+            event.continueTo = newEvent.continueTo;
+            event.items = newEvent.items;
+            event.attributes = newEvent.attributes;
+            event.reqFlag = newEvent.reqFlag;
+            event.choices = newEvent.choices;
+            event.branchType = newEvent.branchType;
+
+//            console.log('db event '+event);
+            // update or delete flag from db-event
+            if(event.setFlag == true && newEvent.setFlag == false){
+                // delete the flag from db if not required from any other event
+                console.log('delete flag from db');
+                // find flag and remove it if not req by other events
+                Flag.findOne({'_id':event.flag}).exec(function(err, flag){
+                    if(err){console.log(err); return;}
+
+                    flag.remove(function(err){                                
+                        if(err){
+                            // pre-remove middleware will prevent removal if flag is required by other events
+                            // Keep flag and save update ant return ajax-call
+                            event.saveUpdateAndReturnAjax(res);
+                            console.log(err); return;
+                        }
+                        console.log('flag has been removed');
+                        event.setFlag = false;
+                        event.flag = null;                               
+                        // save update ant return ajax-call
+                        event.saveUpdateAndReturnAjax(res);
+                    });                                           
+                });                       
+
+            }else if (event.setFlag == true && newEvent.setFlag == true){
+                console.log('update flag in db');
+                // TODO: get flagdesc from req.body for name-update
+                var flagName = Helper.sanitizeString(req.body.setFlag);
+                Flag.update({'_id':event.flag},{'name':flagName}, function(err, flag){
+                    if(err){console.log(err); return;}
+                    console.log('flag has been updated');
+                });
+                event.setFlag = true;
+                // save update ant return ajax-call
+                        event.saveUpdateAndReturnAjax(res);
+            }else {
+                event.flag = newEvent.flag;
+                event.setFlag = newEvent.setFlag;
+                // save update ant return ajax-call
+                event.saveUpdateAndReturnAjax(res);
+            }           
+//            console.log('updated event '+event);             
+        });
+    });
+};
+
+exports.sendAllModels = function(res, req){
+    // define population-query for events
+        var populateQuery = [{path:'flag', select:'name id -_id'}, 
+            {path:'reqFlag', select:'name id -_id'}, {path:'location', select:'name id -_id'}, 
+            {path:'dice.failure.location', select:'name id -_id'},{path:'items', select:'name id -_id'}, 
+            {path:'dice.success.location', select:'name id -_id'}, {path:'dice.success.event', select:'name id -_id'}, 
+            {path:'dice.failure.event', select:'name id -_id'},{path:'choices', select:'name id -_id'}, 
+            {path:'continueTo.location', select:'name id -_id'}, {path:'continueTo.event', select:'name id -_id'}, 
+            {path:'continue.random', select:'name id -_id'} ];
+        
+        // instead of 
+        //'flag reqFlag location items dice.failure.location dice.failure.event'+
+//                    ' dice.success.location dice.success.event choices continueTo.event continueTo.location'+
+//                    ' continueTo.random'
+        
+        Guild.find({},'-_id').exec(function(err, guilds){            
+            if(err){ return console.log(err);}
+            return guilds;                      
+        })
+        .then(function(guilds){
+            Character.find({},'-_id').populate('guild weapon inventory','name id -_id').exec(function(err, characters){
+                if(err){ return console.log(err);}
+                return characters;
+            })
+        .then(function(characters){
+            Event.find({}, '-_id').populate(populateQuery).exec(function(err, events){
+                if(err){ console.log(err); return;}
+                return events;
+            }) 
+        .then(function(events){
+            Item.find({},'-_id').exec(function(err, items){
+                if(err){ console.log(err); return;}
+                return items;
+            })
+        .then(function(items){
+            Location.find({},'-_id').exec(function(err, locations){
+                if(err){ return console.log(err);}
+                return locations;
+            })
+        .then(function(locations){
+            Flag.find({},'-_id').exec(function(err, flags){
+                if(err){ return console.log(err);}
+                return flags;
+            })    
+        .then(function(flags){
+            Weapon.find({},'-_id').exec(function(err, weapons){
+                
+                // also put all character-attr. in an array
+                var char = new Character();
+                var testChar= char.toObject();
+                // make sure to only get our custom-keys and not prototype
+                var attributes = Object.keys(testChar.attributes);
+                // remove maxStamina
+                var index = attributes.indexOf('maxStam');
+                attributes.splice(index,1);
+                
+                //get the images for the guilds
+                var images  = Guild.getImages();
+
+                console.log(attributes);
+                
+                if(err){ return console.log(err);}
+                res.render('crud.ejs', {
+                   'userId'     :   req.user._id,
+                   'username'   :   req.user.username,
+                   'message'    :   '',
+                   'weapons'    :   weapons,
+                   'characters' :   characters,
+                   'events'     :   events,     
+                   'attributes' :   attributes,
+                   'guilds'     :   guilds,
+                   'images'     :   images,
+                   'items'      :   items,
+                   'locations'  :   locations,
+                   'flags'      :   flags  
+               });
+            });
+        });    
+        });
+        });
+    });
+    });
+    });  
+};
+
+exports.deleteItem = function(res, req){
+    var itemId = Helper.sanitizeNumber(req.body.itemId);
+            Item.findOne({'id':itemId},function(err, item){
+                if(err){console.error(err); return;}
+               
+                item.remove(function(err){
+                    if(err){console.log(err); return;}
+                   
+                    Item.find(function(err, items){
+                        if(err){console.log(err); return;}
+
+                        res.send({
+                            'success':   true,
+                            'msg'    :   'item has been removed.',
+                            'items'  :   items
+                        }); 
+                    });
+                });
+               console.log('item has been removed');
+           }); 
 };

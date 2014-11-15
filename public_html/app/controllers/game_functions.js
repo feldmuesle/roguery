@@ -144,7 +144,7 @@ function runEvent(storyteller, player, event){
     console.log('hello from runEvent'); //, player is: '+player);
     console.log('event: '+event.name);
     storyteller.write(event.text);
-    // check if there are any items involved in event
+    // check if there are any attributes involved in event
     if(event.attributes.length > 0){
         for(var i=0; i<event.attributes.length; i++){
             var evAttr = event.attributes[i];
@@ -363,8 +363,6 @@ exports.getChoice = function(eventId, cb){
        return cb(event);
     });
 };
-
-
 
 // check if attributes sum up to maxsum
 exports.checkAttributeSum = function (attributes, maxSum){

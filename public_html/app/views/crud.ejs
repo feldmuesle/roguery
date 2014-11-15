@@ -1,111 +1,110 @@
 <% include ./partials/header.ejs %>
-    
-    <!-- display event-list -->
-    <div class="row">
-        <div class="lists col-xs-12 col-lg-6 col-lg-offset-3">
-            <div id="eventSuccess" class="alert alert-success"></div>
-            <h3>Events<button id="addEvent" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
-            
-            <ul id="eventList" class="list-group list-unstyled">
-               <%for(var i=0; i<events.length; i++){%>
-                    <li class="list-group-item">
-                        <a id="event<%=events[i].id%>" class="showEvent" href="#"><%=events[i].name%></a>
-                        <button class="deleteEvent pull-right btn btn-xs margin" id="eventBtnDel<%=events[i].id%>">Delete</button>
-                        <button class="updateEvent pull-right btn btn-xs margin" id="eventBtn<%=events[i].id%>">Update</button>                       
-                    </li>
-               <%}%>
-            </ul>
-        </div>
-    </div><!-- location-list end -->
-    
-    <!-- display location-list -->
-    <div class="row">
-        <div class="lists col-xs-12 col-lg-6 col-lg-offset-3">
-            <div id="locationSuccess" class="alert alert-success"></div>
-            <h3>Locations<button id="addLocation" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
-            
-            <ul id="locationList" class="list-group list-unstyled">
-                <%for(var i=0; i<locations.length; i++){%>
-                    <li class="list-group-item">
-                        <a id="location<%=locations[i].id%>" class="showLocation" href="#"><%=locations[i].name%></a>
-                        <button class="deleteLocation pull-right btn btn-xs margin" id="locationBtnDel<%=locations[i].id%>">Delete</button>
-                        <button class="updateLocation pull-right btn btn-xs margin" id="locationBtn<%=locations[i].id%>">Update</button>                       
-                    </li>
-                <%}%>
-            </ul>
-        </div>
-    </div><!-- location-list end -->
+    <div class="tabbable col-xs-12 col-lg-6 col-lg-offset-3">
+        <ul class="nav nav-tabs nav-pills" id="myTab">
+            <li class="dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown">Events <span class="caret"></span></a>
+                <ul class="dropdown-menu" role="menu">
+                    <%for(var i=0; i<locations.length; i++){%>
+                        <li class=""><a id="eLoco<%=locations[i].id%>" class="eLoco" href="#tab1" data-toggle="tab"><%=locations[i].name%></a></li>
+                    <%}%>
+                </ul>
+            </li>
+            <li class="active"><a href="#tab2" data-toggle="tab">Locations</a></li>
+            <li class=""><a href="#tab3" data-toggle="tab">Characters</a></li>
+            <li class=""><a href="#tab4" data-toggle="tab">Weapons</a></li>
+            <li class=""><a href="#tab5" data-toggle="tab">Items</a></li>
+            <li class=""><a href="#tab6" data-toggle="tab">Guilds</a></li>
+            <li class=""><a href="#tab7" data-toggle="tab">Images</a></li>
+        </ul>
+        <br><!-- nav-pills end -->
+        <div class="tab-content">
+            <!--Event-tab start-->
+            <div class="tab-pane" id="tab1">
+                <div id="eventSuccess" class="alert alert-success"></div>
+                <h3>Events<button id="addEvent" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
 
-    <!-- display weapon-list -->
-    <div class="row">
-        <div class="lists col-xs-12 col-lg-6 col-lg-offset-3">
-            <div id="weaponSuccess" class="alert alert-success"></div>
-            <h3>Weapons<button id="addWeapon" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
+                <ul id="eventList" class="list-group list-unstyled">
+                   <%for(var i=0; i<events.length; i++){%>
+                        <li class="list-group-item">
+                            <span id="event<%=events[i].id%>" class="updateEvent"><%=events[i].name%></span>
+                            <button class="deleteEvent pull-right btn btn-xs margin" id="eventBtnDel<%=events[i].id%>">Delete</button>
+                        </li>
+                   <%}%>
+                </ul>
+            </div><!-- Event-tab end -->
             
-            <ul id="weaponList" class="list-group list-unstyled">
-                <%for(var i=0; i<weapons.length; i++){%>
-                    <li class="list-group-item">
-                        <a id="weapon<%=weapons[i].id%>" class="showWeapon" href="#"><%=weapons[i].name%></a>
-                        <button class="deleteWeapon pull-right btn btn-xs margin" id="weaponBtnDel<%=weapons[i].id%>">Delete</button>
-                        <button class="updateWeapon pull-right btn btn-xs margin" id="weaponBtn<%=weapons[i].id%>">Update</button>                       
-                    </li>
-                <%}%>
-            </ul>
-        </div>
-    </div><!-- weaponlist end -->
-        
-    <!-- display characters-list -->
-    <div class="row">
-        <div class="col-xs-12 col-lg-6 col-lg-offset-3">
-            <div id="characterSuccess" class="alert alert-success"></div>
-            <h3>Characters<button id="addCharacter" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
-            <ul id="charactersList" class="list-group list-unstyled">
-                <%for(var i=0; i<characters.length; i++){%>
-                    <li class="list-group-item">
-                        <a id="character<%=characters[i].id%>" class="showCharacter" href="#"><%=characters[i].name%></a>
-                        <button class="deleteCharacter pull-right btn btn-xs margin" id="characterBtnDel<%=characters[i].id%>">Delete</button>
-                        <button class="updateCharacter pull-right btn btn-xs" id="characterBtn<%=characters[i].id%>">Update</button>
-                    </li>
-                <%}%>
-            </ul>
-        </div>
-    </div><!-- characters-list end -->
+            <!--Location-tab start-->
+            <div class="tab-pane active" id="tab2">
+                <div id="locationSuccess" class="alert alert-success"></div>
+                <h3>Locations<button id="addLocation" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
+                <ul id="locationList" class="list-group list-unstyled">
+                    <%for(var i=0; i<locations.length; i++){%>
+                        <li class="list-group-item">
+                            <span id="location<%=locations[i].id%>" class="updateLocation"><%=locations[i].name%></span>
+                            <button class="deleteLocation pull-right btn btn-xs margin" id="locationBtnDel<%=locations[i].id%>">Delete</button>
+                        </li>
+                    <%}%>
+                </ul>
+            </div><!--Location-tab end-->
 
-    <!-- display items list -->
-    <div class="row">
-        <div class="col-xs-12 col-lg-6 col-lg-offset-3">
-            <div id="itemSuccess" class="alert alert-success"></div>
-            <h3>Items<button id="addItem" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
-            
-            <ul id="itemList" class="list-group list-unstyled">
-                <%for(var i=0; i<items.length; i++){%>
-                    <li class="list-group-item">
-                        <a id="item<%=items[i].id%>" class="showItem" href="#"><%=items[i].name%></a>
-                        <button class="deleteItem pull-right btn btn-xs margin" id="itemBtnDel<%=items[i].id%>">Delete</button>
-                        <button class="updateItem pull-right btn btn-xs" id="itemBtn<%=items[i].id%>">Update</button>                       
-                    </li>
-                <%}%>
-            </ul>
-        </div>        
-    </div><!-- items-list end-->
+            <!--Character-tab start-->
+            <div class="tab-pane" id="tab3">
+                <div id="characterSuccess" class="alert alert-success"></div>
+                <h3>Characters<button id="addCharacter" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
+                <ul id="charactersList" class="list-group list-unstyled">
+                    <%for(var i=0; i<characters.length; i++){%>
+                        <li class="list-group-item">
+                            <span id="character<%=characters[i].id%>" class="updateCharacter"><%=characters[i].name%></span>
+                            <button class="deleteCharacter pull-right btn btn-xs margin" id="characterBtnDel<%=characters[i].id%>">Delete</button>
+                        </li>
+                    <%}%>
+                </ul>
+            </div><!--Character-tab end-->
 
-    <!-- display guild list -->
-    <div class="row">
-        <div class="col-xs-12 col-lg-6 col-lg-offset-3">
-            <div id="guildSuccess" class="alert alert-success"></div>
-            <h3>Guilds<button id="addGuild" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
-            
-            <ul id="guildList" class="list-group list-unstyled">
-                <%for(var i=0; i<guilds.length; i++){%>
-                    <li class="list-group-item">
-                        <a id="guild<%=guilds[i].id%>" class="showGuild" href="#"><%=guilds[i].name%></a>
-                        <button class="deleteGuild pull-right btn btn-xs margin" id="guildBtnDel<%=guilds[i].id%>">Delete</button>
-                        <button class="updateGuild pull-right btn btn-xs" id="guildBtn<%=guilds[i].id%>">Update</button>                       
-                    </li>
-                <%}%>
-            </ul>
-        </div>        
-    </div><!-- guild-list end-->
+            <!--Weapon-tab start-->
+            <div class="tab-pane" id="tab4">
+                <div id="weaponSuccess" class="alert alert-success"></div>
+                <h3>Weapons<button id="addWeapon" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
+                <ul id="weaponList" class="list-group list-unstyled">
+                    <%for(var i=0; i<weapons.length; i++){%>
+                        <li class="list-group-item">
+                            <span id="weapon<%=weapons[i].id%>" class="updateWeapon"><%=weapons[i].name%></span>
+                            <button class="deleteWeapon pull-right btn btn-xs margin" id="weaponBtnDel<%=weapons[i].id%>">Delete</button>
+                        </li>
+                    <%}%>
+                </ul>
+            </div><!--Weapon-tab end-->
+
+            <!--Item-tab start-->
+            <div class="tab-pane" id="tab5">
+                <div id="itemSuccess" class="alert alert-success"></div>
+                <h3>Items<button id="addItem" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
+                <ul id="itemList" class="list-group list-unstyled">
+                    <%for(var i=0; i<items.length; i++){%>
+                        <li class="list-group-item">
+                            <span id="item<%=items[i].id%>" class="updateItem"><%=items[i].name%></span>
+                            <button class="deleteItem pull-right btn btn-xs margin" id="itemBtnDel<%=items[i].id%>">Delete</button>
+                        </li>
+                    <%}%>
+                </ul>
+            </div><!--Item-tab end-->
+
+            <!--Guild-tab start-->
+            <div class="tab-pane" id="tab6">
+                <div id="guildSuccess" class="alert alert-success"></div>
+                <h3>Guilds<button id="addGuild" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
+
+                <ul id="guildList" class="list-group list-unstyled">
+                    <%for(var i=0; i<guilds.length; i++){%>
+                        <li class="list-group-item">
+                            <span id="guild<%=guilds[i].id%>" class="updateGuild"><%=guilds[i].name%></span>
+                            <button class="deleteGuild pull-right btn btn-xs margin" id="guildBtnDel<%=guilds[i].id%>">Delete</button>
+                        </li>
+                    <%}%>
+                </ul>
+            </div><!--Guild-tab end-->
+
+        </div><!-- tab-content end-->
+    </div><!-- tabable end -->
 
     <!-- modal window for create-event-form -->
         <% include ./partials/eventsForm.ejs %>

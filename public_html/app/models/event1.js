@@ -131,8 +131,8 @@ EventSchema.methods.saveUpdateAndReturnAjax = function(res){
                 EventModel.find({},'-_id').populate(populateQuery).exec(function(err, events){
                     if(err){ return console.log(err);}
                     
-                    console.log('events sent back after update:');
-                    console.dir(events);
+//                    console.log('events sent back after update:');
+//                    console.dir(events);
                     return events;
                     
                     }).then(function(events){
@@ -217,15 +217,12 @@ EventSchema.statics.addDiceBranch = function(branch, event, cb){
             if(locos[0].id == succTrigger){
                 console.log('yes it is true');
                 event.dice.success.location = locos[0]._id;
+                event.dice.failure.location = locos[1]._id;
                 console.log('event.dice.success.location '+event.dice.success.location);
-                
-                locos.length >1 ? event.dice.failure.location = locos[1]._id : event.dice.failure.location = locos[0]._id;
             }else{
                 event.dice.failure.location = locos[0]._id;
+                event.dice.success.location = locos[1]._id;
                 console.log('event.dice.success.location '+event.dice.success.location);
-                
-                locos.length >1 ? event.dice.success.location = locos[1]._id : event.dice.success.location = locos[0]._id;
-                
             }
             console.log('dice: trigger two locations '+event.dice);
             
@@ -242,8 +239,10 @@ EventSchema.statics.addDiceBranch = function(branch, event, cb){
             
             if(ev[0].id == succTrigger){
                 event.dice.success.event = ev[0]._id;
-                //check if there are two records= events are different
-                ev.length >1 ? event.dice.failure.event = ev[1]._id : event.dice.failure.event = ev[0]._id;                    
+                event.dice.failure.event = ev[1]._id;                   
+            }else{
+                event.dice.success.event = ev[1]._id;
+                event.dice.failure.event = ev[0]._id;
             }          
             console.log('dice: trigger two locations '+event.dice);
             return cb(event);

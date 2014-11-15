@@ -91,3 +91,29 @@ function inputSpinner(foldId, step, max, min){
     });
 };
 
+// get all events associated with certain location
+function getEventsByLoco(eventsArray, locationId){
+    var events = [];
+
+    for (var i = 0; i< eventsArray.length; i++){            
+        if (eventsArray[i]['location'].id == locationId){
+            events.push(eventsArray[i]);
+        }        
+    }
+    return events;
+}
+
+// populate a select dynamically 
+function populateSelect(array, elementId, name){
+    var select = $('#'+elementId+' select[name='+name+']');
+    console.log('hello from populateSelect: ');
+    console.dir(array);
+    var options = '';
+    for(var i=0; i<array.length; i++){
+        options += '<option value="'+array[i].id+'">'+array[i].name+'</option>';
+    }
+
+    // first empty select, then populate it with the options
+    $(select).html('');
+    $(select).append(options);
+}

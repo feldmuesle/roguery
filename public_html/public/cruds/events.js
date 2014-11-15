@@ -46,9 +46,9 @@ function resetEventForm(){
         foldOutRadio('choices');
         foldOutRadio('continue');
         
-        populateSelect(locations,'location');
-        populateSelect(locations,'succTrigger');
-        populateSelect(locations,'failTrigger');
+        populateSelect(locations,'createEvent', 'location');
+        populateSelect(locations, 'createEvent','succTrigger');
+        populateSelect(locations, 'createEvent','failTrigger');
         
         //activate input-spinners for inputs of type number (-> function declared in helper.js)
         inputSpinner('choiceRandFold', 1, 8, 1);
@@ -59,12 +59,16 @@ function resetEventForm(){
 $('#addEvent').click(function(){
         console.log('want to create an event?');
         resetEventForm();      
+        // select current eventLococation automatically
+        console.log('addEvent set location to id '+eLoco);
+        $('#createEvent select[name=location] option[value='+eLoco+']').attr('selected', 'selected');
         $('#diceFold').show();  // show diceFold by default
         $('#succTriggerFold').show();
         $('#failTriggerFold').show(); 
         $('#continSelectFold').show();
         $('#choiceRandFold').show();
         $("#createEvents").modal('show'); 
+        
     });
     
 /******** animate events-form *********/
@@ -136,13 +140,13 @@ function foldOutRadio(radio){
 
                 case'failLoco':
                     // show select, populated with locations
-                    populateSelect(locations, 'failTrigger');
+                    populateSelect(locations, 'createEvent', 'failTrigger');
                     $('#failTriggerFold').show();
                     break;
 
                 case'failEventSgl':
                     // show select, populated with events
-                    populateSelect(events, 'failTrigger');
+                    populateSelect(events, 'createEvent', 'failTrigger');
                     $('#failTriggerFold').show();
                     break;
 
@@ -152,13 +156,13 @@ function foldOutRadio(radio){
 
                 case'succLoco':      
                     // show select, populated with locations
-                    populateSelect(locations, 'succTrigger');
+                    populateSelect(locations, 'createEvent', 'succTrigger');
                     $('#succTriggerFold').show();
                     break;
 
                 case'succEventSgl':
                     // show select, populated with events
-                    populateSelect(events, 'succTrigger');
+                    populateSelect(events, 'createEvent', 'succTrigger');
                     $('#succTriggerFold').show();
                     break; 
 
@@ -168,12 +172,12 @@ function foldOutRadio(radio){
 
                 case'continueLoco':
                     $('#continSelectFold').show();
-                    populateSelect(locations, 'continueTo');
+                    populateSelect(locations, 'createEvent', 'continueTo');
                     break;
 
                 case'continueEvent':
                     $('#continSelectFold').show();
-                    populateSelect(events, 'continueTo');
+                    populateSelect(events, 'createEvent', 'continueTo');
                     break;
                     
                 case'continueRand':
@@ -193,25 +197,13 @@ function foldOutRadio(radio){
                     break;
             }
 
-        }else {
+        } else {
 
         }
     });
 }
 
-// populate a select dynamically 
-function populateSelect(array, name){
-    var select = $('#createEvent select[name='+name+']');
 
-    var options = '';
-    for(var i=0; i<array.length; i++){
-        options += '<option value="'+array[i].id+'">'+array[i].name+'</option>';
-    }
-
-    // first empty select, then populate it with the options
-    $(select).html('');
-    $(select).append(options);
-}
 
 // add new item to use
 $('.add-attr').click(function(){
@@ -288,7 +280,7 @@ $('.add-item').click(function(){
     
     $('#item').append(fold);
     $('#'+foldId+next).append(selectGroup);
-    populateSelect(items, 'item'+next);   
+    populateSelect(items, 'createEvent', 'item'+next);   
     
     // remove folds
     $('#removeItem'+next).click(function(){
@@ -317,7 +309,7 @@ $('.add-flag').click(function(){
     
     $('#flag').append(fold);
     $('#flagRow'+next).append(buttonDiv);
-    populateSelect(flags, 'flag'+next);   
+    populateSelect(flags, 'createEvent' ,'flag'+next);   
     
     // remove folds
     $('#removeFlag'+next).click(function(){
@@ -346,7 +338,7 @@ $('.add-choice').click(function(){
     
     $('#choice').append(fold);
     $('#'+foldId+next).append(buttonDiv);
-    populateSelect(events, 'choice'+next);   
+    populateSelect(events, 'createEvent', 'choice'+next);   
     
     // remove folds
     $('#removeChoice'+next).click(function(){
@@ -411,6 +403,8 @@ function removeAddOns(count, buttonId){
        var choiceNumb = $('#createEvent input[name=choiceNumb]').val();
        
        console.log('continueTo= '+continueTo);
+       // set current eventLocation 
+       eLoco = location;
        
        var event = {
             'form'      :   form,
@@ -584,7 +578,7 @@ function removeAddOns(count, buttonId){
         resetEventForm();  
         
         // get id from button-element and item-object from items-array
-        var eventId = this.id.substr(8,this.id.length); // btnEvent = 8 chars
+        var eventId = this.id.substr(5,this.id.length); // event = 5 chars
         var event = getRecordById(events, eventId);
         console.log('eventId to update: '+eventId);
  
@@ -670,17 +664,17 @@ function removeAddOns(count, buttonId){
                 console.log(event);
                 
                 if(event.dice.success.type == 'succLoco'){
-                    populateSelect(locations, 'succTrigger');
+                    populateSelect(locations, 'createEvent', 'succTrigger');
                     $('#createEvent select[name=succTrigger]').val(event.dice.success.location.id).attr('selected', 'selected');
                 }else{
-                    populateSelect(events, 'succTrigger');
+                    populateSelect(events, 'createEvent', 'succTrigger');
                     $('#createEvent select[name=succTrigger]').val(event.dice.success.event.id).attr('selected', 'selected');
                 }
                 if(event.dice.failure.type == 'failLoco'){
-                    populateSelect(locations, 'failTrigger');
+                    populateSelect(locations, 'createEvent', 'failTrigger');
                     $('#createEvent select[name=failTrigger]').val(event.dice.failure.location.id).attr('selected', 'selected');
                 }else{
-                    populateSelect(events, 'failTrigger');
+                    populateSelect(events, 'createEvent', 'failTrigger');
                     $('#createEvent select[name=failTrigger]').val(event.dice.failure.event.id).attr('selected', 'selected');
                 }
                 $('#diceFold').show();
@@ -716,7 +710,7 @@ function removeAddOns(count, buttonId){
                             
                 }else if(event.continueTo.type == 'continueEvent'){
                     
-                    populateSelect(events,'continueTo');
+                    populateSelect(events,'createEvent','continueTo');
                     $('#createEvent select[name=continueTo]').val(event.continueTo.event.id).attr('selected','selected');
                     $('#continSelectFold').show();
                 }
@@ -736,15 +730,15 @@ function removeAddOns(count, buttonId){
         $("#createEvents").modal('show');
     });    
     
-
     function updateEventList(){
         console.log('hello from update crud list');
+        // get events within currently selected event-location from nav
+        var locoEvents = getEventsByLoco(events, eLoco);
         var html='';
-        for(var i=0; i<events.length; i++){
+        for(var i=0; i<locoEvents.length; i++){
             html =  html+'<li class="list-group-item">'+
-                        '<a id="event'+events[i].id+'" class="showEvent" href="#">'+events[i].name+'</a>'+
-                        '<button class="deleteEvent pull-right btn btn-xs margin" id="eventBtnDel'+events[i].id+'">Delete</button>'+
-                        '<button class="updateEvent pull-right btn btn-xs" id="eventBtn'+events[i].id+'">Update</button>'+                       
+                        '<span id="event'+locoEvents[i].id+'" class="updateEvent">'+locoEvents[i].name+'</span>'+
+                        '<button class="deleteEvent pull-right btn btn-xs margin" id="eventBtnDel'+locoEvents[i].id+'">Delete</button>'+
                     '</li>';            
         }
         
@@ -762,7 +756,6 @@ function removeAddOns(count, buttonId){
                 }
             }
     }
-    
     
     // show success-alert depending on alertId
     function alertSuccess(alertId, msgString){

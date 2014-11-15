@@ -47,7 +47,7 @@ exports.getIndexByKeyValue = function(array, key, value){
         }        
     }
     return null;
-}
+};
 
 // autoincrement id by one
 exports.autoIncrementId = function(mongooseArray){

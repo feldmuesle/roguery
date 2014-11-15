@@ -4,6 +4,7 @@
 
 var MAXSUM = 100;
 var COINS = 20;
+var eLoco = 0;
 
 $(document).ready(function(){
     
@@ -142,8 +143,8 @@ $(document).ready(function(){
                 // show success-message
                 alertSuccess('#locationSuccess',data['msg']);
                 locations = data['locations'];
-                updateCrudList( locations, 'locationList', 'location', 'showLocation',
-                    'locationBtnDel', 'deleteLocation', 'locationBtn', 'updateLocation');
+                updateCrudList( locations, 'locationList', 'location', 'updateLocation',
+                    'locationBtnDel', 'deleteLocation');
                 // clear all inputs in form
                 $('#createLocation').trigger('reset');
                 
@@ -195,8 +196,8 @@ $(document).ready(function(){
                 // show success-message
                 alertSuccess('#characterSuccess',data['msg']);
                 characters = data['characters'];
-                updateCrudList( characters, 'charactersList', 'character', 'showCharacter',
-                    'characterBtnDel', 'deleteCharacter', 'characterBtn', 'updateCharacter');
+                updateCrudList( characters, 'charactersList', 'character', 'updateCharacter',
+                    'characterBtnDel', 'deleteCharacter');
                 // clear all inputs in form
                 $('#customizeCharacter').trigger('reset');
                 
@@ -252,8 +253,8 @@ $(document).ready(function(){
                 // show success-message
                 alertSuccess('#guildSuccess',data['msg']);
                 guilds = data['guilds'];
-                updateCrudList( guilds, 'guildList', 'guild', 'showGuild',
-                    'guildBtnDel', 'deleteGuild', 'guildBtn', 'updateGuild');
+                updateCrudList( guilds, 'guildList', 'guild', 'updateGuild',
+                    'guildBtnDel', 'deleteGuild');
                 // clear all inputs in form
                 $('#createGuild').trigger('reset');
                 
@@ -306,8 +307,8 @@ $(document).ready(function(){
                 // show success-message
                 alertSuccess('#itemSuccess',data['msg']);
                 items = data['items'];
-                updateCrudList( items, 'itemList', 'item', 'showItem',
-                    'itemBtnDel', 'deleteItem', 'itemBtn', 'updateItem');
+                updateCrudList( items, 'itemList', 'item', 'updateItem',
+                    'itemBtnDel', 'deleteItem');
                 // clear all inputs in form
                 $('#createItem').trigger('reset');
                 
@@ -361,8 +362,8 @@ $(document).ready(function(){
                 // show success-message
                 alertSuccess('#weaponSuccess',data['msg']);
                 weapons = data['weapons'];
-                updateCrudList( weapons, 'weaponList', 'weapon', 'showWeapon',
-                    'weaponBtnDel', 'deleteWeapon', 'weaponBtn', 'updateWeapon');
+                updateCrudList( weapons, 'weaponList', 'weapon', 'updateWeapon',
+                    'weaponBtnDel', 'deleteWeapon');
                 // clear all inputs in form
                 $('#createWeapon').trigger('reset');
                 
@@ -380,10 +381,14 @@ $(document).ready(function(){
         $('#createLocation').trigger('reset');
         
         // get id from button-element and item-object from items-array
-        var locationId = this.id.substr(11,this.id.length); // btnLocation = 11 chars
+        var locationId = this.id.substr(8,this.id.length); // location = 8 chars
         var location = getRecordById(locations, locationId);
         console.log('locationId to update: '+locationId);
         console.log(locations);
+        
+        //populate select with all events of this location
+        var locoEvents = getEventsByLoco(events, locationId);
+        populateSelect(locoEvents, 'createLocation', 'locationTrigger');
  
         // populate item in modal form
         $('#createLocation input[name=form]').val('updateLocation');
@@ -413,7 +418,7 @@ $(document).ready(function(){
         $('#createItem').trigger('reset');
         
         // get id from button-element and item-object from items-array
-        var itemId = this.id.substr(7,this.id.length); // btnItem = 7 chars
+        var itemId = this.id.substr(4,this.id.length); // item = 4 chars
         var item = getRecordById(items, itemId);
         console.log('itemId to update: '+itemId);
  
@@ -435,7 +440,7 @@ $(document).ready(function(){
         $('#customizeCharacter').trigger('reset');
         
         // get id from button-element and item-object from items-array
-        var characterId = this.id.substr(12,this.id.length); // btnItem = 12 chars
+        var characterId = this.id.substr(9,this.id.length); // character = 9 chars
         var character = getRecordById(characters, characterId);
         console.log('characterId to update: '+characterId);
         console.dir(character);
@@ -456,7 +461,7 @@ $(document).ready(function(){
         $('#createWeapon').trigger('reset');
         
         // get id from button-element and item-object from items-array
-        var weaponId = this.id.substr(9,this.id.length); // btnWeapon = 9 chars
+        var weaponId = this.id.substr(6,this.id.length); // weapon = 6 chars
         var weapon = getRecordById(weapons, weaponId);
         console.log('weaponId to update: '+weaponId);
  
@@ -477,8 +482,8 @@ $(document).ready(function(){
         $('#alertGuild').hide();
         $('#createGuild').trigger('reset');
         
-        // get id from button-element and item-object from items-array
-        var guildId = this.id.substr(8,this.id.length); // btnGuild = 8 chars
+        // get id from span-element and item-object from items-array
+        var guildId = this.id.substr(5,this.id.length); // guild = 5 chars
         var guild = getRecordById(guilds, guildId);
         console.log('guildId to update: '+guildId);
  
@@ -493,14 +498,13 @@ $(document).ready(function(){
         $("#createGuilds").modal('show');
     });
     
-    function updateCrudList(entity, listId, linkId, linkClass, btnDelId, btnDelClass, btnUpId, btnUpClass){
+    function updateCrudList(entity, listId, linkId, linkClass, btnDelId, btnDelClass){
         console.log('hello from update crud list');
         var html='';
         for(var i=0; i<entity.length; i++){
             html =  html+'<li class="list-group-item">'+
-                        '<a id="'+linkId+entity[i].id+'" class="'+linkClass+'" href="#">'+entity[i].name+'</a>'+
+                        '<span id="'+linkId+entity[i].id+'" class="'+linkClass+'">'+entity[i].name+'</span>'+
                         '<button class="'+btnDelClass+' pull-right btn btn-xs margin" id="'+btnDelId+entity[i].id+'">Delete</button>'+
-                        '<button class="'+btnUpClass+' pull-right btn btn-xs" id="'+btnUpId+entity[i].id+'">Update</button>'+                       
                     '</li>';            
         }
         
@@ -563,12 +567,23 @@ $(document).ready(function(){
             if(data['success']){
                 alertSuccess('#weaponSuccess', data['msg']);
                 weapons = data['weapons'];
-                updateCrudList( weapons, 'weaponList', 'weapon', 'showWeapon',
-                    'weaponBtnDel', 'deleteWeapon', 'weaponBtn', 'updateWeapon');
+                updateCrudList( weapons, 'weaponList', 'weapon', 'updateWeapon',
+                    'weaponBtnDel', 'deleteWeapon');
                 console.log(data['weapons']);
             }
         });
 
+    });
+    
+    /************ navigation *****************/
+    $(document).on('click','.eLoco', function(){
+       console.log('hello from dropdown') 
+       // get locationId
+       eLoco = this.id.substr(5,this.id.length); // eLoco = 5 chars
+       var locoEvents = getEventsByLoco(events,eLoco);
+       console.dir(locoEvents);
+       updateCrudList( locoEvents, 'eventList', 'event', 'updateEvent',
+                    'eventBtnDel', 'deleteEvent');
     });
     
     /************ misc-functions *******************/

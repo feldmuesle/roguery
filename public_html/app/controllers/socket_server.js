@@ -55,7 +55,8 @@ module.exports.response = function(socket){
         var isValid = Game.checkAttributeSum(character['attributes'], MAXSUM);
         if(isValid){
             console.log('character is valid');
-            
+            //OBS! we dont need to check for user, since we just put it there ourselves. 
+            //instead userId should get sanitized
             // get userId from clients-array by socket and start the game
             var index = Helper.getIndexByKeyValue(clients, 'user',data['user']);
             
