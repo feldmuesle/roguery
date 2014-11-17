@@ -21,6 +21,7 @@ var EventSchema = Schema({
     flag        :   {type: Schema.Types.ObjectId, ref:'Flag', index:true},
     items       :   [EventItemSchema],
     reqFlag     :   [{type: Schema.Types.ObjectId, ref:'Flag', index:true}],
+    rejectFlag  :   [{type: Schema.Types.ObjectId, ref:'Flag', index:true}],
     attributes  :   [AttributeSchema],
     branchType  :   {type:String, trim:true, lowercase:true, required:true},
 //    branch      :   [{type: Schema.Types.Mixed}]
@@ -110,13 +111,13 @@ EventSchema.pre('save', function(next){
 EventSchema.methods.saveUpdateAndReturnAjax = function(res){
     
     // define population-query for events
-    var populateQuery = [{path:'flag', select:'name id -_id'}, 
+    var populateQuery = [{path:'flag', select:'name id -_id'}, {path:'rejectFlag', select:'name id -_id'},
         {path:'reqFlag', select:'name id -_id'}, {path:'location', select:'name id -_id'}, 
         {path:'dice.failure.location', select:'name id -_id'},{path:'items', select:'name id -_id'}, 
         {path:'dice.success.location', select:'name id -_id'}, {path:'dice.success.event', select:'name id -_id'}, 
         {path:'dice.failure.event', select:'name id -_id'},{path:'choices', select:'name id'}, 
-        {path:'continueTo.location', select:'name id -_id'}, {path:'continueTo.event', select:'name id -_id'}, 
-        {path:'continue.random', select:'name id -_id'} ];
+        {path:'continueTo.location', select:'name id -_id'}, {path:'continueTo.event', select:'name id -_id'},
+        {path:'continueTo.random', select:'name id -_id'} ];
     
     var event = this || mongoose.model('Event');
         event.save(function(err){
@@ -132,7 +133,7 @@ EventSchema.methods.saveUpdateAndReturnAjax = function(res){
                     if(err){ return console.log(err);}
                     
 //                    console.log('events sent back after update:');
-//                    console.dir(events);
+                    console.dir(events);
                     return events;
                     
                     }).then(function(events){
@@ -152,13 +153,13 @@ EventSchema.methods.saveUpdateAndReturnAjax = function(res){
 //get populationQuery
 EventSchema.statics.getPopuQuery = function(){
     
-    var populateQuery = [{path:'flag', select:'name id -_id'}, 
+    var populateQuery = [{path:'flag', select:'name id -_id'},{path:'rejectFlag', select:'name id -_id'}, 
         {path:'reqFlag', select:'name id -_id'}, {path:'location', select:'name id -_id'}, 
         {path:'dice.failure.location', select:'name id -_id'},{path:'items', select:'name id -_id'}, 
         {path:'dice.success.location', select:'name id -_id'}, {path:'dice.success.event', select:'name id -_id'}, 
         {path:'dice.failure.event', select:'name id -_id'},{path:'choices', select:'name id choiceText'}, 
         {path:'continueTo.location', select:'name id -_id'}, {path:'continueTo.event', select:'name id -_id'}, 
-        {path:'continue.random', select:'name id -_id'} ];
+        {path:'continueTo.random', select:'name id -_id'} ];
     
     return populateQuery;
 };
@@ -211,17 +212,28 @@ EventSchema.statics.addDiceBranch = function(branch, event, cb){
     if(locos.length == 2){
         console.log('expected 2 locations: getting '+locos.length);
         console.log('sanitized ids '+locos);
-        Location.find({'id':{$in : [1,2]}}).exec(function(err, locos){
+        Location.find({'id':{$in : locos}}).exec(function(err, locos){
             if(err){console.log(err); return;}
             console.log('hello from find dice-locos');
             if(locos[0].id == succTrigger){
                 console.log('yes it is true');
                 event.dice.success.location = locos[0]._id;
-                event.dice.failure.location = locos[1]._id;
+                // check if there are two locations or only one (because they are the same)
+                if(locos.length > 1){
+                    event.dice.failure.location = locos[1]._id;
+                }else{
+                    event.dice.failure.location = locos[0]._id;
+                }
+                
                 console.log('event.dice.success.location '+event.dice.success.location);
             }else{
                 event.dice.failure.location = locos[0]._id;
-                event.dice.success.location = locos[1]._id;
+                if(locos.length > 1){
+                    event.dice.success.location = locos[1]._id;
+                }else{
+                    event.dice.success.location = locos[0]._id;
+                }
+                
                 console.log('event.dice.success.location '+event.dice.success.location);
             }
             console.log('dice: trigger two locations '+event.dice);
@@ -288,9 +300,10 @@ EventSchema.statics.addDiceBranch = function(branch, event, cb){
 EventSchema.statics.addContinueBranch = function(branch, event, cb){
     console.log('hello from addContinueBranch');
     var self = this || mongoose.model('Event');
-    
+
     // if its an event/location, sanitize id before making query
     if(branch.type != 'continueRand'){
+        console.log('continue to other than random event');
         var continueTo = Helper.sanitizeNumber(branch.continueTo);
     }
     
@@ -311,7 +324,21 @@ EventSchema.statics.addContinueBranch = function(branch, event, cb){
         });
     }else {
         // TODO: get random event before sending to client
-        return cb(event);
+        var sanitized = [];
+        branch.continueTo.forEach(function(eve){      
+            console.log('hello from random loop');
+            var ev = Helper.sanitizeNumber(eve);
+            sanitized.push(ev);
+        });
+        
+        // get all events out of db
+        self.find({'id':{$in:sanitized}}).exec(function(err, events){
+           if(err){console.log(err); return;}
+           events.forEach(function(ev){              
+              event.continueTo.random.push(ev._id);
+           });
+           return cb(event); 
+        });
     }
 };
 

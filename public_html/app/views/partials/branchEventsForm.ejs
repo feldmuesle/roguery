@@ -93,7 +93,7 @@
     </div><!-- dice-fold-out end -->
     <!-- continue-fold-out -->
     <div id="continueFold" class="row form-group">
-        <div class="col-xs-11 col-xs-offset-1" >
+        <div id="continues" class="col-xs-11 col-xs-offset-1" >
             <div class="form-group">
                 <label class="radio-inline">
                     <input type="radio" name="continue" value="continueLoco" checked> to location
@@ -105,14 +105,30 @@
                     <input type="radio" name="continue" value="continueRand"> random event
                 </label>
             </div>
-            <div id="continSelectFold" class="form-group">
-                <label>Choose event/location</label>
-                <select class="form-control" name="continueTo">
-                    <%for( var i=0; i<locations.length; i++){%>
-                            <option value="<%=locations[i].id%>"><%=locations[i].name%></option>
-                        <%}%>
-                </select>
-            </div>
+           
+                <div id="continSelectFold" class="form-group">
+                    <label>Choose event/location</label>
+                    <select class="form-control" name="continueTo">
+                        <%for( var i=0; i<locations.length; i++){%>
+                                <option value="<%=locations[i].id%>"><%=locations[i].name%></option>
+                            <%}%>
+                    </select>
+                </div>
+                <div id="continRandFold" class="form-group">
+                    <div class="col-xs-10">                  
+                        <label class="col-xs-12">Pick event</label>
+                        <select class="form-control" name="random0">
+                            <%for( var i=0; i<events.length; i++){%>
+                                <option value="<%=events[i].id%>"><%=events[i].name%></option>
+                            <%}%>
+                        </select>
+                    </div>
+                    <div class="col-xs-1">
+                        <button class="btn add-random" type="button">+</button>
+                    </div>
+
+                </div>
+            
         </div>                            
     </div> <!-- continue-fold-out end --> 
 

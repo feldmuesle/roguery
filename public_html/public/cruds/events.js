@@ -1,7 +1,5 @@
 /* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * display modal form for creating events
  */
 
 
@@ -9,21 +7,44 @@
 var itemCount = 1;
 var attrCount = 1;
 var flagCount = 1;
+var rejectFlagCount = 1;
 var choiceCount = 1;
+var randCount = 1;
 
-// display modal form for creating events
+//add interactivitiy
+        foldOut('isChoice', 'isChoiceFold');
+        foldOut('isFlagged', 'isFlaggedFold');
+        foldOut('reqFlag', 'reqFlagFold');
+        foldOut('rejectFlag', 'rejectFlagFold');
+        foldOut('useItem', 'itemFold');
+        foldOut('attributes', 'attrFold');
+        foldOut('branchtypes', 'diceFold');
+
+        foldOutRadio('branchType');
+        foldOutRadio('success');    
+        foldOutRadio('failure');
+        foldOutRadio('choices');
+        foldOutRadio('continue');
+
+
+    
+//activate input-spinners for inputs of type number (-> function declared in helper.js)
+    inputSpinner('choiceRandFold', 1, 8, 1);
+    inputSpinner('diceFold', 5, 30, 5);
+    inputSpinner('attrFold', 1, 150, 0);
 
 function resetEventForm(){
     //make sure the form is cleaned up
         $('#createEvent').trigger('reset');
         $('#createEvent input[name=form]').val('createEvent');
         $('#btnCreateEvent').text('create');
-//        $('#createEvent input:radio').removeProp('checked');
+        $('#createEvent input[name=branchType]').removeProp('checked');
         
         // hide all fold-outs
         $('#isChoiceFold').hide();
         $('#isFlaggedFold').hide();
         $('#reqFlagFold').hide();
+        $('#rejectFlagFold').hide();
         $('#itemFold').hide();
         $('#attrFold').hide();
         $('#diceFold').hide();  // show diceFold by default
@@ -32,28 +53,24 @@ function resetEventForm(){
         $('#choicesFold').hide();
         $('#continueFold').hide();
         $('#continSelectFold').hide();
+        $('#continRandFold').hide();
         
-        foldOut('isChoice', 'isChoiceFold');
-        foldOut('isFlagged', 'isFlaggedFold');
-        foldOut('reqFlag', 'reqFlagFold');
-        foldOut('useItem', 'itemFold');
-        foldOut('attributes', 'attrFold');
-        foldOut('branchtypes', 'diceFold');
         
-        foldOutRadio('branchType');
-        foldOutRadio('success');
-        foldOutRadio('failure');
-        foldOutRadio('choices');
-        foldOutRadio('continue');
+        
+        
+        // remove add-ons if there are
+        removeAddOns(itemCount,'removeItem');
+        removeAddOns(flagCount,'removeFlag');
+        removeAddOns(rejectFlagCount,'removeRejectFlag');
+        removeAddOns(attrCount,'removeAttr'); 
+        removeAddOns(choiceCount,'removeChoice');
+        removeAddOns(randCount,'removeRandom');
         
         populateSelect(locations,'createEvent', 'location');
         populateSelect(locations, 'createEvent','succTrigger');
         populateSelect(locations, 'createEvent','failTrigger');
         
-        //activate input-spinners for inputs of type number (-> function declared in helper.js)
-        inputSpinner('choiceRandFold', 1, 8, 1);
-        inputSpinner('diceFold', 5, 30, 5);
-        inputSpinner('attrFold', 1, 150, 0);
+
 };
 
 $('#addEvent').click(function(){
@@ -75,18 +92,19 @@ $('#addEvent').click(function(){
 // fold out if checkbox gets checked
 function foldOut(checkbox, foldId){
     $('#createEvent input[name='+checkbox+']').click(function(){
-        console.log('hello from isChoice'); 
+        console.log('hello from checkbox foldout'); 
         var self = $(this);
         if(self.is(':checked')){
-            console.log('you checked isChoice'); 
+            console.log('you checked a field'); 
             $('#'+foldId).show();
         }else{                  
             $('#'+foldId).hide();
-            console.log('you unchecked is Choice'); 
+            console.log('you unchecked a field'); 
             
             // remove also eventual add-ons for items, attributes and flags
             if(checkbox == 'useItem'){ removeAddOns(itemCount,'removeItem');}
             if(checkbox == 'reqFlag'){ removeAddOns(flagCount,'removeFlag');}
+            if(checkbox == 'rejectFlag'){ removeAddOns(rejectFlagCount,'removeRejectFlag');}
             if(checkbox == 'attributes'){ removeAddOns(attrCount,'removeAttr');}
                 
             
@@ -118,24 +136,32 @@ function foldOutRadio(radio){
                     $('#choicesFold').hide();
                     $('#continueFold').hide();
                     $('#diceFold').show();
+                    removeAddOns(randCount,'removeRandom');
                     break;
 
                 case'end':
                     $('#diceFold').hide();
                     $('#choicesFold').hide();
                     $('#continueFold').hide();
+                    removeAddOns(randCount,'removeRandom');
                     break;
 
                 case'choices':
                     $('#continueFold').hide();
                     $('#diceFold').hide();
                     $('#choicesFold').show();
+                    removeAddOns(randCount,'removeRandom');
+                    //populate choiceFold with only 
+                    var locoEvents = getEventsByLoco(events, eLoco);
+                    var choices = getChoicesOnly(locoEvents);
+                    populateSelect(choices, 'createEvent', 'choice0');
                     break;
 
                 case'continue':
                     $('#diceFold').hide();
                     $('#choicesFold').hide();
                     $('#continueFold').show();
+                    removeAddOns(randCount,'removeRandom');
                     break;
 
                 case'failLoco':
@@ -172,16 +198,21 @@ function foldOutRadio(radio){
 
                 case'continueLoco':
                     $('#continSelectFold').show();
+                    $('#continRandFold').hide();
                     populateSelect(locations, 'createEvent', 'continueTo');
+                    removeAddOns(randCount,'removeRandom');
                     break;
 
                 case'continueEvent':
                     $('#continSelectFold').show();
+                    $('#continRandFold').hide();
                     populateSelect(events, 'createEvent', 'continueTo');
+                    removeAddOns(randCount,'removeRandom');
                     break;
                     
                 case'continueRand':
                     $('#continSelectFold').hide();
+                    $('#continRandFold').show();
                     break;
 
                 case'choiceRand':
@@ -323,6 +354,35 @@ $('.add-flag').click(function(){
     console.log('using items: '+flagCount);
 });
 
+// add new rejectflag to event-form
+$('.add-rejectFlag').click(function(){
+    var foldId = 'rejectFlagFold';
+    // set counter for items
+    rejectFlagCount += 1;
+    var next = rejectFlagCount- 1;      
+    var button = '<button id="removeRejectFlag'+next+'" class="btn remove-flag" type="button">-</button>' ;       
+    var buttonDiv = '<div class="col-xs-1">'+button+'</div>';                       
+    var select = '<select class="form-control" name="rejectFlag'+next+'"></select>';
+    var selectGroup = '<div class="col-xs-10"><label>Choose another flag</label>'+select+'</div>';
+    var row = '<div id="rejectFlagRow'+next+'" class="row form-group">'+selectGroup+'</div';
+    var fold = '<div id="'+foldId+next+'" class="col-xs-11 col-xs-offset-1">'+row+'</div>';
+    
+    $('#rejectFlag').append(fold);
+    $('#rejectFlagRow'+next).append(buttonDiv);
+    populateSelect(flags, 'createEvent' ,'rejectFlag'+next);   
+    
+    // remove folds
+    $('#removeRejectFlag'+next).click(function(){
+                var element = '#'+foldId + next;
+                $(element).remove();
+                rejectFlagCount--;
+                next--;
+                console.log(rejectFlagCount+' after removal');
+            });
+    
+    console.log('using items: '+rejectFlagCount);
+});
+
 // add new choice to event in form
 $('.add-choice').click(function(){
     var foldId = 'pickChoiceFold';
@@ -338,7 +398,10 @@ $('.add-choice').click(function(){
     
     $('#choice').append(fold);
     $('#'+foldId+next).append(buttonDiv);
-    populateSelect(events, 'createEvent', 'choice'+next);   
+    // populate select only with events that are choices and of this location  
+    var locoEvents = getEventsByLoco(events, eLoco);
+    var choices = getChoicesOnly(locoEvents);
+    populateSelect(choices, 'createEvent', 'choice'+next);  
     
     // remove folds
     $('#removeChoice'+next).click(function(){
@@ -350,6 +413,36 @@ $('.add-choice').click(function(){
             });
     
     console.log('using items: '+choiceCount);
+});
+
+$('.add-random').click(function(){
+    var foldId = 'continRandFold';
+    // set counter for items
+    randCount += 1;
+    var next = randCount- 1; 
+    
+    var button = '<button id="removeRandom'+next+'" class="btn remove-random" type="button">-</button>' ;       
+    var buttonDiv = '<div class="col-xs-1">'+button+'</div>';    
+    var select = '<select class="form-control" name="random'+next+'"></select>';
+    var selectGroup = '<div class="col-xs-10"><label>Pick another random event</label>'+select+'</div>';
+    var fold = '<div id="'+foldId+next+'" class="row form-group">'+selectGroup+'</div>';
+    
+    $('#continues').append(fold);
+    $('#'+foldId+next).append(buttonDiv);
+    // populate select only with events that are choices and of this location  
+    var locoEvents = getEventsByLoco(events, eLoco);
+    populateSelect(locoEvents, 'createEvent', 'random'+next);  
+    
+    // remove folds
+    $('#removeRandom'+next).click(function(){
+                var element = '#'+foldId + next;
+                $(element).remove();
+                randCount--;
+                next--;
+                console.log(randCount+' after removal');
+            });
+    
+    console.log('using items: '+randCount);
 });
 
 // remove-all add-ons = all fields that were added dynamically
@@ -386,6 +479,7 @@ function removeAddOns(count, buttonId){
        var isFlagged = $('#createEvent input[name=isFlagged]').val();
        var flagDesc = $('#createEvent input[name=flagDesc]').val();
        var reqFlag = $('#createEvent input[name=reqFlag]').val();
+       var rejectFlag = $('#createEvent input[name=rejectFlag]').val();
        
        var useItem = $('#createEvent input[name=useItem]').val();       
        var attributes = $('#createEvent input[name=attributes]').val();
@@ -415,7 +509,8 @@ function removeAddOns(count, buttonId){
             'isChoice'  :   isChoice,
             'setFlag'   :   isFlagged,
             'reqFlag'   :   reqFlag,
-            'items'      :   useItem,
+            'rejectFlag':   rejectFlag,
+            'items'     :   useItem,
             'attributes':   attributes,
             'branchType':   branchType,
             'branch'    :   {}             
@@ -457,6 +552,18 @@ function removeAddOns(count, buttonId){
                 flags.push(flag);
             }
             event.reqFlag = flags;
+          
+        }
+        
+        // if there are any flags reqiured, push them in flags-array
+       if(rejectFlag == 'true'){
+            var flags = [];
+            
+            for(var i=0; i<rejectFlagCount; i++){
+                var flag = $('#createEvent select[name=rejectFlag'+i+'] option:selected').val();
+                flags.push(flag);
+            }
+            event.rejectFlag = flags;
           
         }
         
@@ -504,6 +611,18 @@ function removeAddOns(count, buttonId){
                 var continueObj ={'type' : contin};
                 if(contin != 'continueRand'){
                     continueObj.continueTo = continueTo;
+                }else{
+                    //TODO: get all random events and add array
+                    console.log('hello from contiueRand');
+                    // set choice-array 
+                    if(randCount > 0){
+                        var randomArr = [];            
+                        for(var i=0; i < randCount; i++){                
+                            var random = $('#createEvent select[name=random'+i+'] option:selected').val();
+                            randomArr.push(random);
+                        }
+                        continueObj.continueTo = randomArr;
+                    }  
                 }
                 event.branch = continueObj;
                 break;
@@ -575,17 +694,19 @@ function removeAddOns(count, buttonId){
         $('#alertEvent').hide();
         $('#createEvent').trigger('reset');
         $('#createEvent input:checkbox').removeAttr('checked');
+        
         resetEventForm();  
+        $('#createEvent input:radio').removeProp('checked');
         
         // get id from button-element and item-object from items-array
         var eventId = this.id.substr(5,this.id.length); // event = 5 chars
         var event = getRecordById(events, eventId);
-        console.log('eventId to update: '+eventId);
+        console.log('eventId to update: '+event);
  
         // populate item in modal form
         $('#createEvent input[name=form]').val('updateEvent');
-        $('#createEvent input[name=name]').val(event.name);
-        $('#createEvent select[name=location] option:selected').val(event.location.id);
+        $('#createEvent input[name=name]').val(event.name);        
+        $('#createEvent select[name=location] option[value='+event.location.id+']').attr('selected', 'selected');
         $('#createEvent textarea[name=text]').text(event.text);
         
         if(event.newPara != false){
@@ -615,6 +736,19 @@ function removeAddOns(count, buttonId){
                 }else{
                     $('#reqFlagFold').show();
                     $('#createEvent select[name=flag0]').val(event.reqFlag[0].id).attr('selected','selected');
+                }
+            }
+        }
+        
+        if(event.rejectFlag.length > 0){
+            $('#createEvent input[name=rejectFlag]:checkbox').attr('checked',true);
+            for(var i=0; i < event.rejectFlag.length; i++){
+                if(i != 0){
+                    $('.add-rejectFlag').click();
+                    $('#createEvent select[name=rejectFlag'+i+']').val(event.rejectFlag[i].id).attr('selected','selected');                    
+                }else{
+                    $('#rejectFlagFold').show();
+                    $('#createEvent select[name=rejectFlag0]').val(event.rejectFlag[0].id).attr('selected','selected');
                 }
             }
         }
@@ -653,9 +787,18 @@ function removeAddOns(count, buttonId){
         }
         
         //get the right branch-type and display branch
+//        var previous =  $('#createEvent input[name=branchType]:checked').val();
+//        console.log('previous: '+previous);
+//        $('#createEvent input[name=branchType]:radio[value='+previous+']').prop('checked',false);
+        
+        $('#createEvent input[name=branchType]:checked').attr('checked',false);
+        $('#createEvent input[name=branchType]:radio[value='+event.branchType+']').attr('checked',true);
+        $('#createEvent input[name=branchType]:radio').trigger("change");
+        
         switch(event.branchType){
             case'dice':
-                $('#createEvent input[name=dice]:radio[value='+event.branchType+']').attr('checked',true);
+                console.log('a dice has been rolled.');
+                
                 $('#createEvent select[name=diceAttr]').val(event.dice.attribute).attr('selected', 'selected');
                 $('#createEvent input[name=difficulty]').val(event.dice.difficulty);
                 $('#createEvent input[name=success]:radio[value='+event.dice.success.type+']').attr('checked',true);
@@ -682,7 +825,7 @@ function removeAddOns(count, buttonId){
                 
             case'choices':
                 $('#choicesFold').show();
-                $('#createEvent input[name=branchType]:radio[value='+event.branchType+']').attr('checked',true);
+//                $('#createEvent input[name=branchType]:radio[value='+event.branchType+']').attr('checked',true);
                 if(event.choices.length > 0){
 //                    $('#createEvent input[name=choices]:checkbox').attr('checked',true);
                     for(var i=0; i < event.choices.length; i++){
@@ -701,7 +844,7 @@ function removeAddOns(count, buttonId){
                 
             case'continue':
                 // set the radios
-                $('#createEvent input[name=branchType]:radio[value='+event.branchType+']').attr('checked',true);
+//                $('#createEvent input[name=branchType]:radio[value='+event.branchType+']').attr('checked',true);
                 $('#createEvent input[name=continue]:radio[value='+event.continueTo.type+']').attr('checked',true);
                                   
                 if(event.continueTo.type == 'continueLoco'){
@@ -713,12 +856,29 @@ function removeAddOns(count, buttonId){
                     populateSelect(events,'createEvent','continueTo');
                     $('#createEvent select[name=continueTo]').val(event.continueTo.event.id).attr('selected','selected');
                     $('#continSelectFold').show();
+                }else {
+                    
+                    if(event.continueTo.random.length > 0){
+                       
+                        for(var i=0; i < event.continueTo.random.length; i++){
+                            if(i != 0){
+                                $('.add-random').click();
+                                $('#createEvent select[name=random'+i+']').val(event.continueTo.random[i].id).attr('selected','selected');                    
+
+                            }else{
+                                $('#continRandFold').show();
+                                $('#createEvent select[name=random0]').val(event.continueTo.random[0].id).attr('selected','selected');
+
+                            }
+                        }
+                    }
                 }
                 $('#continueFold').show();                
                 break;
                 
             case'end':
-                $('#createEvent input[name=branchType]:radio[value='+event.branchType+']').attr('checked',true);
+                console.log('this is the end');
+//                $('#createEvent input[name=branchType]:radio[value='+event.branchType+']').attr('checked',true);
                 break;
                 
         }

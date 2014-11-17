@@ -103,6 +103,17 @@ function getEventsByLoco(eventsArray, locationId){
     return events;
 }
 
+function getChoicesOnly(eventsArray){
+    var events = [];
+    console.log('hello from get Choisesonly');
+    for (var i = 0; i< eventsArray.length; i++){            
+        if (eventsArray[i]['isChoice'] == true){        
+            events.push(eventsArray[i]);
+        }        
+    }
+    return events;
+}
+
 // populate a select dynamically 
 function populateSelect(array, elementId, name){
     var select = $('#'+elementId+' select[name='+name+']');

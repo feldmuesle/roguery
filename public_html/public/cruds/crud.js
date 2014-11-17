@@ -577,7 +577,7 @@ $(document).ready(function(){
     
     /************ navigation *****************/
     $(document).on('click','.eLoco', function(){
-       console.log('hello from dropdown') 
+       console.log('hello from dropdown');
        // get locationId
        eLoco = this.id.substr(5,this.id.length); // eLoco = 5 chars
        var locoEvents = getEventsByLoco(events,eLoco);

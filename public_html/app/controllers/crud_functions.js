@@ -48,6 +48,61 @@ function getBranch(branchType, branch, event, cb){
     }
 }
 
+// add reject-flags if there are any and return cb with altered event
+var setRejectFlags = function( rejectFlag, event, cb){
+    console.log('hello from setRejectFlags');
+    if(rejectFlag != 'false'){
+        var flags = []; // for sanitized flagIds if reqFlag is not false
+        // get and sanitize all flag-ids in reqFlag-array
+        rejectFlag.forEach(function(flag){
+            flags.push(Helper.sanitizeNumber(flag));
+        });
+        
+        Flag.find({'id':{$in :flags}}).exec(function(err, flags){
+            if(err){console.log('reject Flag is '+rejectFlag);} 
+            
+            // add all flags that should be rejected
+            flags.forEach(function(flag){
+                event.rejectFlag.push(flag._id);
+            });                                                                       
+            console.log('rejectflags are set: '+event.rejectFlag);
+            return cb(event);
+
+        });
+    }else{
+        // otherwise just return event as it is
+        return cb(event);
+    }
+};
+
+// add reject-flags if there are any and return cb with altered event
+var setRequestFlags = function( reqFlag, event, cb){
+    console.log('hello from setRequestFlags');
+    if(reqFlag != 'false'){
+        var flags = []; // for sanitized flagIds if reqFlag is not false
+        // get and sanitize all flag-ids in reqFlag-array
+        reqFlag.forEach(function(flag){
+            flags.push(Helper.sanitizeNumber(flag));
+        });
+        
+        Flag.find({'id':{$in :flags}}).exec(function(err, flags){
+            if(err){console.log('reqFlag  is '+reqFlag);} 
+            
+            // add all flags that should be rejected
+            flags.forEach(function(flag){
+                event.reqFlag.push(flag._id);
+            });                                                                       
+            console.log('reqflags are set: '+event.reqFlag);
+            return cb(event);
+
+        });
+    }else{
+        // otherwise just return event as it is
+        return cb(event);
+    }
+};
+
+
 // this creates an Mongoose-event and sets all properties according to req-event and returns it
 var createEvent = function(reqBody, id, cb){
 //    console.log('reqBody in createEvent: ');
@@ -56,11 +111,10 @@ var createEvent = function(reqBody, id, cb){
     var isChoice = reqBody.isChoice;
     var setFlag = reqBody.setFlag;
     var reqFlag = reqBody.reqFlag;
-    var flags = []; // for sanitized flagIds if reqFlag is not false
+    var rejectFlag = reqBody.rejectFlag;
     var branchType = reqBody.branchType;
     var branch = reqBody.branch;       
     console.log(branch);
-    console.log('reqFlag is: '+reqFlag);
     
     // create event
     var event = new Event();
@@ -81,123 +135,40 @@ var createEvent = function(reqBody, id, cb){
         //console.log('choiceText is set: '+isChoice);
     }
     
-    // there are four possible cases of promise-chains,
-    //  either flags is set and required, 
-    // not set and not required, 
-    // one of each and the other way arround
-    
-    //if event has a flag set and flags required
-    if(setFlag !='false' && reqFlag != 'false'){
+    // set the location to Object-id
+    Location.findOne({'id':location}).exec(function(err, loco){
+        if(err){console.log(err); return;}
+        event.location = loco._id;
+        console.log('location set '+event.location.name);                
+    })
+    .then(function(){
         
-        // set the location to Object-id
-        Location.findOne({'id':location}).exec(function(err, loco){
-            if(err){console.log(err); return;}
-            event.location = loco._id;
-            console.log('location set '+event.location.name);                
-        })
-        .then(function(){
-            // get and sanitize all flag-ids in reqFlag-array
-            reqFlag.forEach(function(flag){
-                flags.push(Helper.sanitizeNumber(flag));
-            });
-            //console.log('sanitized flag-array: '+flags);
-
-            Flag.find({'id':{$in :flags}}).exec(function(err, flags){
-                if(err){console.log('reqFlag is '+reqFlag);} 
-
-                flags.forEach(function(flag){
-                    event.reqFlag.push(flag._id);
-                });                                                                       
-                console.log(event);
-
-            }).then(function(){
+        //set req-flags if there are any
+        setRequestFlags(reqFlag, event, function(event){
+           
+            //set reject-flags if there are andy
+            setRejectFlags(rejectFlag, event, function(event){
+                
                 // insert branch depending on branchType
                 getBranch(branchType, branch, event, function(event){
 
-                    // create new flag and save it in DB
-                    Flag.createFlag(setFlag, function(flag){
-                        event.setFlag=true;
-                        event.flag = flag._id;
-                        console.log('flag-callback - event.flag set'+event.setFlag+' '+event.flag);
+                    //finally check if a flag is set
+                    if(setFlag != 'false'){
+                        // create new flag and save it in DB
+                        Flag.createFlag(setFlag, function(flag){
+                            event.setFlag=true;
+                            event.flag = flag._id;
+                            console.log('flag-callback - event.flag set'+event.setFlag+' '+event.flag);
+                            return cb(event);
+                        });
+                    }else{
+                        event.setFlag = false;
                         return cb(event);
-                    });
-
-                });
-            });                   
-        });
-    // if no flag is set but flags required
-    }else if( setFlag == 'false' && reqFlag != 'false'){
-        // set the setFlag-property to bool
-        event.setFlag = false;
-        
-        // set the location to Object-id
-            Location.findOne({'id':location}).exec(function(err, loco){
-                if(err){console.log(err); return;}
-                event.location = loco._id;
-                console.log('location set '+event.location.name);                
-            })
-            .then(function(){
-                // get and sanitize all flag-ids in reqFlag-array
-                reqFlag.forEach(function(flag){
-                    flags.push(Helper.sanitizeNumber(flag));
-                });
-                //console.log('sanitized flag-array: '+flags);
-
-                Flag.find({'id':{$in :flags}}).exec(function(err, flags){
-                    if(err){console.log('reqFlag is '+reqFlag);} 
-
-                    flags.forEach(function(flag){
-                        event.reqFlag.push(flag._id);
-                    });                                                                       
-                    console.log(event);
-//                                                
-                }).then(function(){
-                    // insert branch depending on branchType
-                    getBranch(branchType, branch, event, function(event){
-                       return cb(event); 
-                    });
+                    }
                 });
             });
-    // if flag is set but none required        
-    }else if(setFlag != 'false' && reqFlag == 'false'){          
-        
-        // set the location to Object-id
-        Location.findOne({'id':location}).exec(function(err, loco){
-            if(err){console.log(err); return;}
-            event.location = loco._id;
-            console.log('location set '+event.location);                
-        })
-        .then(function(){              
-            // insert branch depending on branchType
-            getBranch(branchType, branch, event, function(event){
-
-                // create new flag and save it in DB
-                Flag.createFlag(setFlag, function(flag){
-                    event.setFlag=true;
-                    event.flag = flag._id;
-                    console.log('flag-callback - event.flag set'+event.setFlag+' '+event.flag);
-                    return cb(event); 
-                });                   
-            });
-        });
-            
-    // no flag set nor required
-    }else{
-        // set the setFlag-property to bool
-        event.setFlag = false;
-        
-        Location.findOne({'id':location}).exec(function(err, loco){
-                if(err){console.log(err); return;}
-                event.location = loco._id;
-                console.log('location set '+event.location);                
-            })
-            .then(function(){              
-                // insert branch depending on branchType
-                getBranch(branchType, branch, event, function(event){
-                   return cb(event); 
-                });
-        });
-    }
+        });                           
+    });    
 };
 
 //this is the actual Crud-function saving a new event and sending a response back to the client
@@ -604,7 +575,7 @@ exports.updateEvent = function(res, req){
        createEvent(req.body, eventId, function(newEvent){
 
 //                    console.log('db-event '+event);
-//                    console.log('new event '+newEvent);
+                    console.log('new event '+newEvent);
             // set all fields except for the set-flag property 
             event.name = newEvent.name;
             event.location = newEvent.location;
@@ -618,6 +589,7 @@ exports.updateEvent = function(res, req){
             event.items = newEvent.items;
             event.attributes = newEvent.attributes;
             event.reqFlag = newEvent.reqFlag;
+            event.rejectFlag = newEvent.rejectFlag;
             event.choices = newEvent.choices;
             event.branchType = newEvent.branchType;
 
@@ -669,13 +641,13 @@ exports.updateEvent = function(res, req){
 
 exports.sendAllModels = function(res, req){
     // define population-query for events
-        var populateQuery = [{path:'flag', select:'name id -_id'}, 
+        var populateQuery = [{path:'flag', select:'name id -_id'},{path:'rejectFlag', select:'name id -_id'}, 
             {path:'reqFlag', select:'name id -_id'}, {path:'location', select:'name id -_id'}, 
             {path:'dice.failure.location', select:'name id -_id'},{path:'items', select:'name id -_id'}, 
             {path:'dice.success.location', select:'name id -_id'}, {path:'dice.success.event', select:'name id -_id'}, 
             {path:'dice.failure.event', select:'name id -_id'},{path:'choices', select:'name id -_id'}, 
             {path:'continueTo.location', select:'name id -_id'}, {path:'continueTo.event', select:'name id -_id'}, 
-            {path:'continue.random', select:'name id -_id'} ];
+            {path:'continueTo.random', select:'name id -_id'} ];
         
         // instead of 
         //'flag reqFlag location items dice.failure.location dice.failure.event'+
