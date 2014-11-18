@@ -77,7 +77,7 @@ module.exports.response = function(socket){
                     socket.emit('output', {'type':'location', 'text':location.text});
                     
                     Game.runEventChain(storyteller, player, event, function(data){
-                        console.log('hello from trigger event-callback');
+                        console.log('hello from runEventChain-callback');
                         var continType = data['continType'];
                         var player = data['player'];
                         
@@ -89,9 +89,13 @@ module.exports.response = function(socket){
                             var choices = data['choices'];
                             socket.emit('choices', {'choices':choices});
                             
-                        }else if(continType == 'location'){
-                            
-                        }else {
+                        }else if(continType == 'pressContinue'){
+                            console.log('please press continue');
+                            console.dir(data['continueEvent']);
+                            var nextEvent = data['continueEvent'].id;
+                            console.log(nextEvent);
+                            socket.emit('pressContinue', {'event':nextEvent});
+                        }else{
                             // you have come to the end!
                         }
                         
@@ -132,8 +136,12 @@ module.exports.response = function(socket){
                     var choices = data['choices'];
                     socket.emit('choices', {'choices':choices});
 
-                }else if(continType == 'location'){
-
+                }else if(continType == 'pressContinue'){
+                            console.log('please press continue');
+                            console.dir(data['continueEvent']);
+                            var nextEvent = data['continueEvent'].id;
+                            console.log(nextEvent);
+                            socket.emit('pressContinue', {'event':nextEvent});
                 }else {
                     // you have come to the end!
                     console.log('you have come to the end!');

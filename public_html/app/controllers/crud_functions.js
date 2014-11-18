@@ -154,17 +154,11 @@ var createEvent = function(reqBody, id, cb){
 
                     //finally check if a flag is set
                     if(setFlag != 'false'){
-                        // create new flag and save it in DB
-                        Flag.createFlag(setFlag, function(flag){
-                            event.setFlag=true;
-                            event.flag = flag._id;
-                            console.log('flag-callback - event.flag set'+event.setFlag+' '+event.flag);
-                            return cb(event);
-                        });
+                        event.setFlag=true;                        
                     }else{
-                        event.setFlag = false;
-                        return cb(event);
+                        event.setFlag = false;                        
                     }
+                    return cb(event);
                 });
             });
         });                           
@@ -182,7 +176,20 @@ exports.createEvent = function(res, req){
         createEvent(req.body, id, function(event){
             console.log('hello from Crud-callback');
             console.log(event);
-            event.saveUpdateAndReturnAjax(res);
+            
+            // if event has a flag, create new flag and save it in DB
+            if(event.setFlag){
+                Flag.createFlag(res.setFlag, function(flag){
+                    event.setFlag=true;
+                    event.flag = flag._id;
+                    console.log('flag-callback - event.flag set'+event.setFlag+' '+event.flag);
+                    event.saveUpdateAndReturnAjax(res);
+                });
+            }else{
+                event.flag = null;
+                event.saveUpdateAndReturnAjax(res);
+            }          
+            
         }); // Crud.cb end
     }); // event.find end    
 };
@@ -641,7 +648,7 @@ exports.updateEvent = function(res, req){
 
 exports.sendAllModels = function(res, req){
     // define population-query for events
-        var populateQuery = [{path:'flag', select:'name id -_id'},{path:'rejectFlag', select:'name id -_id'}, 
+        var populateQuery = [{path:'flag', select:'name id _id'},{path:'rejectFlag', select:'name id -_id'}, 
             {path:'reqFlag', select:'name id -_id'}, {path:'location', select:'name id -_id'}, 
             {path:'dice.failure.location', select:'name id -_id'},{path:'items', select:'name id -_id'}, 
             {path:'dice.success.location', select:'name id -_id'}, {path:'dice.success.event', select:'name id -_id'}, 

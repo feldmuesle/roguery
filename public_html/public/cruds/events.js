@@ -55,7 +55,11 @@ function resetEventForm(){
         $('#continSelectFold').hide();
         $('#continRandFold').hide();
         
-        
+        // set all checkbox-values to true
+        $('#createEvent').find('input:checkbox').each(function(){
+           console.log('setting checkbox-values back to true');
+          $(this).val('true'); 
+       });
         
         
         // remove add-ons if there are
@@ -206,13 +210,16 @@ function foldOutRadio(radio){
                 case'continueEvent':
                     $('#continSelectFold').show();
                     $('#continRandFold').hide();
-                    populateSelect(events, 'createEvent', 'continueTo');
+                    var locoEvents = getEventsByLoco(events, eLoco);
+                    populateSelect(locoEvents, 'createEvent', 'continueTo');
                     removeAddOns(randCount,'removeRandom');
                     break;
                     
                 case'continueRand':
                     $('#continSelectFold').hide();
                     $('#continRandFold').show();
+                    var locoEvents = getEventsByLoco(events, eLoco);
+                    populateSelect(locoEvents, 'createEvent', 'continueTo');
                     break;
 
                 case'choiceRand':
@@ -454,7 +461,8 @@ function removeAddOns(count, buttonId){
     
 }
 
-/*** CREATE new event **********/
+/************ CREATE new event **********/
+
 
     $('#btnCreateEvent').click(function(){
     
@@ -515,6 +523,8 @@ function removeAddOns(count, buttonId){
             'branchType':   branchType,
             'branch'    :   {}             
         };        
+        
+        console.log('event create: '+event);
         
         // if it's a choice, set the choice-text
         if(isChoice == 'true'){

@@ -112,6 +112,11 @@ function appendToChat(cssClass, text){
     $('<li class="'+cssClass+'">'+text+'</li>').hide().appendTo('#chatEntries').slideDown('fast');
 }
 
+//clear text-window
+function clearText(){
+    $('#chatEntries').html('');
+}
+
 /******* character generator ****************/
 
 // initialize game with random playing character - show in modal window
@@ -176,46 +181,37 @@ function createRandCharacter(opts){
 // get attribute-description depending on amount
 var getAttributDesc = function(attribute, value){
     var key;;
-    console.log('value is: '+value);
+  
     
     switch(true){
         case(value <= 3):
             key = 'horrible';
-            console.log('horrible');
             break;
 
         case((7 > value)&&(value>=4)):
             key = 'poor';
-            console.log('poor');
             break;
 
         case((10 > value)&&(value>=7)):
             key = 'fair';
-            console.log('fair');
             break;
 
         case((13 > value) && (value >=10)):
             key = 'alright';
-            console.log('alright');
             break;    
 
         case((16 > value)&& (value >=13)):
             key = 'good';
-            console.log('good');
             break;  
         
         case((21 > value) && (value >=16)):
               key = 'perfect';
-              console.log('perfect');
               break;
 
         case(value >=21):
             key = 'excellent';
-            console.log('excellent');
             break;    
     }      
-    console.log('key is: '+key);
-    console.log('attribute is '+attribute);
     
     return attrDesc[key][attribute];
 };

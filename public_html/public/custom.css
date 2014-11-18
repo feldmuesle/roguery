@@ -119,13 +119,25 @@ thumbnails = #F7EDBF;
     
 }
 /*choices*/
-li.choice {
-    font-weight: bold;
+li.story {
+    margin: 7px 0;
 }
-li.choice:hover {
-    cursor: pointer;
+li.choice{    
     color: #0b97c4;
 }
+
+li.dices, li.info{    
+    color: crimson;
+    font-weight: bold;
+}
+
+.link{
+    font-weight:bold;
+    font-size: 115%;
+    cursor:pointer;  
+}
+
+
 
 
 /******** FORMS ***************/

@@ -89,6 +89,23 @@ PlayerSchema.methods.looseAttr = function(attr, amount){
     return self;
 };
 
+PlayerSchema.methods.addFlag = function(newFlag){
+    var self = this || mongoose.model('Player', PlayerSchema);
+    var existsAlready = false;
+    self.flags.forEach(function(flag){
+            if(flag == newFlag){
+                existsAlready = true;
+                return;
+            }
+        });
+    // if it's a new flag, add it to player
+    if(!existsAlready){
+        self.flags.push(newFlag._id); 
+        console.log('new flag added to player');
+    }  
+    return self;
+};
+
 var PlayerModel = mongoose.model('Player', PlayerSchema);
 module.exports = PlayerModel;
 

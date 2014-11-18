@@ -49,6 +49,26 @@ exports.getIndexByKeyValue = function(array, key, value){
     return null;
 };
 
+exports.findMatchInArrays = function(array1, array2){
+    
+    var length1 = array1.length;
+    var length2 = array2.length;
+    
+    for (var i = 0; i< length1; i++){
+        
+        for(var j=0; j<length2; j++){
+            console.log('array1 = '+array1[i]);
+            console.log('array2 = '+array2[j]);
+            if (array1[i] == array2[j]){
+                console.log('there is a match');
+                return true;
+            }
+        }                
+    }
+    
+    return false;
+};
+
 // autoincrement id by one
 exports.autoIncrementId = function(mongooseArray){
     var ids=[];

@@ -111,7 +111,7 @@ EventSchema.pre('save', function(next){
 EventSchema.methods.saveUpdateAndReturnAjax = function(res){
     
     // define population-query for events
-    var populateQuery = [{path:'flag', select:'name id -_id'}, {path:'rejectFlag', select:'name id -_id'},
+    var populateQuery = [{path:'flag', select:'name id _id'}, {path:'rejectFlag', select:'name id -_id'},
         {path:'reqFlag', select:'name id -_id'}, {path:'location', select:'name id -_id'}, 
         {path:'dice.failure.location', select:'name id -_id'},{path:'items', select:'name id -_id'}, 
         {path:'dice.success.location', select:'name id -_id'}, {path:'dice.success.event', select:'name id -_id'}, 
@@ -153,13 +153,13 @@ EventSchema.methods.saveUpdateAndReturnAjax = function(res){
 //get populationQuery
 EventSchema.statics.getPopuQuery = function(){
     
-    var populateQuery = [{path:'flag', select:'name id -_id'},{path:'rejectFlag', select:'name id -_id'}, 
+    var populateQuery = [{path:'flag', select:'name id _id newPara'},{path:'rejectFlag', select:'name id -_id'}, 
         {path:'reqFlag', select:'name id -_id'}, {path:'location', select:'name id -_id'}, 
         {path:'dice.failure.location', select:'name id -_id'},{path:'items', select:'name id -_id'}, 
         {path:'dice.success.location', select:'name id -_id'}, {path:'dice.success.event', select:'name id -_id'}, 
-        {path:'dice.failure.event', select:'name id -_id'},{path:'choices', select:'name id choiceText'}, 
-        {path:'continueTo.location', select:'name id -_id'}, {path:'continueTo.event', select:'name id -_id'}, 
-        {path:'continueTo.random', select:'name id -_id'} ];
+        {path:'dice.failure.event', select:'name id newPara -_id'},{path:'choices', select:'name id newPara choiceText'}, 
+        {path:'continueTo.location', select:'name id -_id'}, {path:'continueTo.event', select:'name id newPara -_id'}, 
+        {path:'continueTo.random', select:'name id -_id newPara reqFlag rejectFlag'} ];
     
     return populateQuery;
 };

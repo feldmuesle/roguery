@@ -8,6 +8,7 @@ var socket = io.connect();
 // initialize variables
 var character;
 var attrDesc; // the description for attribute-amounts
+var nextEvent; // next event to continue to when pressing continue-button
 
 
 // constants
@@ -47,7 +48,7 @@ $(document).ready(function(){
            
            socket.emit('play', data);
            console.log('attributes adjusted - socket.play');
-           console.dir(data);
+          
            $('#characterForms').modal('hide');
        }       
     });
@@ -57,7 +58,16 @@ $(document).ready(function(){
         console.log('you clicked a choice');
         var self = this;
         var choiceId = self.id.substr(6,this.id.length); // choice = 6 chars
+        clearText();
         socket.emit('choiceMade', {'choice':choiceId});
+    });
+    
+    //click continue
+    $(document).on('click','#continueBtn', function(){
+        console.log('you clicked continue');
+        clearText();
+        socket.emit('choiceMade', {'choice':nextEvent.toString()});
+        
     });
     
     // in case data has been tempered and escaped client-side-validation
@@ -120,7 +130,7 @@ $(document).ready(function(){
         var choices = data['choices'];
         var list = '<ul>';
         for(var i=0; i<choices.length; i++){
-            var choice = '<li id="choice'+choices[i].id+'" class="choice">'+choices[i].choiceText+'</li>';
+            var choice = '<li id="choice'+choices[i].id+'" class="choice link">'+choices[i].choiceText+'</li>';
             list += choice;
         }
         list += '</ul>';
@@ -129,6 +139,15 @@ $(document).ready(function(){
         appendToChat('dices', list);
     });
 
+
+    socket.on('pressContinue', function(data){
+       nextEvent = data['event'];
+       console.log(nextEvent);
+       console.log('please press continue to proceed');
+       var continueBtn = '<span id="continueBtn" class="link">continue</span>';
+        appendToChat('gameBtn', continueBtn);
+       
+    });
 });
 
 

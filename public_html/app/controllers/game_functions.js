@@ -60,6 +60,85 @@ function rollSuperDice(player, storyteller, attribute, difficulty){
     return player;
 }
 
+function getRandomEvent(event, player){
+    var randoms = event.continueTo.random;
+    var length = randoms.length;
+    var reqFlags = [];
+    var randomsFiltered = [];
+    var reqMatches;
+    var rejectMatches;
+    var picked;
+    console.log('hello from getRandomEvent');
+    if(event.setFlag){
+        console.log('a flag is set!');
+        // loop through player's flags and check if he already has it
+        player = player.addFlag(event.flag);      
+    }
+    
+    // loop through array of random events and get all request-flags
+    for(var i=0; i<length; i++){
+        
+        var randReqs = [];
+        var randRejects = [];
+        
+        // loop through req-flags of each event
+        randoms[i].reqFlag.forEach(function(flag){
+            console.log('there is some requirements');
+            randReqs.push(flag);
+        });
+        
+        // loop through reject-flags of each event
+        randoms[i].rejectFlag.forEach(function(flag){
+            randRejects.push(flag);
+        });
+        
+//        for(var j=0; j< randoms[i].reqFlag.length; j++){
+//            randReqs.push(randoms[i].reqFlag[j]);
+//        }
+
+//        console.dir(randoms[i]);
+        reqMatches = Helper.findMatchInArrays(player.flags, randReqs);
+        rejectMatches = Helper.findMatchInArrays(player.flags, randRejects);
+        
+        // if there are the events is not rejected
+        if(!rejectMatches){
+            
+            // if there are any matches requiring, sort them in new array
+            if(reqMatches){
+                console.log('some requires match');
+                reqFlags.push(randoms[i]);
+            }else{
+                randomsFiltered.push(randoms[i]);
+            }
+        }
+    } // loop through random events end
+    
+    // check if there were any requested events added
+    if(reqFlags.length > 0){
+        console.log('a requested event got picked');
+        picked = Helper.getRandomArrayItem(reqFlags);
+    }else {
+        console.log('a filtered random event got picked');
+        picked = Helper.getRandomArrayItem(randomsFiltered);
+    }
+    
+    var sendBack = {
+        'player'    : player,
+        'pick'      : picked
+    };
+    
+    return sendBack;
+    
+    // TODO: 
+    // - check each for request and reject-flags 
+    // match against players flags
+    // if request match, take only them
+    // if no requests, check for reject and filter them away from random events, return filtered events
+    // pick random event and return it for next
+    // 
+    
+}
+
 function rollDices(diceBranch, storyteller, player){
     console.log('roll dices');
     
@@ -186,6 +265,7 @@ function runEvent(storyteller, player, event){
         }
     }    
     
+    
     // check branchtype
     var branchType = event.branchType;
     var next = {};
@@ -193,6 +273,7 @@ function runEvent(storyteller, player, event){
     var continType = '';
     
     console.log('branchType: '+branchType);
+//    console.dir(event);
     switch(branchType){
         case 'dice':
             //TODO: roll the dices
@@ -215,10 +296,19 @@ function runEvent(storyteller, player, event){
                 console.log('continue to a location;');
                 continType = 'location';
                 continueTo = event.continueTo.location;
-            }else {
+            }else if(event.continueTo.type == 'continueEvent'){
                 console.log('continue to a event;');
                 continType = 'event';
                 continueTo = event.continueTo.event;
+            }else{
+                // pick a random location 
+                console.log('hello from game-machine, random continue');
+                var nextStep = getRandomEvent(event, player);
+                continType = 'event';
+                continueTo = nextStep['pick'];
+                player = nextStep['player'];
+                console.log('random event has been picked');
+                
             }
             break;
             
@@ -233,6 +323,13 @@ function runEvent(storyteller, player, event){
     next.continType =  continType;
     next.continueTo = continueTo;
     next.player = player;
+        
+    //save player for every event
+    player.save(function(err){
+        if(err){console.log(err); return;}
+        console.log('player has been saved');
+        
+    });
     return next;
 }
 
@@ -243,21 +340,29 @@ function processOutcome( continueChain, storyteller, result, callback ) {
     var continType = result['continType'];
     next.continType = continType;
     next.player = result['player'];
-    
+//    console.log('hello from processOutcoume');
+//    console.dir(result);
     if(continueChain){
         
         if(continType == 'choices') {
             console.log('processOutcome: choices given, let player decide');    
-            var choices = result['choices'];
             next.choices = result['choices']; // expect array of objId
             processOutcome(false,storyteller, next, callback);
             //query events to get choices-text, ids
             //stop the chain and return cb with choices
             
+        } else if(continType == 'event' && result['continueTo'].newPara){
+            console.log('next event start a new paragraph');
+            next.continType = 'pressContinue';             
+            next.continueEvent = result['continueTo'];
+            console.dir('next event id = '+result['continueTo'].id);
+            
+            processOutcome(false,storyteller, next, callback);
         } else {
             var continueTo = result['continueTo'];
             //continue chain and trigger next event/location
             console.log('processOutcome: trigger new '+continType);
+            console.dir(continueTo);
 
             if(continType == 'event'){
                 // get new event from db and trigger a new event
@@ -269,18 +374,25 @@ function processOutcome( continueChain, storyteller, result, callback ) {
                     processOutcome( true, storyteller, result, callback );
                 });
             }else{
+                console.log('continue to location - test here');
                 // trigger a new location
-                Location.findOne({'id': continueTo.id}).populate('event','id,name,-_id').exec(function(err,loco1){
+                Location.findOne({'id': continueTo.id}, '-_id').populate('event').exec(function(err,loco1){
                     if(err){console.log(err); return;}
+                    console.log('from within location-query');
+                    console.dir(loco1);
                     return loco1;
                 }).then(function(loco1){
-                    next.continueTo = loco1;
+                    storyteller.write(loco1.text);
                     console.log('to do: fire new location');
-                    processOutcome(false,storyteller, next, callback);               
+                    console.dir(loco1);
+                    next.continType = 'event';
+                    next.continueTo = loco1.event;                    
+                    processOutcome(true,storyteller, next, callback);               
                 });
             }
         }  
     }else{
+        console.log('continueChain is false');
         callback(result);
     }
 };
@@ -339,8 +451,14 @@ exports.runEventChain = function(storyteller, player, event, cb){
         var continType = endResult['continType'];
         next.continType = continType;
         next.player = endResult['player'];
-        
-        if(continType == 'choices') {
+        console.log('hello from processOutcome-callback');
+        //TODO: if next event starts as a new paragraph, stop chain and let player press continue in order to process
+        if(continType == 'pressContinue'){
+            console.log('a new paragraph should start');
+            next.continueEvent = endResult['continueEvent'];
+            return cb(next);
+        }        
+        else if(continType == 'choices') {
             console.log('choices given, let player decide');        
             next.choices = endResult['choices']; // expect array of objId
             return cb(next);
