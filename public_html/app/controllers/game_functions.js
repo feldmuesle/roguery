@@ -220,8 +220,19 @@ function rollDices(diceBranch, storyteller, player){
 
 // run a single event and return the player(with added/lost attr, items) and where to continueTo next
 function runEvent(storyteller, player, event){
-    console.log('hello from runEvent'); //, player is: '+player);
-    console.log('event: '+event.name);
+    console.log('hello from runEvent'); 
+    console.log('event: ');
+    console.dir(event);
+    player.event = event._id;
+    
+    //save player for every event
+    player.save(function(err){
+        if(err){console.log(err); return;}
+        console.log('player has been saved');
+        console.log(player.event);
+        
+    });// end of player-save
+    
     storyteller.write(event.text);
     // check if there are any attributes involved in event
     if(event.attributes.length > 0){
@@ -244,10 +255,33 @@ function runEvent(storyteller, player, event){
                 storyteller.updateAttr(character, evAttr.attribute, evAttr.amount, 'loose');
                                                 
             }else{
-                player.character[0].attributes[evAttr.attribute] += evAttr.amount;
-                var character = player.character[0];
-                console.log('player gains '+evAttr.amount+' of '+evAttr.attribute);
-                storyteller.updateAttr(character, evAttr.attribute, evAttr.amount, 'gain');
+                // gain of stamina must not exceed maxstamina
+                if(evAttr.attribute == 'stamina'){
+                    console.log('you are about to gain stamina');
+                    var maxStam = player.character[0].attributes['maxStam'];
+                    var stamina = player.character[0].attributes['stamina'];
+                    var newStam = evAttr.amount + stamina;
+                    
+                    if( newStam >= maxStam){
+                        player.character[0].attributes['stamina'] = maxStam
+                        var character = player.character[0];
+                        console.log('you cannot gain that much stamina');
+                        var diff = newStam - maxStam;
+                        var gained = evAttr.amount - diff;
+                        storyteller.updateAttr(character, evAttr.attribute, gained, 'gain');
+                    }else{
+                        player.character[0].attributes['stamina'] += evAttr.amount;
+                        var character = player.character[0];
+                        storyteller.updateAttr(character, evAttr.attribute, evAttr.amount, 'gain');
+                    }
+                }else{
+                    player.character[0].attributes[evAttr.attribute] += evAttr.amount;  
+                    var character = player.character[0];
+                    console.log('player gains '+evAttr.amount+' of '+evAttr.attribute);
+                    storyteller.updateAttr(character, evAttr.attribute, evAttr.amount, 'gain');
+                }
+                
+                
             }
         }
     }
@@ -322,14 +356,8 @@ function runEvent(storyteller, player, event){
     } 
     next.continType =  continType;
     next.continueTo = continueTo;
-    next.player = player;
-        
-    //save player for every event
-    player.save(function(err){
-        if(err){console.log(err); return;}
-        console.log('player has been saved');
-        
-    });
+    next.player = player;        
+    
     return next;
 }
 

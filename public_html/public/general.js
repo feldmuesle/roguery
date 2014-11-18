@@ -93,16 +93,18 @@ function displayPlayerStats(character){
 // update single attribute in  
 function updatePlayerStats(attribute, newValue){
     console.log('hello from updatePlayerStats');
-
+    var desc = getAttributDesc(attribute, newValue);
+    var descSpan = '<span class="statDesc"> '+desc+'</span>';
+    
     if(attribute == 'stamina'){
         console.log('update stamina');
         // if its stamina, also display maxStam-span
         var maxStam = '<span id="maxStam">/'+character.attributes.maxStam+'</span>';
-        $('#profile').find('#'+attribute).html(newValue+maxStam);
+        $('#profile').find('#'+attribute).html(newValue+maxStam+descSpan);
         return;
     }
     // pick the right dd-element
-    $('#profile').find('#'+attribute).html(newValue);
+    $('#profile').find('#'+attribute).html(newValue+descSpan);
 }
 
 /*********** Text-stream - story ***************/
@@ -180,8 +182,7 @@ function createRandCharacter(opts){
     
 // get attribute-description depending on amount
 var getAttributDesc = function(attribute, value){
-    var key;;
-  
+    var key;  
     
     switch(true){
         case(value <= 3):
@@ -289,6 +290,7 @@ function customizeCharacter(character){
         var val = $(this).val();
         $(this).next('.value').val(val);
         var sum = validateSum(character.attributes);
+        
         console.log('you are changing range');
     });
     
@@ -365,11 +367,22 @@ function validateSum (attributes){
             $('#alertSum').html('Your attributes sum up to only '+sum+'. They must sum up to'+MAXSUM+' in order to play.');
         }
         $('#alertSum').show();
+        $('input.value').css({
+            'color': '#b94a48',
+            'background-color': '#f2dede',
+            'border-color': '#ebccd1'
+        });
+        
         return false;
     }else{
         $('#alertSum').hide();
         $('#validSum').html('Your attributes sum up to '+MAXSUM+' - You are ready to play!');
         $('#validSum').show();
+        $('input.value').css({
+            'color': '#468847',
+            'background-color':' #dff0d8',
+            'border-color': '#d6e9c6'
+        });
         return true;
     }
 }

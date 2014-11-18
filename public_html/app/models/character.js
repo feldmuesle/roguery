@@ -12,7 +12,7 @@ var valEmpty = [Helper.valEmpty, 'The field \'{PATH}:\' must just not be empty.'
 var values = Helper.getRandAttributes(120,10);
 
 var CharacterSchema = new Schema({
-    id          :   Number,
+    id          :   {type : Number},
     name        :   {type:String, trim:true, validate:valEmpty},
     guild       :   {type: Schema.Types.ObjectId, ref:'Guild', index:true},
     gender      :   {type:String, trim:true, default:'male'},
@@ -31,7 +31,7 @@ var CharacterSchema = new Schema({
             coins    :   {type : Number, default:20}
         },
     inventory   :   [{type: Schema.Types.ObjectId, ref:'Item', index:true}],
-    weapon      :   {type: Schema.Types.ObjectId, ref:'Weapon', index:true}
+    weapon      :   {type: Schema.Types.ObjectId, ref:'Weapon', index:true, required:true}
 });
 
 

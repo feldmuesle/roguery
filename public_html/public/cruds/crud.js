@@ -216,11 +216,13 @@ $(document).ready(function(){
        console.log(form);
        var name = $('#createGuild input[name=name]').val();
        var image = $('#createGuild select[name=image]').val();
+       var location = $('#createGuild select[name=location]').val();
        
        var guild = {
            'form'   :   form,
            'name'   :   name,
-           'image'  :   image
+           'image'  :   image,
+           'location':  location
        };
        
        if(form == 'updateGuild'){
@@ -491,6 +493,7 @@ $(document).ready(function(){
         $('#createGuild input[name=form]').val('updateGuild');
         $('#createGuild input[name=name]').val(guild.name);
         $('#createGuild select[name=image]').val(guild.image).attr('selected', 'selected');
+        $('#createGuild select[name=location]').val(guild.start).attr('selected', 'selected');
         $('#guildId').val(guild.id);
 
         console.log(guilds);

@@ -267,6 +267,7 @@ exports.createGuild = function(res, req){
         guild.id = id;
         guild.name = req.body.name;
         guild.image = req.body.image;
+        guild.start = req.body.location;
 
         console.log('guild to create: '+guild);
 
@@ -436,6 +437,7 @@ exports.updateGuild = function(res, req){
 
         guild.name = req.body.name;
         guild.image = req.body.image;
+        guild.start = req.body.location;
 
         guild.save(function(err){
             if(err){

@@ -82,11 +82,11 @@ thumbnails = #F7EDBF;
 }
 #profile dt {
     float:left;
-    width:50%; /* adjust the width; make sure the total of both is 100% */
+    width:40%; /* adjust the width; make sure the total of both is 100% */
 }
 #profile dd {
     float:left;
-    width:50%; /* adjust the width; make sure the total of both is 100% */
+    width:60%; /* adjust the width; make sure the total of both is 100% */
 }
 
 
@@ -141,6 +141,13 @@ li.dices, li.info{
 
 
 /******** FORMS ***************/
+
+input.value{
+    border-radius: 5px;
+    line-height: 30px;
+    max-width: 70px;
+}
+
 #fields .dynamic{
     margin-bottom: 15px;
 }

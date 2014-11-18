@@ -12,7 +12,7 @@ var valEmpty = [Helper.valEmpty, 'The field \'{PATH}:\' must just not be empty.'
 var EventSchema = Schema({
     id          :   {type: Number, unique:true},
     name        :   {type:String, trim:true, lowercase:true, validate:valEmpty},
-    text        :   {type:String, trim:true, lowercase:true, validate:valEmpty},
+    text        :   {type:String, trim:true, validate:valEmpty},
     location    :   {type: Schema.Types.ObjectId, ref:'Location', index:true, required:true},
     newPara     :   {type:Boolean, default:false},
     isChoice    :   {type:Boolean, default:false},
@@ -27,7 +27,7 @@ var EventSchema = Schema({
 //    branch      :   [{type: Schema.Types.Mixed}]
     dice        :   {    
         attribute   :   {type:String, trim:true, lowercase:true},
-        difficulty  :   {type:Number, min:5, max:25},
+        difficulty  :   {type:Number},
         success     :   {
             type    :   {type:String, trim:true},
             location:   {type: Schema.Types.ObjectId, ref:'Location', index:true},
@@ -51,15 +51,15 @@ var EventSchema = Schema({
 // sub-schemas
 {
 var EventItemSchema = new Schema({
-    item    :    {type:String, ref:'Item'},
+    item    :    {type:String, ref:'Item', required:true},
     action  :    {type:String, trim:true, lowercase:true, required:true}  
 });
 var EventItemModel = mongoose.model('EventItem', EventItemSchema);
 
 var AttributeSchema = new Schema({
-    attribute   :   {type:String, trim:true, lowercase:true},
-    action      :   {type:String, trim:true, lowercase:true},
-    amount      :   {type:Number, min:1, max:10}
+    attribute   :   {type:String, trim:true, lowercase:true, required:true},
+    action      :   {type:String, trim:true, lowercase:true, required:true},
+    amount      :   {type:Number, min:1, max:10, required:true}
 }); 
 var AttributeModel = mongoose.model('Attribute', AttributeSchema);
 //
@@ -103,9 +103,28 @@ EventSchema.pre('save', function(next){
     var self = this || mongoose.model('Event');
     console.log('hello from pre-save: '+self.name);
     self.name = Helper.sanitizeString(self.name);
-    self._id  = self.name;
+//    self._id  = self.name;
     next();
 });
+
+//validation
+EventSchema.path('choiceText').validate(function(value){
+    console.log('hello from validate choiceText');
+    var self = this || mongoose.model('Event');
+    if(self.isChoice){
+        return value.length >0;
+    }
+},'Please provide a text for the choice.');
+
+EventSchema.path('dice.difficulty').validate(function(value){
+   console.log('hello from validate difficulty');
+    var self = this || mongoose.model('Event');
+    if(self.branchType == 'dice'){
+        if(value >= 5 && value <= 40){
+            return true; 
+        }else{return false;}
+    } 
+},'Please provide a difficulty for the diceroll between 5 and 40.');
 
 /*********** methods *************/
 EventSchema.methods.saveUpdateAndReturnAjax = function(res){
@@ -133,7 +152,7 @@ EventSchema.methods.saveUpdateAndReturnAjax = function(res){
                     if(err){ return console.log(err);}
                     
 //                    console.log('events sent back after update:');
-                    console.dir(events);
+//                    console.dir(events);
                     return events;
                     
                     }).then(function(events){

@@ -7,9 +7,10 @@ var Helper = require('../controllers/helper_functions.js');
 var valEmpty = [Helper.valEmpty, 'The field \'{PATH}:\' must just not be empty.'];
 
 var GuildSchema = new mongoose.Schema({
-    id      : {type: Number, unique:true},
+    id      : {type: Number, unique:true, required:true},
     name    : {type:String, trim:true, lowercase:true, unique:true, validate:valEmpty},
-    image   : {type:String, trim:true, validate:valEmpty}
+    image   : {type:String, trim:true, validate:valEmpty},
+    start   : {type:Number, min:0, required:true, default:0} //if 0 means pick random location, else location-id
 });
 
 GuildSchema.pre('save', function(next){

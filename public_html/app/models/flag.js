@@ -9,8 +9,8 @@ var Helper = require('../controllers/helper_functions.js');
 var valEmpty = [Helper.valEmpty, 'The field \'{PATH}:\' must just not be empty.'];
 
 var FlagSchema = Schema({
-   id:   Number,
-   name:   {type:String, trim:true, lowercase:true, validate:valEmpty}
+   id   :   {type: Number},
+   name :   {type:String, trim:true, lowercase:true, validate:valEmpty}
 });
 
 FlagSchema.set('toObject', {getters : true});

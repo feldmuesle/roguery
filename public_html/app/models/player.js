@@ -10,20 +10,13 @@ var valEmpty = [Helper.valEmpty, 'The field \'{PATH}:\' must just not be empty.'
 
 var PlayerSchema = Schema({
    character    :   [Character.schema],
-   user         :   {type:Schema.ObjectId, ref:'User'},
+   user         :   {type:Schema.ObjectId, ref:'User', required:true},
    flags        :   [{type:Schema.ObjectId, ref:'Flag', index:true}],
    event        :   {type:Schema.ObjectId, ref:'Flag', index:true},
    gameSave     :   {type:Boolean, default:false}
 });
 
 PlayerSchema.set('toObject', {getters : true});
-
-//sanitize strings before saving
-PlayerSchema.pre('save', function(next){
-    var self = this || mongoose.model('Player');
-    self.name = Helper.sanitizeString(self.name);
-    next();
-});
 
 PlayerSchema.statics.createNew = function (character, userId, cb){
     console.log('create new Player');
