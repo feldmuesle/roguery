@@ -69,8 +69,15 @@ module.exports = function(app, passport){
                 return weapons;
             })
         .then(function(weapons){
-            Player.find({user: req.user._id}, '-user -_id').exec(function(err, players){
+            // find previously saved games and backup from last disconnected game
+            Player.find({user: req.user._id, gameSave:{$ne:'false'}}, '-user -_id').populate('character').exec(function(err, players){
                 if(err){ return console.log(err);}
+                                              
+                //if the user has any saved games(players), get the characters
+                var games = [];
+                for(var i=0; i<players.length; i++){
+                    games.push(players[i].character[0]);
+                }                
 
                 res.render('game.ejs', {
                    'guilds'     :   guilds,
@@ -78,7 +85,7 @@ module.exports = function(app, passport){
 //                   events   :   events,
                    'userId'     :   req.user._id,
                    'username'   :   req.user.username,
-                   'games'      :   players,
+                   'games'      :   games,
                    'weapons'    :   weapons,
                    'message'    :   ''
                }); 

@@ -918,14 +918,14 @@ function removeAddOns(count, buttonId){
     /************ misc-functions *******************/
     
     // misc-functions for helping
-    function getRecordById(recordArray, recordId){
-        for(var i=0; i<recordArray.length; i++){
-                if(recordArray[i].id == recordId){
-                    var room = recordArray[i];
-                    return room;
-                }
-            }
-    }
+//    function getRecordById(recordArray, recordId){
+//        for(var i=0; i<recordArray.length; i++){
+//                if(recordArray[i].id == recordId){
+//                    var record = recordArray[i];
+//                    return record;
+//                }
+//            }
+//    }
     
     // show success-alert depending on alertId
     function alertSuccess(alertId, msgString){

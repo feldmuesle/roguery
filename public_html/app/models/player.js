@@ -1,4 +1,4 @@
-/* This file contains the model for the player */
+ /* This file contains the model for the player */
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
@@ -12,11 +12,72 @@ var PlayerSchema = Schema({
    character    :   [Character.schema],
    user         :   {type:Schema.ObjectId, ref:'User', required:true},
    flags        :   [{type:Schema.ObjectId, ref:'Flag', index:true}],
-   event        :   {type:Schema.ObjectId, ref:'Flag', index:true},
-   gameSave     :   {type:Boolean, default:false}
+   event        :   {type:Schema.ObjectId, ref:'Event', index:true},
+   gameSave     :   {type:String, default:'false'}
 });
 
 PlayerSchema.set('toObject', {getters : true});
+
+PlayerSchema.statics.saveGame = function(user, character, event, cb){
+    
+    var self = this || mongoose.model('Player');
+    
+    // sanitize query-values
+    var sanId = mongoose.Types.ObjectId(user);
+    var sanChar = mongoose.Types.ObjectId(character._id);
+    
+    console.log('sanId: '+sanId);
+    console.log('sanChar: '+sanChar);
+    
+    self.findOne({'character._id':sanChar}, function(err, player){
+        if(err){console.log(err); return;}
+        if(player){
+            
+            console.log('the player to save has been found');
+            console.dir(player);
+//            player.character[0] = character;
+            player.event = event; 
+            player.gameSave = 'true'; 
+
+            player.save(function(err){
+                
+                console.log('player has been saved for real.');
+                return cb(err);
+            });
+        }
+    });
+};
+
+PlayerSchema.statics.returnObjectId = function(idString){
+    console.log('try to cast to objectId');
+    var string = idString.toString();
+    console.log(string);
+    var objectId = mongoose.Types.ObjectId(string);
+    console.log(objectId);
+    return objectId;
+};
+
+// method used for creating a new player and character used for backup when disconnecting
+PlayerSchema.statics.createNewBackup = function(character, userId){
+    console.log('create new Player');
+    var self = this || mongoose.model('Player');
+    
+    var player = new PlayerModel();
+    var newChar = new Character();
+    newChar.id = character.id;
+    newChar.name = character.name;
+    newChar.attributes = character.attributes;
+    newChar.gender = character.gender;
+    newChar.guild = character.guild;
+    newChar.weapon = character.weapon;
+    newChar.inventory = character.inventory; 
+    
+    player.user = userId;
+    player.character = newChar;
+    
+    return player;
+    
+};
 
 PlayerSchema.statics.createNew = function (character, userId, cb){
     console.log('create new Player');

@@ -3,6 +3,20 @@
  */
 
 // misc-functions for helping
+
+// get index of assoc-array by key and value
+getIndexByKeyValue = function(array, key, value){
+//    console.log('key = '+key);
+//    console.log('value='+value);
+//    console.dir(array);
+    for (var i = 0; i< array.length; i++){
+        if (array[i][key] == value){
+            return i;
+        }        
+    }
+    return null;
+};
+
 // get random index of given array
 getRandomIndex = function(array){
    
@@ -14,11 +28,11 @@ getRandomIndex = function(array){
 // get a certain record by its id
 function getRecordById(recordArray, recordId){
     for(var i=0; i<recordArray.length; i++){
-            if(recordArray[i].id == recordId){
-                var room = recordArray[i];
-                return room;
-            }
+        if(recordArray[i].id == recordId){
+            var record = recordArray[i];
+            return record;
         }
+    }
 }
 
 

@@ -242,7 +242,7 @@ li.exitDesc{
 /****** Modal displaying character before playing ******/
 
 #displayBody{
-    min-height: 335px;
+    min-height: 365px;
 }
 
 .statDesc{
@@ -317,9 +317,10 @@ dt.dlHeading{
 }
 
 #gallery .thumbnail .caption {
-padding: 5px 0px;
-height: 50px;
-color: #333;
+    overflow: hidden;
+    padding: 5px 0px;
+    height: 50px;
+    color: #333;
 }
 
 #gallery .thumbnail p.caption{

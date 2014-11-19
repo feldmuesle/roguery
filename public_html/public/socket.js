@@ -9,6 +9,9 @@ var socket = io.connect();
 var character;
 var attrDesc; // the description for attribute-amounts
 var nextEvent; // next event to continue to when pressing continue-button
+var currEvent = 0; // current event - used for saving
+var savedGames=[] // array holding the saved games of player
+
 
 
 // constants
@@ -33,6 +36,18 @@ $(document).ready(function(){
         console.dir(data);
     });
     
+    $('#playSaved').click(function(){
+        // hide the gallery
+        $('#gallery').hide();
+        console.log('character from random: ');
+        var data = {
+            user : user,
+            character : character
+        };
+        socket.emit('playSaved', data);
+        console.dir(data);
+    });
+    
     $('#btnPlay').click(function(){
         // close modal and get values from form
         
@@ -50,7 +65,32 @@ $(document).ready(function(){
            console.log('attributes adjusted - socket.play');
           
            $('#characterForms').modal('hide');
+           
        }       
+    });
+    
+    // save current game
+    $('#save').click(function(){
+        console.log('save this game');
+        
+        // check if an event is set yet (prevent user to save game immediatly after start)
+        if(currEvent != 0){
+            var data = {
+                'user'       : user,
+                'character' : character, 
+                'event'      : currEvent
+            };
+            socket.emit('saveGame', data);
+           console.log('game saved '+currEvent);
+        }
+        
+    });
+    
+    // load previously saved games
+    $('#viewSaved').click(function(){
+        console.log('view previously saved games');
+        // fetch the latest saved games including backup of last game
+        socket.emit('viewSaved', {'user':user});
     });
     
     //click a choice
@@ -92,6 +132,10 @@ $(document).ready(function(){
         displayPlayerStats(character);
     });
     
+    socket.on('gameSaved', function(data){
+       console.log(data['msg']); 
+    });
+    
     socket.on('output', function(data){
         
         var type = data['type'];
@@ -128,6 +172,7 @@ $(document).ready(function(){
     socket.on('choices', function(data){
         console.log('hello form choices');
         var choices = data['choices'];
+        currEvent = data['current']; // set current event in case of saving
         var list = '<ul>';
         for(var i=0; i<choices.length; i++){
             var choice = '<li id="choice'+choices[i].id+'" class="choice link">'+choices[i].choiceText+'</li>';
@@ -142,11 +187,29 @@ $(document).ready(function(){
 
     socket.on('pressContinue', function(data){
        nextEvent = data['event'];
+       currEvent = data['current'];
        console.log(nextEvent);
        console.log('please press continue to proceed');
        var continueBtn = '<span id="continueBtn" class="link">continue</span>';
         appendToChat('gameBtn', continueBtn);
        
+    });
+    
+    socket.on('viewSavedGames', function(data){
+        savedGames = data['games'];
+        var backup = data['backup'];
+        var index = getIndexByKeyValue(savedGames, '_id', backup);
+        
+        console.log('show the saved games!');
+        createGallery(savedGames, 'saved');
+        $('#heading').find('h2').html('<span class="fa fa-sign-in"></span> continue saved game');
+        $('#viewGallery').show();
+        $('#viewSaved').hide();
+        if(index != null){
+            console.log('we know which one is the backup!');
+            $('#thumb'+index).css('border','1px solid red');
+            
+        }
     });
 });
 

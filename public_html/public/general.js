@@ -4,6 +4,7 @@ this file contains all functions for displaying in the DOM
 //initialize screen - show starup-form, hide rest of game
 $(function(){
     $('#game').hide();
+    $('#save').hide();
     $('#chatWrapper').hide();
     $('#profile').hide();
     $('#gameSignup').hide();
@@ -11,6 +12,8 @@ $(function(){
     $('#alertSum').hide();
     $('#alertCharacter').hide();
     $('#validSum').hide();
+    $('#viewGallery').hide();
+    $('#playSaved').hide();
 //    $('#pseudoInput').focus();
 //    $('.thumbnail').hide();
 //    $('#loadGame').click(function(){loadGame();});
@@ -24,14 +27,49 @@ $(function(){
 function gameInit(){
     setAutoHeight();
     $('#game').show();
+    $('#save').show();
     $('#profile').show();
-    $('#playerlist').show();
-    $('#roomPlayerlist').show();
+//    $('#playerlist').show();
+//    $('#roomPlayerlist').show();
     $('#chatWrapper').show();
     $('.thumbnail').show();
-    $('#pseudoSet').hide();
-    $('#chatInput').focus();
+//    $('#pseudoSet').hide();
+//    $('#chatInput').focus();
 }
+
+function createGallery(charArray, type){
+        
+    var html = '';
+    console.dir(charArray);
+    for( var i=0; i<charArray.length; i++){
+        console.dir(charArray[i]);
+        console.log(charArray[i].id);
+        var thumb = '<div class="brik col-xs-4 col-md-3">';
+        var part1 ='';
+        if(type == 'saved'){
+            
+            part1 = '<div id="thumb'+i+'" class="saved fadeImg thumbnail">';
+        }else {
+            part1 =  '<div id="thumb'+charArray[i].id+'" class="fadeImg thumbnail">';
+        }
+        
+         var part2 ='<img src="./images/'+charArray[i].guild.image+'">'+
+                        '<p class="caption">'+charArray [i].name+' - '+charArray[i].guild.name+'</p>'+
+                    '</div>'+
+                '</div>'; 
+        thumb += part1;
+        thumb += part2;
+        html += thumb;                
+    }       
+    $('#thumbGallery').html(html);
+}
+
+$('#viewGallery').click(function(){
+   createGallery(characters,'gallery');
+   $('#heading').find('h2').html('<span class="fa fa-sign-in"></span> choose a character');
+   $('#viewGallery').hide();
+   $('#viewSaved').show();
+});
 
 function getStatsList(character){
     var stats =[];
@@ -130,9 +168,25 @@ function displayRandCharacter(){
     $('#displayCharacter').modal('show');
 }
 // display character when clicking on thumbnail
-$('.thumbnail').click(function(){
+$(document).on('click','.thumbnail',function(){
+    console.log('you clicked a thumbnail');
+    // characters being created by user does not have a proper id, but index is asigned when creating gallery
     var charId = this.id.substr(5,this.id.length); // thumb = 5 chars
-    character = getRecordById(characters, charId);
+    if($(this).hasClass('saved')){
+        character = savedGames[charId];
+        $('#playSaved').show();
+        $('#play').hide();
+        $('#customize').hide();
+        $('#character').hide();
+        console.dir(character);
+    }else{
+        character = getRecordById(characters, charId);
+        $('#playSaved').hide();
+        $('#play').show();
+        $('#customize').show();
+        $('#character').show();
+    }
+    
     setCharacter(character);
     $('#displayCharacter').modal('show');
 

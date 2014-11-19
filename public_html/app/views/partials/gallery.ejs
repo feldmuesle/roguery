@@ -9,10 +9,11 @@
                     <button id="startGame" type="button" class="btn btn-default btn-sm">Pick random</button>
                     <% if (games.length > 0){%>
                         <button id="viewSaved" type="button" class="btn btn-default btn-sm">View saved</button>
+                        <button id="viewGallery" type="button" class="btn btn-default btn-sm">Back</button>
                     <%}%>
                 </div>
             </div>            
-            <div class="row">
+            <div id="thumbGallery" class="row">
                 <%for( var i=0; i<characters.length; i++){%>
                     <div class="brik col-xs-4 col-md-3">
                         <div id="thumb<%=characters[i].id%>" class="fadeImg thumbnail">

@@ -302,15 +302,17 @@ function runEvent(storyteller, player, event){
     
     // check branchtype
     var branchType = event.branchType;
-    var next = {};
+    var current = event._id;
+    var next = {};    
     var continueTo = {};
     var continType = '';
+    next.current = current;   
     
     console.log('branchType: '+branchType);
-//    console.dir(event);
+
     switch(branchType){
         case 'dice':
-            //TODO: roll the dices
+            // roll the dices
             // get players attribute vs dice
             var result = rollDices(event.dice, storyteller, player);
             continType = result['continType'];
@@ -366,6 +368,8 @@ function processOutcome( continueChain, storyteller, result, callback ) {
     var next = {};
     var player = result['player'];
     var continType = result['continType'];
+    var current = result['current']; 
+    next.current = current;
     next.continType = continType;
     next.player = result['player'];
 //    console.log('hello from processOutcoume');
@@ -426,10 +430,36 @@ function processOutcome( continueChain, storyteller, result, callback ) {
 };
 
 /****** exported game-functions **************/
+// continue a saved game
+exports.continueSavedGame = function(character, cb){
+    
+    var sanChar = Helper.sanitizeString(character._id);
+    
+    Player.findOne({'character._id':sanChar}).populate('character character.weapon character.guild')
+           .exec(function(err, player){
+           if(err){ return console.log(err);}
+           return player;
+           
+       }) 
+    .then(function(player){
+        
+        var opts = Event.getPopuQuery();
+        Event.findOne({'_id':player.event}).populate(opts).exec(function(err, event){
+            if(err){ return console.log(err);}
+            var data ={
+                'player': player,
+                'event' : event
+            };
+            return cb(data);
+        });
+        
+    });
+};
+
 // start the game
 exports.startGame = function(character, userId, cb){
     console.log('start game');
-    
+    // TODO: get guild-location of character and make location-select dependent on outcome . then(blaba)
     // create new player
     Player.createNew(character, userId, function(player){
         
@@ -449,9 +479,6 @@ exports.startGame = function(character, userId, cb){
                 if(err){console.log(err); return;}
                 return event;
             }).then(function(event){
-                
-                //get a random location
-                
                 console.log('random location picked: '+location.name);
                 
                 var data = {
@@ -474,12 +501,16 @@ exports.runEventChain = function(storyteller, player, event, cb){
     
     processOutcome(true, storyteller, result, function(endResult){
         // the callback is first triggered when there are no more events to continue
-        // = either got choices to ask player or game has reached its end or continue to location
+        // = either got choices to ask player or game has reached its end or continue to 
+        
+        console.log('hello from processOutcome-callback');
         var next = {};
         var continType = endResult['continType'];
+        var current = endResult['current'];
         next.continType = continType;
+        next.current = current;
         next.player = endResult['player'];
-        console.log('hello from processOutcome-callback');
+        
         //TODO: if next event starts as a new paragraph, stop chain and let player press continue in order to process
         if(continType == 'pressContinue'){
             console.log('a new paragraph should start');
@@ -508,6 +539,47 @@ exports.getChoice = function(eventId, cb){
        if(err){console.log(err); return;}
        return cb(event);
     });
+};
+
+// process the outcome of an eventChain
+exports.processEventChain = function(data){
+    
+    var continType = data['continType'];
+    var newData = {};
+
+    if(continType == 'choices'){
+        var choices = data['choices'];
+        var current = data['current'];
+
+        newData = {
+            'choices':choices,
+            'current':current
+        };
+
+    }else if(continType == 'pressContinue'){
+        console.log('please press continue');
+
+        var nextEvent = data['continueEvent'].id;
+        var current = data['current'];
+
+        newData = {
+            'event':nextEvent,
+            'current':current
+        };
+    }else {
+        // you have come to the end!
+        console.log('you have come to the end!');
+        newData = {'end':'The end has come'};
+        continType = 'end';
+    }
+    
+    var toDo = {
+        'newData':newData,
+        'action' :continType
+    };
+    
+    return toDo;
+    
 };
 
 // check if attributes sum up to maxsum
