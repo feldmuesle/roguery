@@ -16,7 +16,6 @@ var savedGames=[] // array holding the saved games of player
 
 // constants
 var MAXSUM = 100;  // max-sum of attributes add-up
-//
 var COINS = 20 // default amount for coins
 //var ATTRNUM = 12;  // number of attributes
 
@@ -154,6 +153,20 @@ $(document).ready(function(){
         
         var value = character.attributes[attribute];
         updatePlayerStats(attribute, value);
+    });
+    
+    socket.on('updateInventory', function(data){
+        console.log('update inventory');
+        character = data['character'];
+        var item = data['item'];
+        var action = data['action'];
+//        action == 'loose' ? action='-' : action='+';
+        var msg = 'You '+action+'  '+item.name;//attribute+' '+action+amount;
+        appendToChat('info', capitaliseFirstLetter(msg));
+        updateInventory(item, action);
+//        
+//        var value = character.attributes[attribute];
+//        updatePlayerStats(attribute, value);
     });
     
     socket.on('rollDice', function(data){

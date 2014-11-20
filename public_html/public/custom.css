@@ -68,7 +68,7 @@ thumbnails = #F7EDBF;
     margin-left:0;
 }
 
-.profileBox{
+#profileBox{
     padding: 10px;
     margin-right: 10px;
     border-radius: 25px;
@@ -80,16 +80,21 @@ thumbnails = #F7EDBF;
     width:100%;
     overflow:hidden;
 }
-#profile dt {
+
+
+
+#profile dt, #profileInventory dt {
     float:left;
     width:40%; /* adjust the width; make sure the total of both is 100% */
 }
-#profile dd {
+#profile dd, #profileInventory dd{
     float:left;
     width:60%; /* adjust the width; make sure the total of both is 100% */
 }
 
-
+#profileInventory .profileHeading {
+    width:100%;
+}
 /** chat ***************/
 .highlight{
     font-weight: bold;

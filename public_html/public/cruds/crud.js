@@ -390,8 +390,10 @@ $(document).ready(function(){
         
         //populate select with all events of this location
         var locoEvents = getEventsByLoco(events, locationId);
+        console.log('locoEvents: ');
+        console.dir(locoEvents);
         populateSelect(locoEvents, 'createLocation', 'locationTrigger');
- 
+        console.log('locoEvents set');
         // populate item in modal form
         $('#createLocation input[name=form]').val('updateLocation');
         $('#createLocation input[name=name]').val(location.name);

@@ -3,6 +3,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Flag = require('./flag.js');
+var Item = require('./item.js');
 var Location = require('./location.js');
 var Helper = require('../controllers/helper_functions.js');
 
@@ -51,7 +52,7 @@ var EventSchema = Schema({
 // sub-schemas
 {
 var EventItemSchema = new Schema({
-    item    :    {type:String, ref:'Item', required:true},
+    item    :    [Item.schema],
     action  :    {type:String, trim:true, lowercase:true, required:true}  
 });
 var EventItemModel = mongoose.model('EventItem', EventItemSchema);
@@ -130,9 +131,9 @@ EventSchema.path('dice.difficulty').validate(function(value){
 EventSchema.methods.saveUpdateAndReturnAjax = function(res){
     
     // define population-query for events
-    var populateQuery = [{path:'flag', select:'name id _id'}, {path:'rejectFlag', select:'name id -_id'},
+    var populateQuery = [{path:'flag', select:'name id _id items'}, {path:'rejectFlag', select:'name id -_id'},
         {path:'reqFlag', select:'name id -_id'}, {path:'location', select:'name id -_id'}, 
-        {path:'dice.failure.location', select:'name id -_id'},{path:'items', select:'name id -_id'}, 
+        {path:'dice.failure.location', select:'name id -_id'}, {path:'items.item', select:'name id'}, 
         {path:'dice.success.location', select:'name id -_id'}, {path:'dice.success.event', select:'name id -_id'}, 
         {path:'dice.failure.event', select:'name id -_id'},{path:'choices', select:'name id'}, 
         {path:'continueTo.location', select:'name id -_id'}, {path:'continueTo.event', select:'name id -_id'},
@@ -174,11 +175,11 @@ EventSchema.statics.getPopuQuery = function(){
     
     var populateQuery = [{path:'flag', select:'name id _id newPara'},{path:'rejectFlag', select:'name id -_id'}, 
         {path:'reqFlag', select:'name id -_id'}, {path:'location', select:'name id -_id'}, 
-        {path:'dice.failure.location', select:'name id -_id'},{path:'items', select:'name id -_id'}, 
+        {path:'dice.failure.location', select:'name id -_id'},{path:'items.item'},
         {path:'dice.success.location', select:'name id -_id'}, {path:'dice.success.event', select:'name id -_id'}, 
         {path:'dice.failure.event', select:'name id newPara -_id'},{path:'choices', select:'name id newPara choiceText'}, 
         {path:'continueTo.location', select:'name id -_id'}, {path:'continueTo.event', select:'name id newPara -_id'}, 
-        {path:'continueTo.random', select:'name id -_id newPara reqFlag rejectFlag'} ];
+        {path:'continueTo.random', select:'name id -_id newPara reqFlag rejectFlag items'} ];
     
     return populateQuery;
 };
@@ -197,14 +198,46 @@ EventSchema.statics.addAttributes = function(attributes, event){
 };
 
 // insert items if there are any
-EventSchema.statics.addItems = function(items, event){
-    console.log('items are: '+items);
-    if(items != 'false'){
+EventSchema.statics.addItems = function(rawItems, event){
+    console.log('items are: ');
+    console.dir(rawItems);
+    // if there are any items at all
+    if(rawItems != 'false'){
+        var itemIds = [];
         // loop through array and create attribute for each
-        items.forEach(function(item){
-            var eventItem = new EventItemModel(item);
-            event.items.push(eventItem);
-        });                     
+        rawItems.forEach(function(item){
+            var sanId = Helper.sanitizeNumber(item.item);
+            itemIds.push(sanId);    
+            console.log('event.addItemds: item found.');
+        });         
+       
+        // query items in array to get object_id
+        Item.find({'id':{$in:itemIds}}).exec(function(err, items){
+                if(err){console.log(err); return;}
+                console.dir(items);
+                return items;                        
+        }).then(function(items){
+            for(var i=0; i<items.length; i++){
+               
+                
+                //loop through rawItems and match id in order to get correct action
+                for(var j=0; j<rawItems.length; j++){
+                    console.log('hello from rawItems-loop.');
+                    if(items[i].id == rawItems[j].item){
+                        // create new EventItem-model
+                        var eventItem = new EventItemModel();
+                        eventItem.item = items[i];
+                        eventItem.action = rawItems[j].action;
+                        console.log('there is a match - id'+items[i].id+' '+rawItems[j].action);
+                        event.items.push(eventItem);
+                    }
+                    else{console.log('no match found');}
+                }                    
+                          
+                console.log(event.items.length+' items added to event');
+            }; 
+            return event;
+        });      
     }
     return event;
 };

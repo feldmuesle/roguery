@@ -242,25 +242,49 @@ module.exports.response = function(socket){
             var userId = clients[clientI].user;
             clients.splice(clientI, 1);
             console.log('user removed from clients');
-
+            console.dir(player);
             // check first if there is a player set at all
             if(player != undefined){
-
-                // get all former backups there might be and remove them
-                Player.remove({'user': userId, 'gameSave':'backup'}, function(err, players){
+                
+                // get all players of the user
+                Player.find({'user':userId}).exec(function(err, players){
                     if(err){console.log(err); return;}
-
+                    return players;
+                })
+                .then(function(players){
+                    
+                    // remove all former backups unless it's a saved game initial backup-player
+                    players.forEach(function(doc){
+                        if(doc.gameSave == 'backup' && doc.id != player.id){
+                            doc.remove();
+                            console.log('player has been removed');
+                        } 
+                     });
+                    
                     // then find the current player and save a backup if not already saved by user
                     Player.findOne({'_id':player._id}, function(err, player){
                         if(err){console.log(err); return;}
-
-                        if(player.gameSave == 'false'){ // would be true if the user had saved player himself
+                        console.log('queried player:');
+                        console.dir(player);
+                        if(player.gameSave != 'true'){ // would be true if the user had saved player himself
                             player.gameSave = 'backup';
-                            player.save(function(err){
+                            player.save(function(err, savedPlayer){
                                 if(err){console.log(err); return;}
-                                console.log('a backup has been saved.');
+                                
+                                // finally remove all remaining players that are saved automatically
+                                var savedId = savedPlayer._id.toString();
+                                
+                                players.forEach(function(doc){
+                                    console.dir(doc);
+                                    var id = doc._id.toString();
+                                    
+                                   if(doc.gameSave == 'false' && id != savedId){
+                                       console.log('player has been removed '+doc._id);                                       
+                                       doc.remove();
+                                   } 
+                                });
                             });
-                        }else if(player.gameSave == 'true'){
+                        }else {
                             // do not overwrite the saved game, but create a new player and save as backup
                             var newPlayer = Player.createNewBackup(player.character[0], userId);
                             newPlayer.event = player.event;
@@ -268,8 +292,21 @@ module.exports.response = function(socket){
                             newPlayer.save(function(err){
                                 if(err){console.log(err); return;}
                                 console.log('a backup of this saved game has been saved.');
+                                
+                                // finally remove all remaining players that are saved automatically
+                                players.forEach(function(doc){
+                                   if(doc.gameSave == 'false'){
+                                       console.log('player has been removed '+doc._id);
+                                       doc.remove();
+
+                                   } 
+                                });
                             });
-                        }                        
+                        }   
+                        console.log('players: ');
+                        console.dir(players);
+                        console.log(players.length);
+                        
                     });
                 });
             }            

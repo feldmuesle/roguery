@@ -23,6 +23,36 @@ ItemSchema.pre('save', function(next){
     next();
 });
 
+// restrict-delete: check if the item is used in an event and prevent deletion
+//ItemSchema.pre('remove', function(next){
+//    console.log('hello from item pre-remove');
+//    var self = this || mongoose.model('Item');
+//    self.model('Player').update(
+//            {inventory: mongoose.Types.ObjectId(self._id)},
+//            {$pull: {inventory : mongoose.Types.ObjectId(self._id)}},
+//            {multi:true},
+//            function(err,next){
+//                if(err){console.error(err); return;}                
+//                next;
+//            }
+//        );
+//});
+
+// cascade-delete: delete ref. in player's inventory, when item is deleted
+ItemSchema.post('remove', function(next){
+    console.log('hello from item pre-remove');
+    var self = this || mongoose.model('Item');
+    self.model('Player').update(
+            {inventory: mongoose.Types.ObjectId(self._id)},
+            {$pull: {inventory : mongoose.Types.ObjectId(self._id)}},
+            {multi:true},
+            function(err,next){
+                if(err){console.error(err); return;}                
+                next;
+            }
+        );
+});
+
 var ItemModel = mongoose.model('Item', ItemSchema);
 module.exports = ItemModel;
 

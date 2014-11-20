@@ -59,7 +59,9 @@ exports.findMatchInArrays = function(array1, array2){
         for(var j=0; j<length2; j++){
             console.log('array1 = '+array1[i]);
             console.log('array2 = '+array2[j]);
-            if (array1[i] == array2[j]){
+            var item1 = array1[i].toString();
+            var item2 = array2[j].toString();
+            if (item1 == item2){
                 console.log('there is a match');
                 return true;
             }

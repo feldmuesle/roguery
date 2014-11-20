@@ -16,7 +16,7 @@ var storyTeller = function Storyteller (socket){
     
     self.updateAttr = function(character, attribute, amount, action){
         console.log(action +' '+amount+' '+attribute);  
-        console.log('hello from storyteller-listener write: sending msg to client');
+        console.log('hello from storyteller: updating attributes');
         var data = {
             'character': character,
             'attribute': attribute,
@@ -24,6 +24,17 @@ var storyTeller = function Storyteller (socket){
             'amount'   : amount
         };
         self.socket.emit('updateAttr', data);
+    };
+    
+    self.updateInventory = function(character, item, action){
+        console.log(action +' '+item);  
+        console.log('hello from storyteller: updating inventory');
+        var data = {
+            'character': character,
+            'item': item,
+            'action'   : action
+        };
+        self.socket.emit('updateInventory', data);
     };
     
     self.rollDice = function(data){ // data = 

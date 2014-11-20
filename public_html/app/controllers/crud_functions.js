@@ -415,7 +415,7 @@ exports.updateLocation = function(res, req){
                         'msg'       :   'could not update location',
                         'errors'    :   err.errors});
                 }else{
-                    Location.find({},'-_id').populate('event','-_id').exec(function(err, locations){
+                    Location.find({},'-_id').populate('event','id name -_id').exec(function(err, locations){
                         if(err){ return console.log(err);}
                         res.send({
                             'success'   :   true,
@@ -683,7 +683,7 @@ exports.sendAllModels = function(res, req){
                 return items;
             })
         .then(function(items){
-            Location.find({},'-_id').exec(function(err, locations){
+            Location.find({},'-_id').populate('event','id name').exec(function(err, locations){
                 if(err){ return console.log(err);}
                 return locations;
             })

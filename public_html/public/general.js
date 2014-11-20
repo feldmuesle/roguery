@@ -121,12 +121,44 @@ function displayPlayerStats(character){
         
         var stats = getStatsList(character);        
         var playerstats = '<h3>Profile</h3>';
+        var count = 0;
         
         for(var i=0; i< stats.length; i++){
             playerstats = playerstats + stats[i];            
         }
         $('#profile').html(playerstats);
-    };
+        
+        // add inventory
+        var inventory = $('#profileInventory');
+        inventory.html('<dt class="profileHeading">Inventory</dt>');
+        // fill inventory
+        // append weapon first
+        var weapon = '<dt><span class="glyphicon glyphicon-flash"></span> Weapon </dt>'+
+        '<dd id="weapon">Trident</dd>';
+        inventory.append(weapon);
+    
+        // if there are any items in inventory, append them
+        if(character.inventory.length > 0){
+            while (count < character.inventory.length){
+                var item = '<dd id="inventoryItem">'+character.inventory[count].name+'</dd>';
+                inventory.append(item);
+                count++;
+            }
+        }
+//        $('#profileBox').append(inventory);
+};
+
+function updateInventory(item, action){
+  
+    var inventory = $('#profileInventory');
+    
+    if(action == 'gain'){
+        var el = '<dd id="inventory'+item.id+'">'+item.name+'</dd>';
+        $('#profileInventory').append(el);
+    }else{
+        $('#inventory'+item.id).remove();
+    }            
+};
     
 // update single attribute in  
 function updatePlayerStats(attribute, newValue){
@@ -301,7 +333,7 @@ function setCharacter(character){
     // if there are any items in inventory, append them
     if(character.inventory.length > 0){
         while (count < character.inventory.length){
-            var item = '<dd id="weapon">'+character.inventory[count].name+'</dd>';
+            var item = '<dd class="inventoryItem">'+character.inventory[count].name+'</dd>';
             inventory.append(item);
             count++;
         }
