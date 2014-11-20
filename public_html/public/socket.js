@@ -150,7 +150,9 @@ $(document).ready(function(){
         action == 'loose' ? action='-' : action='+';
         var msg = attribute+' '+action+amount;
         appendToChat('info', capitaliseFirstLetter(msg));
-        
+        console.log('character');
+        console.dir(character);
+        console.dir(character.attributes);
         var value = character.attributes[attribute];
         updatePlayerStats(attribute, value);
     });

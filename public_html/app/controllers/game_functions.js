@@ -279,20 +279,37 @@ function runEvent(storyteller, player, event){
                 // check if player has enough money, else remove item-gain
                 if(evAttr.attribute == 'coins' && event.items.length > 0){
                     
-                    event.items.forEach(function(item){
-                        if(item.item[0].action == 'gain'){
-                            gain = true;
-                            return;
+                    var playerCoins = player.character[0].attributes['coins'];
+                    console.log('player has '+playerCoins+' available.');
+                    // if player can't afford it
+                    if(playerCoins < evAttr.amount){
+                        // find item to gain and remove it
+                        for(var i=0; i< event.items.length; i++){
+                            if(event.items[i].action == 'gain'){
+                                gain = true;
+                                var msg = 'You don\'t have enough coins to buy '
+                                        +event.items[i].item[0].name;
+                                storyteller.write(msg);
+                                event.items.splice(i,1);
+                            }
                         }
-                    });                      
+                    }else{
+                        for(var i=0; i< event.items.length; i++){
+                            if(event.items[i].action == 'gain'){
+                                gain = true;
+                                console.log('player can afford it!');
+                                player = player.looseAttr('coins', evAttr.amount);
+                                var character = player.character[0];
+                                var msg = 'You buy '+event.items[i].item[0].name;
+                                storyteller.write(msg);
+                                storyteller.updateAttr(character, evAttr.attribute, evAttr.amount, 'loose');
+                            }
+                        }
+                    }                                       
                 }
                 
-                if(gain){
-                    // TODO: check if player has enough money to buy item
-                    // remove gaining-item from event if player does not have the money
-                        
-                } // otherwise no buying, just proceed 
-                else{
+                if(!gain){
+                    console.log('gain is false');
                     var character = player.character[0];
                     var oldValue = character.attributes[evAttr.attribute];
                     // make player loose attributes and return player afterwards

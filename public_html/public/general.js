@@ -163,8 +163,6 @@ function updateInventory(item, action){
 // update single attribute in  
 function updatePlayerStats(attribute, newValue){
     console.log('hello from updatePlayerStats');
-    var desc = getAttributDesc(attribute, newValue);
-    var descSpan = '<span class="statDesc"> '+desc+'</span>';
     
     if(attribute == 'stamina'){
         console.log('update stamina');
@@ -173,8 +171,17 @@ function updatePlayerStats(attribute, newValue){
         $('#profile').find('#'+attribute).html(newValue+maxStam+descSpan);
         return;
     }
-    // pick the right dd-element
-    $('#profile').find('#'+attribute).html(newValue+descSpan);
+    
+    if(attribute != 'coins'){
+        var desc = getAttributDesc(attribute, newValue);
+        var descSpan = '<span class="statDesc"> '+desc+'</span>';
+        // pick the right dd-element
+        $('#profile').find('#'+attribute).html(newValue+descSpan);
+    }else {
+        // don't attach any description for coins
+        $('#profile').find('#'+attribute).html(newValue);
+    }
+    
 }
 
 /*********** Text-stream - story ***************/
