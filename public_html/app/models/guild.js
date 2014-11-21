@@ -22,6 +22,39 @@ GuildSchema.pre('save', function(next){
     next();
 });
 
+// restrict-delete: check if the item is used in an event and prevent deletion
+GuildSchema.pre('remove', function(next){
+    console.log('hello from guild pre-remove');
+    var self = this || mongoose.model('Guild');
+    
+    self.model('Player').find({'character.guild': self._id}).exec(function(err, players){
+        if(err){console.log(err); next(err);}
+        console.log('hello from players-query');
+        return players;
+    })
+    .then(function(players){
+        
+        self.model('Character').find({'guild':self._id}).exec(function(err, characters){
+            if(err){console.log(err); next(err);}
+            console.log('hello from characters-query');
+            return characters;
+        })
+        .then(function(characters){
+            if(players.length > 0){
+                var customErr = new Error('Cannot delete guild due to depending player');
+                console.log('yes there is an error');
+                next(customErr);
+            }else if(characters.length > 0){
+                var customErr = new Error('Cannot delete guild due to depending character \''+characters[0].name+'\'');
+                console.log('yes there is an error');
+                next(customErr);
+            }else{
+                next();
+            }   
+        });             
+    });
+});
+
 // get images-array
 GuildSchema.statics.getImages = function(){
     // image-array of guild-images

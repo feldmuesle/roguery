@@ -21,6 +21,39 @@ WeaponSchema.pre('save', function(next){
     next();
 });
 
+// restrict-delete: check if the item is used in an event and prevent deletion
+WeaponSchema.pre('remove', function(next){
+    console.log('hello from weapon pre-remove');
+    var self = this || mongoose.model('Weapon');
+    
+    self.model('Player').find({'character.weapon': self._id}).exec(function(err, players){
+        if(err){console.log(err); next(err);}
+        console.log('hello from weapon-query');
+        return players;
+    })
+    .then(function(players){
+        
+        self.model('Character').find({'weapon':self._id}).exec(function(err, characters){
+            if(err){console.log(err); next(err);}
+            console.log('hello from characters-query');
+            return characters;
+        })
+        .then(function(characters){
+            if(players.length > 0){
+                var customErr = new Error('Cannot delete weapon due to depending player');
+                console.log('yes there is an error');
+                next(customErr);
+            }else if(characters.length > 0){
+                var customErr = new Error('Cannot delete weapon due to depending character \''+characters[0].name+'\'');
+                console.log('yes there is an error');
+                next(customErr);
+            }else{
+                next();
+            }   
+        });             
+    });
+});
+
 var WeaponModel = mongoose.model('Weapon', WeaponSchema);
 module.exports = WeaponModel;
 

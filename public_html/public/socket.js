@@ -24,8 +24,7 @@ $(document).ready(function(){
 
 /********* interaction with game **********/
     $('#play').click(function(){
-        // hide the gallery
-        $('#gallery').hide();
+        
         console.log('character from random: ');
         var data = {
             user : user,
@@ -38,7 +37,6 @@ $(document).ready(function(){
     $('#playSaved').click(function(){
         // hide the gallery
         $('#gallery').hide();
-        console.log('character from random: ');
         var data = {
             user : user,
             character : character
@@ -47,6 +45,7 @@ $(document).ready(function(){
         console.dir(data);
     });
     
+    // start playing with customized character
     $('#btnPlay').click(function(){
         // close modal and get values from form
         
@@ -85,7 +84,18 @@ $(document).ready(function(){
         
     });
     
-    // load previously saved games
+    // delete a saved game
+    $('#gameDel').click(function(){
+        
+        var data = {
+            'user'       : user,
+            'character' : character
+        };
+        socket.emit('gameDel', data);
+        console.log('game deleted');        
+    });
+    
+    // load gallery with previously saved games
     $('#viewSaved').click(function(){
         console.log('view previously saved games');
         // fetch the latest saved games including backup of last game
@@ -126,11 +136,13 @@ $(document).ready(function(){
     socket.on('startGame', function(data){
         console.log('start game with player');
         character = data['character'];
-        console.log('character recieved back '+character);
+        console.log('character recieved back: ');
+        console.dir(character);
         gameInit();
         displayPlayerStats(character);
     });
     
+    //notify user that game has been saved
     socket.on('gameSaved', function(data){
        console.log(data['msg']); 
     });
@@ -150,9 +162,6 @@ $(document).ready(function(){
         action == 'loose' ? action='-' : action='+';
         var msg = attribute+' '+action+amount;
         appendToChat('info', capitaliseFirstLetter(msg));
-        console.log('character');
-        console.dir(character);
-        console.dir(character.attributes);
         var value = character.attributes[attribute];
         updatePlayerStats(attribute, value);
     });
@@ -226,6 +235,24 @@ $(document).ready(function(){
             
         }
     });
-});
+    
+    socket.on('gameDeleted', function(data){
+        console.log('game has been deleted');
+       savedGames = data['characters'];
+       createGallery(savedGames, 'saved');
+        $('#heading').find('h2').html('<span class="fa fa-sign-in"></span> continue saved game');
+        $('#viewGallery').show();
+        $('#viewSaved').hide();
+//        if(index != null){
+//            console.log('we know which one is the backup!');
+//            $('#thumb'+index).css('border','1px solid red');
+//            
+//        }
+       
+    });
+    
+    
+    
+});// document.ready --> end
 
 

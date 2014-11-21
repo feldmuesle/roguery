@@ -14,11 +14,7 @@ $(function(){
     $('#validSum').hide();
     $('#viewGallery').hide();
     $('#playSaved').hide();
-//    $('#pseudoInput').focus();
-//    $('.thumbnail').hide();
-//    $('#loadGame').click(function(){loadGame();});
-//    $('#loadGame1').click(function(){loadGame();});
-    //$('#newGame').click(function(){slideGameSignup();});
+    $('#gameDel').hide();
     $('#startGame').click(function(){displayRandCharacter();});
     
 });
@@ -29,12 +25,9 @@ function gameInit(){
     $('#game').show();
     $('#save').show();
     $('#profile').show();
-//    $('#playerlist').show();
-//    $('#roomPlayerlist').show();
     $('#chatWrapper').show();
     $('.thumbnail').show();
-//    $('#pseudoSet').hide();
-//    $('#chatInput').focus();
+    $('#gallery').hide();
 }
 
 function createGallery(charArray, type){
@@ -68,7 +61,10 @@ $('#viewGallery').click(function(){
    createGallery(characters,'gallery');
    $('#heading').find('h2').html('<span class="fa fa-sign-in"></span> choose a character');
    $('#viewGallery').hide();
-   $('#viewSaved').show();
+   if(savedGames.length > 0){
+       $('#viewSaved').show();
+   }
+   
 });
 
 function getStatsList(character){
@@ -206,6 +202,7 @@ function displayRandCharacter(){
     setCharacter(character);
     $('#displayCharacter').modal('show');
 }
+
 // display character when clicking on thumbnail
 $(document).on('click','.thumbnail',function(){
     console.log('you clicked a thumbnail');
@@ -214,6 +211,7 @@ $(document).on('click','.thumbnail',function(){
     if($(this).hasClass('saved')){
         character = savedGames[charId];
         $('#playSaved').show();
+        $('#gameDel').show();
         $('#play').hide();
         $('#customize').hide();
         $('#character').hide();
@@ -221,6 +219,7 @@ $(document).on('click','.thumbnail',function(){
     }else{
         character = getRecordById(characters, charId);
         $('#playSaved').hide();
+        $('#gameDel').hide();
         $('#play').show();
         $('#customize').show();
         $('#character').show();
@@ -230,6 +229,7 @@ $(document).on('click','.thumbnail',function(){
     $('#displayCharacter').modal('show');
 
 });
+
 // create rand name, pick random guild & weapon for clients get random character
 function createRandOpts(){
     var rand1 = getRandomNumber(0,characters.length-1);
@@ -375,6 +375,12 @@ function customizeCharacter(character){
 
     // reset the form
     $('#customizeCharacter').trigger('reset');
+
+    //TODO: populate guild-select only with guilds from characters, not all guilds
+//    var trueGuilds = [];
+//    for(var i=0; i<characters.length; i++){
+//        
+//    }
 
     // when changing the range
     $('.range').on('change',function(){

@@ -26,6 +26,46 @@ LocationSchema.pre('save', function(next){
     next();
 });
 
+// restrict-delete: check if the location is used by other documents
+LocationSchema.pre('remove', function(next){
+    console.log('hello from location pre-remove');
+    var self = this || mongoose.model('Location');
+    
+    // check if the location is used as a start-location for a guild
+    self.model('Guild').find({'start': self.id}).exec(function(err, guilds){
+        if(err){console.log(err); next(err);}
+        console.log('hello from guild-query');
+        return guilds;
+    })
+    .then(function(guilds){
+        
+        self.model('Event').find().or(
+                        [{'location':self._id},
+                        {'dice.success.location': self._id },
+                        {'dice.failure.location': self._id},
+                        {'continueTo.location': self._id}])
+            .exec(function(err, events){
+                if(err){console.log(err); next(err);}
+                console.log('hello from events-query');
+                return events;
+                console.dir(events);
+            })
+        .then(function(events){
+            if(guilds.length > 0){
+                var customErr = new Error('Cannot delete location due to depending guild \''+guilds[0].name+'\'');
+                console.log('yes there is an error');
+                next(customErr);
+            }else if(events.length > 0){
+                var customErr = new Error('Cannot delete location due to depending event \''+events[0].name+'\'');
+                console.log('yes there is an error');
+                next(customErr);
+            }else{
+                next();
+            }              
+        });             
+    });
+});
+
 var LocationModel = mongoose.model('Location', LocationSchema);
 module.exports = LocationModel;
 

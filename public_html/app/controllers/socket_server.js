@@ -45,12 +45,17 @@ module.exports.response = function(socket){
         
     }
     
+    // send previously saved games to client
     socket.on('viewSaved', function(data){
         console.log('view the saved games.');
         var userId = data['user']; 
         var sanId = Helper.sanitizeString(userId);
         
-        Player.find({user: sanId, gameSave:{$ne:'false'}}, '-user -_id').populate('character character.guild')
+        var charOpts = [{path:'character.weapon', select:'name id -_id'}, 
+                {path:'character.inventory', select:'name id -_id'}, 
+                {path:'character.guild', select:'name id image -_id'}];
+        
+        Player.find({user: sanId, gameSave:{$ne:'false'}}, '-user -_id').populate(charOpts)
             .exec(function(err, players){
                 if(err){ return console.log(err);}
                 console.dir(players);
@@ -69,6 +74,38 @@ module.exports.response = function(socket){
         
     });
     
+    
+    //delete previously saved game
+    socket.on('gameDel', function(data){
+        var userId = data['user'];
+        var character = data['character'];
+        var sanId = Helper.sanitizeString(userId);
+        
+        var charOpts = [{path:'character.weapon', select:'name id -_id'}, 
+                {path:'character.inventory', select:'name id -_id'}, 
+                {path:'character.guild', select:'name id image -_id'}];
+        
+        Player.find({'user':sanId}).populate(charOpts).exec(function(err, players){
+            if(err){console.log(err);return;}
+            
+            var characters = [];
+            players.forEach(function(player){
+                
+                var playChar = player.character[0]._id.toString();
+                if(playChar == character._id) {
+                    player.remove();
+                }else{
+                    characters.push(player.character[0]);
+                }
+            });
+            
+            socket.emit('gameDeleted',{'characters':characters});
+            console.log('player has been removed');
+        });
+    });
+    
+    
+    // continue playing a previously saved game
     socket.on('playSaved', function(data){
        console.log('continue to play a saved game.');
        var character = data['character'];
@@ -93,7 +130,7 @@ module.exports.response = function(socket){
             
             //store playerId together with socket
             clients[index].player = player._id;  
-
+            
             // start the game client-side
             socket.emit('startGame', {'character':character});
 

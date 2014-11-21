@@ -463,6 +463,7 @@ function runEvent(storyteller, player, event){
 
 // process Outcome after running a event and decide what to do next
 function processOutcome( continueChain, storyteller, result, callback ) {
+    
     var next = {};
     var player = result['player'];
     var continType = result['continType'];
@@ -470,8 +471,7 @@ function processOutcome( continueChain, storyteller, result, callback ) {
     next.current = current;
     next.continType = continType;
     next.player = result['player'];
-//    console.log('hello from processOutcoume');
-//    console.dir(result);
+    
     if(continueChain){
         
         if(continType == 'choices') {
@@ -532,8 +532,11 @@ function processOutcome( continueChain, storyteller, result, callback ) {
 exports.continueSavedGame = function(character, cb){
     
     var sanChar = Helper.sanitizeString(character._id);
-    
-    Player.findOne({'character._id':sanChar}).populate('character character.weapon character.guild')
+    var charOpts = [{path:'character.weapon', select:'name id -_id'}, 
+                {path:'character.inventory', select:'name id -_id'}, 
+                {path:'character.guild', select:'name id image -_id'}];
+            
+    Player.findOne({'character._id':sanChar}).populate(charOpts)
            .exec(function(err, player){
            if(err){ return console.log(err);}
            return player;

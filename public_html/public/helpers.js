@@ -142,3 +142,17 @@ function populateSelect(array, elementId, name){
     $(select).html('');
     $(select).append(options);
 }
+
+// show error-alert depending on alertId
+    function alertErr(alertId, msg, error){
+        // make sure it's clean and empty
+        $(alertId).text('');
+        $(alertId).append('<h3>'+msg+'</h3>');
+        $(alertId).append('<p>'+error+'</p>');
+        $(alertId).slideDown('slow').fadeIn(3000, function(){
+            setTimeout(function(){
+                $(alertId).fadeOut({duration:1000, queue:false}).slideUp('slow');
+            },5000);
+            
+        });
+    }

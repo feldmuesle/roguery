@@ -14,7 +14,7 @@ var values = Helper.getRandAttributes(120,10);
 var CharacterSchema = new Schema({
     id          :   {type : Number},
     name        :   {type:String, trim:true, validate:valEmpty},
-    guild       :   {type: Schema.Types.ObjectId, ref:'Guild', index:true},
+    guild       :   {type: Schema.Types.ObjectId, ref:'Guild', index:true, required:true},
     gender      :   {type:String, trim:true, default:'male'},
     attributes  : {
             stamina  :   {type : Number, default:values[0]},
@@ -62,6 +62,27 @@ CharacterSchema.pre('save', function(next){
 //        }      
 //    }
     next();
+});
+
+// restrict-delete: check if the item is used in an event and prevent deletion
+CharacterSchema.pre('remove', function(next){
+    console.log('hello from character pre-remove');
+    var self = this || mongoose.model('Character');
+    
+    self.model('Player').find({'character._id': self._id}).exec(function(err, players){
+        if(err){console.log(err); next(err);}
+        console.log('hello from player-query');
+        return players;
+    })
+    .then(function(players){
+        if(players.length > 0){
+            var customErr = new Error('Cannot delete character due to depending player');
+            console.log('yes there is an error');
+            next(customErr);
+        }else{
+            next();
+        }                      
+    });
 });
 
 CharacterSchema.statics.createForPlayer = function(charObj){

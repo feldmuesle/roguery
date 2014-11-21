@@ -20,6 +20,7 @@
             <!--Event-tab start-->
             <div class="tab-pane" id="tab1">
                 <div id="eventSuccess" class="alert alert-success"></div>
+                <div id="eventError" class="alert alert-danger"></div>
                 <h3>Events<button id="addEvent" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
 
                 <ul id="eventList" class="list-group list-unstyled">
@@ -35,6 +36,7 @@
             <!--Location-tab start-->
             <div class="tab-pane active" id="tab2">
                 <div id="locationSuccess" class="alert alert-success"></div>
+                <div id="locationError" class="alert alert-danger"></div>
                 <h3>Locations<button id="addLocation" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
                 <ul id="locationList" class="list-group list-unstyled">
                     <%for(var i=0; i<locations.length; i++){%>
@@ -49,6 +51,7 @@
             <!--Character-tab start-->
             <div class="tab-pane" id="tab3">
                 <div id="characterSuccess" class="alert alert-success"></div>
+                <div id="characterError" class="alert alert-danger"></div>
                 <h3>Characters<button id="addCharacter" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
                 <ul id="charactersList" class="list-group list-unstyled">
                     <%for(var i=0; i<characters.length; i++){%>
@@ -63,6 +66,7 @@
             <!--Weapon-tab start-->
             <div class="tab-pane" id="tab4">
                 <div id="weaponSuccess" class="alert alert-success"></div>
+                <div id="weaponError" class="alert alert-danger"></div>
                 <h3>Weapons<button id="addWeapon" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
                 <ul id="weaponList" class="list-group list-unstyled">
                     <%for(var i=0; i<weapons.length; i++){%>
@@ -77,6 +81,7 @@
             <!--Item-tab start-->
             <div class="tab-pane" id="tab5">
                 <div id="itemSuccess" class="alert alert-success"></div>
+                <div id="itemError" class="alert alert-danger"></div>
                 <h3>Items<button id="addItem" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
                 <ul id="itemList" class="list-group list-unstyled">
                     <%for(var i=0; i<items.length; i++){%>
@@ -91,6 +96,7 @@
             <!--Guild-tab start-->
             <div class="tab-pane" id="tab6">
                 <div id="guildSuccess" class="alert alert-success"></div>
+                <div id="guildError" class="alert alert-danger"></div>
                 <h3>Guilds<button id="addGuild" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
 
                 <ul id="guildList" class="list-group list-unstyled">

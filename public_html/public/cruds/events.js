@@ -900,6 +900,33 @@ function removeAddOns(count, buttonId){
         $("#createEvents").modal('show');
     });    
     
+    
+    /******* DELETE **************/
+    $(document).on('click','.deleteEvent', function(){
+        
+        console.log('want to delete?');
+        var eventId = this.id.substr(11,this.id.length); //because del-button-name has 11 chars before id starts
+        console.log('eventId to delete: '+eventId);
+        $.post('/crud', {
+            'eventId':   eventId,
+            'delete' :   'eventDel'
+        }, function(data){
+            console.log('hello back from server.');
+            if(!data['success']){
+                var errors = data['errors'];
+                var msg = data['msg'];
+                console.log(errors);
+                alertErr('#eventError', msg, errors);
+            }else{
+                alertSuccess('#eventSuccess', data['msg']);
+                events = data['events'];
+                updateEventList();
+                console.log(data['events']);
+            }
+        });
+
+    });
+    
     function updateEventList(){
         console.log('hello from update crud list');
         // get events within currently selected event-location from nav

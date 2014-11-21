@@ -127,6 +127,45 @@ EventSchema.path('dice.difficulty').validate(function(value){
     } 
 },'Please provide a difficulty for the diceroll between 5 and 40.');
 
+
+// restrict-delete: check if the event is used by other documents
+EventSchema.pre('remove', function(next){
+    
+    var self = this || mongoose.model('Event');
+    
+    // check if the event is used as a event for location
+    self.model('Location').find({'event': self._id}).exec(function(err, locos){
+        if(err){console.log(err); next(err);}
+        return locos;
+    })
+    .then(function(locos){
+        // query other events that use this event
+        self.model('Event').find().or(
+                    [{'choices':self._id},
+                    {'dice.success.event': self._id },
+                    {'dice.failure.event': self._id},
+                    {'continueTo.event': self._id},
+                    {'continueTo.random': self._id}])
+            .exec(function(err, events){
+                if(err){console.log(err); next(err);}
+                return events;
+            })
+        .then(function(events){
+            if(locos.length > 0){
+                var customErr = new Error('Cannot delete event due to depending location \''+locos[0].name+'\'');
+                next(customErr);
+                
+            }else if(events.length > 0){
+                var customErr = new Error('Cannot delete event due to depending event \''+events[0].name+'\'');
+                next(customErr);
+                
+            }else{
+                next();
+            }              
+        });             
+    });
+});
+
 /*********** methods *************/
 EventSchema.methods.saveUpdateAndReturnAjax = function(res){
     

@@ -51,15 +51,11 @@ module.exports = function(app, passport){
     app.get('/game', isLoggedIn, function (req, res){
                 
         console.log('hello from game-routes');
-        Guild.find({},'-_id').exec(function(err, guilds){            
-            if(err){ return console.log(err);}
-            return guilds;                      
-        })
-        .then(function(guilds){
-            var opts = [{path:'weapon', select:'name id -_id'}, 
-                        {path:'inventory', select:'name id -_id'}, 
-                        {path:'guild', select:'name id image -_id'}];
-            Character.find({},'-_id').populate(opts).exec(function(err, characters){
+        
+        var opts = [{path:'weapon', select:'name id -_id'}, 
+                    {path:'inventory', select:'name id -_id'}, 
+                    {path:'guild', select:'name id image -_id'}];
+        Character.find({},'-_id').populate(opts).exec(function(err, characters){
                 if(err){ return console.log(err);}
                 return characters;
             })
@@ -77,12 +73,26 @@ module.exports = function(app, passport){
                 var games = [];
                 for(var i=0; i<players.length; i++){
                     games.push(players[i].character[0]);
-                }                
+                }              
+                
+                //get the guilds from characters to ensure administrator has released them; 
+                var guilds = [];
+                for(var i=0; i<characters.length; i++){
+                    var appGuildId = characters[i].guild.id;
+                    var index = Helper.getIndexByKeyValue(guilds, 'id',appGuildId);
+                    if(index === null){
+                        var guild = {
+                            'id'    : appGuildId,
+                            'name'  : characters[i].guild.name,
+                            'image' : characters[i].guild.image
+                        };
+                        guilds.push(guild);
+                    }
+                }
 
                 res.render('game.ejs', {
                    'guilds'     :   guilds,
                    'characters' :  characters,
-//                   events   :   events,
                    'userId'     :   req.user._id,
                    'username'   :   req.user.username,
                    'games'      :   games,
@@ -91,8 +101,6 @@ module.exports = function(app, passport){
                }); 
            });
        });
-     
-    });
     });
     });
     
@@ -170,6 +178,27 @@ module.exports = function(app, passport){
                 
                 case'itemDel':
                     Crud.deleteItem(res, req);
+                    break;
+                    
+                case'guildDel':
+                    Crud.deleteGuild(res, req);
+                    break;
+                    
+                case'weaponDel':
+                    Crud.deleteWeapon(res, req);
+                    break;
+                    
+                case'locoDel':
+                    Crud.deleteLocation(res, req);
+                    break;
+                    
+                case'eventDel':
+                    Crud.deleteEvent(res, req);
+                    break;
+                    
+                case'charDel':
+                    Crud.deleteCharacter(res, req);
+                    break;
                 
             }
         }// if form was sent -> end

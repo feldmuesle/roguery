@@ -22,6 +22,13 @@ $(document).ready(function(){
     $('#charactersSuccess').hide();
     $('#guildSuccess').hide();
     $('#characterSuccess').hide();
+    $('#eventError').hide();
+    $('#locationError').hide();
+    $('#itemError').hide();    
+    $('#weaponError').hide();
+//    $('#charactersError').hide();
+    $('#guildError').hide();
+    $('#characterError').hide();
     
     /******** SHOW MODAL FORMS ********/
     
@@ -390,8 +397,6 @@ $(document).ready(function(){
         
         //populate select with all events of this location
         var locoEvents = getEventsByLoco(events, locationId);
-        console.log('locoEvents: ');
-        console.dir(locoEvents);
         populateSelect(locoEvents, 'createLocation', 'locationTrigger');
         console.log('locoEvents set');
         // populate item in modal form
@@ -515,8 +520,38 @@ $(document).ready(function(){
         
         $('#'+listId).html(html);
     }
-    
+  
+ /**************************************************************/
  /********** DELETE ************/
+ /**************************************************************/
+ 
+ // button for deleting locations
+    $(document).on('click','.deleteLocation', function(){
+        
+        console.log('want to delete?');
+        var locationId = this.id.substr(14,this.id.length); //because del-button-name has 14 chars before id starts
+        console.log('locationId to delete: '+locationId);
+        $.post('/crud', {
+            'locationId':   locationId,
+            'delete'    :   'locoDel'
+        }, function(data){
+            console.log('hello back from server.');
+            if(!data['success']){
+                var errors = data['errors'];
+                var msg = data['msg'];
+                console.log(errors);
+                alertErr('#locationError', msg, errors);
+            }else{
+                alertSuccess('#locationSuccess', data['msg']);
+                locations = data['locations'];
+                updateCrudList( locations, 'locationList', 'location', 'updateLocation',
+                    'locationBtnDel', 'deleteLocation');
+                console.log(data['locations']);
+            }
+        });
+
+    });
+ 
  // button for deleting item
     $(document).on('click','.deleteItem', function(){
         
@@ -527,7 +562,13 @@ $(document).ready(function(){
             'itemId'    :   itemId,
             'delete'   :    'itemDel'
         }, function(data){
-            if(data['success']){
+            console.log('hello back from server.');
+            if(!data['success']){
+                var errors = data['errors'];
+                var msg = data['msg'];
+                console.log(errors);
+                alertErr('#itemError', msg, errors);
+            }else{
                 alertSuccess('#itemSuccess', data['msg']);
                 items = data['items'];
                 updateCrudList( items, 'itemList', 'item', 'showItem',
@@ -545,10 +586,15 @@ $(document).ready(function(){
         var guildId = this.id.substr(11,this.id.length); //because del-button-name has 11 chars before id starts
         console.log('guildId to delete: '+guildId);
         $.post('/crud', {
-            'itemId'    :   guildId,
+            'guildId'    :   guildId,
             'delete'   :    'guildDel'
         }, function(data){
-            if(data['success']){
+            if(!data['success']){
+                var errors = data['errors'];
+                var msg = data['msg'];
+                console.log(errors);
+                alertErr('#guildError', msg, errors);
+            }else{
                 alertSuccess('#guildSuccess', data['msg']);
                 guilds = data['guilds'];
                 updateCrudList( guilds, 'guildList', 'guild', 'showGuild',
@@ -559,7 +605,7 @@ $(document).ready(function(){
 
     });
     
-    // button for deleting guild
+    // button for deleting weapon
     $(document).on('click','.deleteWeapon', function(){
         
         console.log('want to delete?');
@@ -569,12 +615,44 @@ $(document).ready(function(){
             'weaponId'    :   weaponId,
             'delete'   :    'weaponDel'
         }, function(data){
-            if(data['success']){
+            if(!data['success']){
+                var errors = data['errors'];
+                var msg = data['msg'];
+                console.log(errors);
+                alertErr('#weaponError', msg, errors);
+            }else{
                 alertSuccess('#weaponSuccess', data['msg']);
                 weapons = data['weapons'];
                 updateCrudList( weapons, 'weaponList', 'weapon', 'updateWeapon',
                     'weaponBtnDel', 'deleteWeapon');
                 console.log(data['weapons']);
+            }
+        });
+
+    });
+    
+    
+    // button for deleting character
+    $(document).on('click','.deleteCharacter', function(){
+        
+        console.log('want to delete?');
+        var charId = this.id.substr(15,this.id.length); //because del-button-name has 15 chars before id starts
+        console.log('charId to delete: '+charId);
+        $.post('/crud', {
+            'charId'    :   charId,
+            'delete'   :    'charDel'
+        }, function(data){
+            if(!data['success']){
+                var errors = data['errors'];
+                var msg = data['msg'];
+                console.log(errors);
+                alertErr('#characterError', msg, errors);
+            }else{
+                alertSuccess('#characterSuccess', data['msg']);
+                characters = data['characters'];
+                updateCrudList( characters, 'charactersList', 'character', 'updateCharacter',
+                    'characterBtnDel', 'deleteCharacter');
+                console.log(data['characters']);
             }
         });
 
@@ -610,6 +688,7 @@ $(document).ready(function(){
             
         });
     }
+
     
     
 });// document.ready end

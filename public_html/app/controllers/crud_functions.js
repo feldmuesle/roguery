@@ -735,22 +735,167 @@ exports.sendAllModels = function(res, req){
 
 exports.deleteItem = function(res, req){
     var itemId = Helper.sanitizeNumber(req.body.itemId);
-            Item.findOne({'id':itemId},function(err, item){
-                if(err){console.error(err); return;}
-               
-                item.remove(function(err){
+    Item.findOne({'id':itemId},function(err, item){
+        if(err){console.error(err); return;}
+
+        item.remove(function(err){
+            if(err){
+            console.log('could not delete item.');
+            console.log('error '+err.toString());
+            console.log(typeof err);
+            console.log('try: '+err.message);
+            console.dir(err);
+            res.send({
+                'success'   :   false,
+                'msg'       :   'could not delete item',
+                'errors'    :   err.message});
+            }else{
+                Item.find(function(err, items){
                     if(err){console.log(err); return;}
-                   
-                    Item.find(function(err, items){
+
+                    res.send({
+                        'success':   true,
+                        'msg'    :   'Item has been removed.',
+                        'items'  :   items
+                    }); 
+                });
+            }
+        });
+       console.log('item has been removed');
+    }); 
+};
+
+exports.deleteGuild = function(res, req){
+    var guildId = Helper.sanitizeNumber(req.body.guildId);
+        Guild.findOne({'id':guildId},function(err, guild){
+            if(err){console.error(err); return;}
+
+            guild.remove(function(err){
+                if(err){
+                console.log('could not delete guild.');
+                res.send({
+                    'success'   :   false,
+                    'msg'       :   'could not delete guild',
+                    'errors'    :   err.message});
+                }else{
+                    Guild.find(function(err, guilds){
                         if(err){console.log(err); return;}
 
                         res.send({
                             'success':   true,
-                            'msg'    :   'item has been removed.',
-                            'items'  :   items
+                            'msg'    :   'Guild has been removed.',
+                            'guilds' :   guilds
                         }); 
                     });
+                }
+            });
+       }); 
+};
+
+exports.deleteWeapon = function(res, req){
+    var weaponId = Helper.sanitizeNumber(req.body.weaponId);
+    Weapon.findOne({'id':weaponId},function(err, weapon){
+        if(err){console.error(err); return;}
+
+        weapon.remove(function(err){
+            if(err){
+            console.log('could not delete weapon.');
+            res.send({
+                'success'   :   false,
+                'msg'       :   'could not delete weapon',
+                'errors'    :   err.message});
+            }else{
+                Weapon.find(function(err, weapons){
+                    if(err){console.log(err); return;}
+
+                    res.send({
+                        'success':   true,
+                        'msg'    :   'Weapon has been removed.',
+                        'weapons':   weapons
+                    }); 
                 });
-               console.log('item has been removed');
-           }); 
+            }
+        });
+    }); 
+};
+
+exports.deleteLocation = function(res, req){
+    var locoId = Helper.sanitizeNumber(req.body.locationId);
+    Location.findOne({'id':locoId},function(err, loco){
+        if(err){console.error(err); return;}
+
+        loco.remove(function(err){
+            if(err){
+            console.log('could not delete location.');
+            res.send({
+                'success'   :   false,
+                'msg'       :   'could not delete location',
+                'errors'    :   err.message});
+            }else{
+                Location.find(function(err, locos){
+                    if(err){console.log(err); return;}
+
+                    res.send({
+                        'success':   true,
+                        'msg'    :   'Location has been removed.',
+                        'locations'  :   locos
+                    }); 
+                });
+            }
+        });
+    }); 
+};
+
+exports.deleteEvent = function(res, req){
+    var eventId = Helper.sanitizeNumber(req.body.eventId);
+    Event.findOne({'id':eventId},function(err, event){
+        if(err){console.error(err); return;}
+
+        event.remove(function(err){
+            if(err){
+            console.log('could not delete event.');
+            res.send({
+                'success'   :   false,
+                'msg'       :   'could not delete event',
+                'errors'    :   err.message});
+            }else{
+                Event.find(function(err, events){
+                    if(err){console.log(err); return;}
+
+                    res.send({
+                        'success':   true,
+                        'msg'    :   'Event has been removed.',
+                        'events' :   events
+                    }); 
+                });
+            }
+        });
+    }); 
+};
+
+exports.deleteCharacter = function(res, req){
+    var charId = Helper.sanitizeNumber(req.body.charId);
+    Character.findOne({'id':charId},function(err, character){
+        if(err){console.error(err); return;}
+
+        character.remove(function(err){
+            if(err){
+            console.log('could not delete character.');
+            res.send({
+                'success'   :   false,
+                'msg'       :   'could not delete character',
+                'errors'    :   err.message});
+            }else{
+                Character.find(function(err, characters){
+                    if(err){console.log(err); return;}
+
+                    res.send({
+                        'success':   true,
+                        'msg'    :   'Character has been removed.',
+                        'characters' :   characters
+                    }); 
+                });
+            }
+        });
+    }); 
 };
