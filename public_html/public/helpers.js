@@ -131,8 +131,6 @@ function getChoicesOnly(eventsArray){
 // populate a select dynamically 
 function populateSelect(array, elementId, name){
     var select = $('#'+elementId+' select[name='+name+']');
-    console.log('hello from populateSelect: ');
-    console.dir(array);
     var options = '';
     for(var i=0; i<array.length; i++){
         options += '<option value="'+array[i].id+'">'+array[i].name+'</option>';

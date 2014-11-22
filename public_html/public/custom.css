@@ -102,9 +102,9 @@ thumbnails = #F7EDBF;
 
 #storyWrapper{
     bottom: 0px; 
-    position: relative;
-    max-height: 360px;
-    overflow-y: hidden;
+/*    position: relative;*/
+/*    max-height: 360px;
+    overflow-y: hidden;*/
     background-color: #Fefefe;
     border-radius: 25px;
     margin-bottom: 30px;
@@ -113,7 +113,7 @@ thumbnails = #F7EDBF;
 
 
 #storyEntries{
-    position: absolute;
+/*    position: absolute;*/
     bottom: 10px;
     padding-right: 45px;
     

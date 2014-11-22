@@ -28,33 +28,11 @@ ItemSchema.pre('remove', function(next){
     console.log('hello from item pre-remove');
     var self = this || mongoose.model('Item');
     
-    self.model('Event').find().exec(function(err, events){
+    self.model('Event').find({'items.item.id':self.id}).exec(function(err, events){
         if(err){console.log(err); next(err);}
-        console.log('hello from event-query');
-        return events;
-    })
-    .then(function(events){
-        console.log('hello from then.callback');
-        var customErr;
-        var isError = false; 
-        // loop through all events and see if any involve the item
-        events.forEach(function(event){
-            console.log('eventsloop');
-           
-           // loop through items of each event
-            for(var i=0; i<event.items.length; i++){
-                var eventId = event.items[i].item[0]._id.toString();
-                var itemId = self._id.toString();
-                if(eventId == itemId){
-                    isError = true;
-                    customErr = new Error('Cannot delete item due to depending event: \' '+event.name+'\'');
-           
-                }
-            }            
-        });      
-        
-        if(isError){
-            console.log('yes there is an error');
+       
+        if(events.length > 0){
+            var customErr = new Error('Cannot delete item due to depending event: \' '+events[0].name+'\'');
             next(customErr);
         }else{
             next();

@@ -269,13 +269,23 @@ function runEvent(storyteller, player, event){
     player.save(function(err){
         if(err){console.log(err); return;}
         console.log('player in event has been saved');
+        console.dir(player);
         
-    });// end of player-save
-            
-    storyteller.write(event.text);
+    });// end of player-
+    //
+    
+            console.log('hello from event.text');
+    if(event.text.length >0){
+        storyteller.write(event.text);
+        console.log('there is some text');
+    }
+    
+    console.dir(event);
+    
     // check if there are any attributes involved in event
     // check also if there are coins to lose and item-gain = buying-situation involved in event 
     if(event.attributes.length > 0){
+        console.log('there are attributes');
         for(var i=0; i<event.attributes.length; i++){
             var evAttr = event.attributes[i]; 
             if(evAttr.action == 'loose'){
@@ -324,7 +334,7 @@ function runEvent(storyteller, player, event){
 
                                 }    
                             }                                            
-                }
+                        }
                     }
                 }
                 
@@ -381,7 +391,7 @@ function runEvent(storyteller, player, event){
             }
         }
     }
-    
+    console.log('check items');
     
     // check if there are any items involved in event
     if(event.items.length > 0){
@@ -435,7 +445,7 @@ function runEvent(storyteller, player, event){
         }
     }    
     
-    
+    console.log('hello');
     // check branchtype
     var branchType = event.branchType;
     var current = event._id;

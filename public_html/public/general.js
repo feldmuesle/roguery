@@ -160,8 +160,6 @@ function displayPlayerStats(character){
 };
 
 function updateInventory(item, action){
-  
-    var inventory = $('#profileInventory');
     
     if(action == 'gain'){
         var el = '<dd id="inventory'+item.id+'">'+item.name+'</dd>';

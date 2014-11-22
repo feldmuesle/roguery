@@ -159,10 +159,13 @@ PlayerSchema.statics.createNew = function (character, userId, cb){
                 return weapon;
             })
             .then(function(weapon){
+                
+                
                 character.guild = guild._id;
                 character.weapon = weapon._id;
                 character.inventory = items;
-                player.character = character;
+                var newChar = new Character(character);
+                player.character = newChar;
                 player.user = mongoose.Types.ObjectId(userId);
                 player.save(function(err,player){
                     if(err){console.log(err); return;}

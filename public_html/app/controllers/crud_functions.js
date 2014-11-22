@@ -154,7 +154,8 @@ var createEvent = function(reqBody, id, cb){
 
                     //finally check if a flag is set
                     if(setFlag != 'false'){
-                        event.setFlag=true;                        
+                        event.setFlag=true;
+                        //TODO: create flag!
                     }else{
                         event.setFlag = false;                        
                     }
@@ -179,7 +180,7 @@ exports.createEvent = function(res, req){
             
             // if event has a flag, create new flag and save it in DB
             if(event.setFlag){
-                Flag.createFlag(res.setFlag, function(flag){
+                Flag.createFlag(req.body.setFlag, function(flag){
                     event.setFlag=true;
                     event.flag = flag._id;
                     console.log('flag-callback - event.flag set'+event.setFlag+' '+event.flag);

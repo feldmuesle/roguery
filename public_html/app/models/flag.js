@@ -46,6 +46,7 @@ FlagSchema.pre('remove', function(next){
 
 // create Flag with auto-increment-id
 FlagSchema.statics.createFlag = function(flagText, cb){
+    console.log('hello from create flag '+flagText);
     var self = this || mongoose.model('Flag');
     return self.find(function(err, flags){
         if(err){console.log(err); return;}

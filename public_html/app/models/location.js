@@ -10,7 +10,7 @@ var valEmpty = [Helper.valEmpty, 'The field \'{PATH}:\' must just not be empty.'
 var LocationSchema = Schema({
     id      :   {type: Number, unique:true},
     name    :   {type:String, trim:true, lowercase:true, validate:valEmpty},
-    text    :   {type:String, trim:true, lowercase:true, validate:valEmpty},
+    text    :   {type:String, trim:true, validate:valEmpty},
     event   :   {type: Schema.Types.ObjectId, ref:'Event', index:true},
     start   :   {type:Boolean, default:false}
 });

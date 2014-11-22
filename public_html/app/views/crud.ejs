@@ -1,14 +1,22 @@
 <% include ./partials/header.ejs %>
     <div class="tabbable col-xs-12 col-lg-6 col-lg-offset-3">
         <ul class="nav nav-tabs nav-pills" id="myTab">
-            <li class="dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown">Events <span class="caret"></span></a>
+            <li class=" active dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown">Events <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
                     <%for(var i=0; i<locations.length; i++){%>
-                        <li class=""><a id="eLoco<%=locations[i].id%>" class="eLoco" href="#tab1" data-toggle="tab"><%=locations[i].name%></a></li>
+                        <%if(i == 0){%>
+                        <li class="active">
+                            <a id="eLoco<%=locations[i].id%>" class="eLoco" href="#tab1" data-toggle="tab"><%=locations[i].name%></a>
+                        </li>
+                        <%}else{%>
+                        <li class="">
+                            <a id="eLoco<%=locations[i].id%>" class="eLoco" href="#tab1" data-toggle="tab"><%=locations[i].name%></a>
+                        </li>
+                        <%}%>
                     <%}%>
                 </ul>
             </li>
-            <li class="active"><a href="#tab2" data-toggle="tab">Locations</a></li>
+            <li class=""><a href="#tab2" data-toggle="tab">Locations</a></li>
             <li class=""><a href="#tab3" data-toggle="tab">Characters</a></li>
             <li class=""><a href="#tab4" data-toggle="tab">Weapons</a></li>
             <li class=""><a href="#tab5" data-toggle="tab">Items</a></li>
@@ -18,7 +26,7 @@
         <br><!-- nav-pills end -->
         <div class="tab-content">
             <!--Event-tab start-->
-            <div class="tab-pane" id="tab1">
+            <div class="tab-pane active" id="tab1">
                 <div id="eventSuccess" class="alert alert-success"></div>
                 <div id="eventError" class="alert alert-danger"></div>
                 <h3>Events<button id="addEvent" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>
@@ -34,7 +42,7 @@
             </div><!-- Event-tab end -->
             
             <!--Location-tab start-->
-            <div class="tab-pane active" id="tab2">
+            <div class="tab-pane" id="tab2">
                 <div id="locationSuccess" class="alert alert-success"></div>
                 <div id="locationError" class="alert alert-danger"></div>
                 <h3>Locations<button id="addLocation" class="margin btn btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span> new</button></h3>

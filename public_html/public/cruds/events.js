@@ -36,9 +36,10 @@ var randCount = 1;
 function resetEventForm(){
     //make sure the form is cleaned up
         $('#createEvent').trigger('reset');
+        $('#createEvent textarea[name=text]').html('');
         $('#createEvent input[name=form]').val('createEvent');
         $('#btnCreateEvent').text('create');
-        $('#createEvent input[name=branchType]').removeProp('checked');
+//        $('#createEvent input[name=branchType]').removeProp('checked');
         
         // hide all fold-outs
         $('#isChoiceFold').hide();
@@ -219,7 +220,7 @@ function foldOutRadio(radio){
                     $('#continSelectFold').hide();
                     $('#continRandFold').show();
                     var locoEvents = getEventsByLoco(events, eLoco);
-                    populateSelect(locoEvents, 'createEvent', 'continueTo');
+                    populateSelect(locoEvents, 'createEvent', 'random0');
                     break;
 
                 case'choiceRand':
@@ -706,11 +707,13 @@ function removeAddOns(count, buttonId){
         $('#createEvent input:checkbox').removeAttr('checked');
         
         resetEventForm();  
-        $('#createEvent input:radio').removeProp('checked');
+        
+//        $('#createEvent input:radio').removeProp('checked');
         
         // get id from button-element and item-object from items-array
         var eventId = this.id.substr(5,this.id.length); // event = 5 chars
         var event = getRecordById(events, eventId);
+        eLoco = event.location.id;
         console.log('eventId to update: '+event);
  
         // populate item in modal form
@@ -769,11 +772,11 @@ function removeAddOns(count, buttonId){
                 if(i != 0){
                     $('.add-item').click();
                     $('#createEvent input[name=itemAction'+i+']:radio[value='+event.items[i].action+']').attr('checked',true);
-                    $('#createEvent select[name=item'+i+']').val(event.items[i].item).attr('selected','selected');                    
+                    $('#createEvent select[name=item'+i+']').val(event.items[i].item[0].id).attr('selected','selected');                    
                 }else{
                     $('#itemFold').show();
                     $('#createEvent input[name=itemAction0]:radio[value='+event.items[i].action+']').attr('checked',true);
-                    $('#createEvent select[name=item0]').val(event.items[0].item).attr('selected','selected');
+                    $('#createEvent select[name=item0]').val(event.items[0].item[0].id).attr('selected','selected');
                 }
             }
         }
@@ -796,19 +799,18 @@ function removeAddOns(count, buttonId){
             }
         }
         
-        //get the right branch-type and display branch
-//        var previous =  $('#createEvent input[name=branchType]:checked').val();
-//        console.log('previous: '+previous);
-//        $('#createEvent input[name=branchType]:radio[value='+previous+']').prop('checked',false);
+        //get the right branch-type and display branch  
+        var currBranch = $('#createEvent input[name=branchType]:checked').val();
+        if(currBranch != event.branchType){
+            $('#createEvent input[name=branchType]:checked').attr('checked',false).trigger('change');
+            $('#createEvent input[name=branchType]:radio[value='+event.branchType+']')
+                    .attr('checked',true).trigger("change");
+        }
         
-        $('#createEvent input[name=branchType]:checked').attr('checked',false);
-        $('#createEvent input[name=branchType]:radio[value='+event.branchType+']').attr('checked',true);
-        $('#createEvent input[name=branchType]:radio').trigger("change");
-        
+        var locoEvents = getEventsByLoco(events, eLoco);
         switch(event.branchType){
             case'dice':
                 console.log('a dice has been rolled.');
-                
                 $('#createEvent select[name=diceAttr]').val(event.dice.attribute).attr('selected', 'selected');
                 $('#createEvent input[name=difficulty]').val(event.dice.difficulty);
                 $('#createEvent input[name=success]:radio[value='+event.dice.success.type+']').attr('checked',true);
@@ -816,18 +818,19 @@ function removeAddOns(count, buttonId){
                 
                 console.log(event);
                 
+                
                 if(event.dice.success.type == 'succLoco'){
                     populateSelect(locations, 'createEvent', 'succTrigger');
                     $('#createEvent select[name=succTrigger]').val(event.dice.success.location.id).attr('selected', 'selected');
                 }else{
-                    populateSelect(events, 'createEvent', 'succTrigger');
+                    populateSelect(locoEvents, 'createEvent', 'succTrigger');
                     $('#createEvent select[name=succTrigger]').val(event.dice.success.event.id).attr('selected', 'selected');
                 }
                 if(event.dice.failure.type == 'failLoco'){
                     populateSelect(locations, 'createEvent', 'failTrigger');
                     $('#createEvent select[name=failTrigger]').val(event.dice.failure.location.id).attr('selected', 'selected');
                 }else{
-                    populateSelect(events, 'createEvent', 'failTrigger');
+                    populateSelect(locoEvents, 'createEvent', 'failTrigger');
                     $('#createEvent select[name=failTrigger]').val(event.dice.failure.event.id).attr('selected', 'selected');
                 }
                 $('#diceFold').show();
@@ -858,12 +861,13 @@ function removeAddOns(count, buttonId){
                 $('#createEvent input[name=continue]:radio[value='+event.continueTo.type+']').attr('checked',true);
                                   
                 if(event.continueTo.type == 'continueLoco'){
+                    populateSelect(locations,'createEvent','continueTo');
                     $('#createEvent select[name=continueTo]').val(event.continueTo.location.id).attr('selected','selected');
                     $('#continSelectFold').show();
                             
                 }else if(event.continueTo.type == 'continueEvent'){
                     
-                    populateSelect(events,'createEvent','continueTo');
+                    populateSelect(locoEvents,'createEvent','continueTo');
                     $('#createEvent select[name=continueTo]').val(event.continueTo.event.id).attr('selected','selected');
                     $('#continSelectFold').show();
                 }else {
@@ -872,11 +876,14 @@ function removeAddOns(count, buttonId){
                        
                         for(var i=0; i < event.continueTo.random.length; i++){
                             if(i != 0){
+                                populateSelect(locoEvents,'createEvent','random'+i);
                                 $('.add-random').click();
                                 $('#createEvent select[name=random'+i+']').val(event.continueTo.random[i].id).attr('selected','selected');                    
 
                             }else{
+                                
                                 $('#continRandFold').show();
+                                populateSelect(locoEvents,'createEvent','random0');
                                 $('#createEvent select[name=random0]').val(event.continueTo.random[0].id).attr('selected','selected');
 
                             }

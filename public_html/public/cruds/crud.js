@@ -29,6 +29,10 @@ $(document).ready(function(){
 //    $('#charactersError').hide();
     $('#guildError').hide();
     $('#characterError').hide();
+    // show automatically dropdown with first event-location
+    var locoEvents = getEventsByLoco(events,locations[0].id);
+    updateCrudList( locoEvents, 'eventList', 'event', 'updateEvent',
+                    'eventBtnDel', 'deleteEvent');
     
     /******** SHOW MODAL FORMS ********/
     
