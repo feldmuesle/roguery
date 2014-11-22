@@ -14,6 +14,12 @@ var storyTeller = function Storyteller (socket){
         self.socket.emit('output', {'text':text});
     };
     
+    self.writeWithClass = function(className, text){
+        console.log(text);
+        console.log('storyteller write with class');
+        self.socket.emit('output', {'text':text, 'class':className});
+    };
+    
     self.updateAttr = function(character, attribute, amount, action){
         console.log(action +' '+amount+' '+attribute);  
         console.log('hello from storyteller: updating attributes');

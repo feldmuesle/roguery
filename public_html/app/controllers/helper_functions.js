@@ -71,6 +71,17 @@ exports.findMatchInArrays = function(array1, array2){
     return false;
 };
 
+//check if array contains object
+exports.checkArrayForObject = function(array){
+    for(var i = 0; i < array.length; i++) {
+        if (array[i].id > 0) {
+            console.log('array.id= '+array[i].id);
+            return true;
+        }
+    }
+    return false;
+};
+
 // autoincrement id by one
 exports.autoIncrementId = function(mongooseArray){
     var ids=[];

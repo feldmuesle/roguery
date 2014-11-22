@@ -5,8 +5,9 @@ this file contains all functions for displaying in the DOM
 $(function(){
     $('#game').hide();
     $('#save').hide();
-    $('#chatWrapper').hide();
-    $('#profile').hide();
+    $('#newGame').hide();
+    $('#storyWrapper').hide();
+    $('#profileBox').hide();
     $('#gameSignup').hide();
     $('#alert').hide();
     $('#alertSum').hide();
@@ -15,7 +16,7 @@ $(function(){
     $('#viewGallery').hide();
     $('#playSaved').hide();
     $('#gameDel').hide();
-    $('#startGame').click(function(){displayRandCharacter();});
+    $('#pickRand').click(function(){displayRandCharacter();});
     
 });
 
@@ -24,9 +25,10 @@ function gameInit(){
     setAutoHeight();
     $('#game').show();
     $('#save').show();
-    $('#profile').show();
-    $('#chatWrapper').show();
-    $('.thumbnail').show();
+    $('#newGame').show();
+    $('#profileBox').show();
+    $('#storyWrapper').show();
+    $('#storyEntries').html(''); // empty story-display
     $('#gallery').hide();
 }
 
@@ -57,58 +59,71 @@ function createGallery(charArray, type){
     $('#thumbGallery').html(html);
 }
 
-$('#viewGallery').click(function(){
-   createGallery(characters,'gallery');
+function showGallery(){
+    createGallery(characters,'gallery');
    $('#heading').find('h2').html('<span class="fa fa-sign-in"></span> choose a character');
    $('#viewGallery').hide();
    if(savedGames.length > 0){
        $('#viewSaved').show();
    }
-   
+}
+
+$('#viewGallery').click(function(){
+    showGallery();
 });
+
+
 
 function getStatsList(character){
     var stats =[];
+    
+    var coins =0;
+    if(character.attributes.coins != 20){
+        coins = character.attributes.coins;
+    }else{
+        coins = COINS;
+    }
+    
                
-        var name = '<dt>Name </dt><dd id="name">'+character.name+'</dd>';
-        var guild = '<dt><span class="glyphicon glyphicon-flag"></span> Guild: </dt><dd>'+character.guild.name+'</dd>';
-        var stamina = '<dt><span class="glyphicon glyphicon-heart"></span> Stamina </dt>'+
-            '<dd id="stamina">'+character.attributes.stamina+'<span id="maxStam">/'+character.attributes.maxStam+'</span>'+
-            '<span class="statDesc" id="staminaDesc"> '+getAttributDesc('stamina',character.attributes.stamina)+'</span></dd>';
-        var charisma='<dt><span class="glyphicon glyphicon-fire"></span> Charisma </dt>'+
-            '<dd id="charisma">'+character.attributes.charisma+
-            '<span class="statDesc" id="charismaDesc"> '+getAttributDesc('charisma',character.attributes.charisma)+'</span></dd>';
-        var duelling = '<dt><span class="glyphicon glyphicon-flash"></span> Duelling </dt>'+
-            '<dd id="duelling">'+character.attributes.duelling+
-            '<span class="statDesc" id="duellingDesc"> '+getAttributDesc('duelling',character.attributes.duelling)+'</span></dd>';
-        var scouting = '<dt><span class="glyphicon glyphicon-move"></span> Scouting </dt>'+
-            '<dd id="scouting">'+character.attributes.scouting+
-            '<span class="statDesc" id="scoutingDesc"> '+getAttributDesc('scouting',character.attributes.scouting)+'</span></dd>';
-        var heroism = '<dt><span class="glyphicon glyphicon-move"></span> Heroism </dt>'+
-            '<dd id="heroism">'+character.attributes.heroism+
-            '<span class="statDesc" id="heroismDesc"> '+getAttributDesc('heroism',character.attributes.heroism)+'</span></dd>';
-        var roguery = '<dt><span class="glyphicon glyphicon-fire"></span> Roguery </dt>'+
-            '<dd id="roguery">'+character.attributes.roguery+
-            '<span class="statDesc" id="rogueryDesc"> '+getAttributDesc('roguery',character.attributes.roguery)+'</span></dd>';
-        var magic = '<dt><span class="glyphicon glyphicon-flash"></span> Magic </dt>'+
-            '<dd id="magic">'+character.attributes.magic+
-            '<span class="statDesc" id="magicDesc"> '+getAttributDesc('magic',character.attributes.magic)+'</span></dd>';
-        var healing = '<dt><span class="glyphicon glyphicon-move"></span> Healing </dt>'+
-            '<dd id="healing">'+character.attributes.healing+
-            '<span class="statDesc" id="healingDesc"> '+getAttributDesc('healing',character.attributes.healing)+'</span></dd>';
-        var luck = '<dt><span class="glyphicon glyphicon-fire"></span> Luck </dt>'+
-            '<dd id="luck">'+character.attributes.luck+
-            '<span class="statDesc" id="luckDesc"> '+getAttributDesc('luck',character.attributes.luck)+'</span></dd>';
-        var streetwise = '<dt><span class="glyphicon glyphicon-fire"></span> Streetwise </dt>'+
-            '<dd id="streetwise"> '+character.attributes.streetwise+
-            '<span class="statDesc" id="streetwiseDesc"> '+getAttributDesc('streetwise',character.attributes.streetwise)+'</span></dd>';
-        var coins = '<dt><span class="glyphicon glyphicon-flash"></span> Coins </dt>'+
-            '<dd id="coins">20</dd>';
+    var name = '<dt>Name </dt><dd id="name">'+character.name+'</dd>';
+    var guild = '<dt><span class="glyphicon glyphicon-flag"></span> Guild: </dt><dd>'+character.guild.name+'</dd>';
+    var stamina = '<dt><span class="glyphicon glyphicon-heart"></span> Stamina </dt>'+
+        '<dd id="stamina">'+character.attributes.stamina+'<span id="maxStam">/'+character.attributes.maxStam+'</span>'+
+        '<span class="statDesc" id="staminaDesc"> '+getAttributDesc('stamina',character.attributes.stamina)+'</span></dd>';
+    var charisma='<dt><span class="glyphicon glyphicon-fire"></span> Charisma </dt>'+
+        '<dd id="charisma">'+character.attributes.charisma+
+        '<span class="statDesc" id="charismaDesc"> '+getAttributDesc('charisma',character.attributes.charisma)+'</span></dd>';
+    var duelling = '<dt><span class="glyphicon glyphicon-flash"></span> Duelling </dt>'+
+        '<dd id="duelling">'+character.attributes.duelling+
+        '<span class="statDesc" id="duellingDesc"> '+getAttributDesc('duelling',character.attributes.duelling)+'</span></dd>';
+    var scouting = '<dt><span class="glyphicon glyphicon-move"></span> Scouting </dt>'+
+        '<dd id="scouting">'+character.attributes.scouting+
+        '<span class="statDesc" id="scoutingDesc"> '+getAttributDesc('scouting',character.attributes.scouting)+'</span></dd>';
+    var heroism = '<dt><span class="glyphicon glyphicon-move"></span> Heroism </dt>'+
+        '<dd id="heroism">'+character.attributes.heroism+
+        '<span class="statDesc" id="heroismDesc"> '+getAttributDesc('heroism',character.attributes.heroism)+'</span></dd>';
+    var roguery = '<dt><span class="glyphicon glyphicon-fire"></span> Roguery </dt>'+
+        '<dd id="roguery">'+character.attributes.roguery+
+        '<span class="statDesc" id="rogueryDesc"> '+getAttributDesc('roguery',character.attributes.roguery)+'</span></dd>';
+    var magic = '<dt><span class="glyphicon glyphicon-flash"></span> Magic </dt>'+
+        '<dd id="magic">'+character.attributes.magic+
+        '<span class="statDesc" id="magicDesc"> '+getAttributDesc('magic',character.attributes.magic)+'</span></dd>';
+    var healing = '<dt><span class="glyphicon glyphicon-move"></span> Healing </dt>'+
+        '<dd id="healing">'+character.attributes.healing+
+        '<span class="statDesc" id="healingDesc"> '+getAttributDesc('healing',character.attributes.healing)+'</span></dd>';
+    var luck = '<dt><span class="glyphicon glyphicon-fire"></span> Luck </dt>'+
+        '<dd id="luck">'+character.attributes.luck+
+        '<span class="statDesc" id="luckDesc"> '+getAttributDesc('luck',character.attributes.luck)+'</span></dd>';
+    var streetwise = '<dt><span class="glyphicon glyphicon-fire"></span> Streetwise </dt>'+
+        '<dd id="streetwise"> '+character.attributes.streetwise+
+        '<span class="statDesc" id="streetwiseDesc"> '+getAttributDesc('streetwise',character.attributes.streetwise)+'</span></dd>';
+    var coins = '<dt><span class="glyphicon glyphicon-flash"></span> Coins </dt>'+
+        '<dd id="coins">'+coins+'</dd>';
 
-        stats.push(name, guild, stamina, charisma, duelling, scouting, heroism,
-                    roguery, magic, healing, luck, streetwise, coins);
-                    
-        return stats;
+    stats.push(name, guild, stamina, charisma, duelling, scouting, heroism,
+                roguery, magic, healing, luck, streetwise, coins);
+
+    return stats;
 }
 
 // display character with attributes
@@ -161,8 +176,9 @@ function updatePlayerStats(attribute, newValue){
     console.log('hello from updatePlayerStats');
     
     if(attribute == 'stamina'){
-        console.log('update stamina');
         // if its stamina, also display maxStam-span
+        var desc = getAttributDesc(attribute, newValue);
+        var descSpan = '<span class="statDesc"> '+desc+'</span>';
         var maxStam = '<span id="maxStam">/'+character.attributes.maxStam+'</span>';
         $('#profile').find('#'+attribute).html(newValue+maxStam+descSpan);
         return;
@@ -184,12 +200,12 @@ function updatePlayerStats(attribute, newValue){
 
 // append li to text-window
 function appendToChat(cssClass, text){
-    $('<li class="'+cssClass+'">'+text+'</li>').hide().appendTo('#chatEntries').slideDown('fast');
+    $('<li class="'+cssClass+'">'+text+'</li>').hide().appendTo('#storyEntries').slideDown('fast');
 }
 
 //clear text-window
 function clearText(){
-    $('#chatEntries').html('');
+    $('#storyEntries').html('');
 }
 
 /******* character generator ****************/
@@ -200,6 +216,12 @@ function displayRandCharacter(){
     var opts = createRandOpts();
     character = createRandCharacter(opts);
     setCharacter(character);
+    // show/hide right buttons on form
+    $('#gameDel').hide();
+    $('#playSaved').hide();
+    $('#character').show();
+    $('#customize').show();
+    $('#play').show();
     $('#displayCharacter').modal('show');
 }
 
@@ -349,6 +371,8 @@ function setCharacter(character){
         $('#displayBody').height(300+(10*count));  
     }
     
+    
+    
     //set image according to guild
     $('#avatar').find('img').attr('src','./images/'+character.guild.image);
 }
@@ -492,6 +516,6 @@ function setAutoHeight(){
     $('#sidebar').height(windowH);
     var sidebarH = $('#sidebar').height();
     console.log('window height is '+windowH);
-    $('#chatWrapper').height(windowH -80);
+    $('#storyWrapper').height(windowH -80);
 }
 

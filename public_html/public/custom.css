@@ -50,9 +50,9 @@ thumbnails = #F7EDBF;
 
 /**************** buttons *****************/
 
-#loadGame, #newGame{
+/*#loadGame, #newGame{
     width: 180px;
-}
+}*/
 .btn-info {
     background-color:#58351A; 
 }
@@ -100,7 +100,7 @@ thumbnails = #F7EDBF;
     font-weight: bold;
 }
 
-#chatWrapper{
+#storyWrapper{
     bottom: 0px; 
     position: relative;
     max-height: 360px;
@@ -112,14 +112,14 @@ thumbnails = #F7EDBF;
 }
 
 
-#chatEntries{
+#storyEntries{
     position: absolute;
     bottom: 10px;
     padding-right: 45px;
     
 }
 
-#chatEntries li.help {
+#storyEntries li.help {
     font-weight: bold;
     
 }

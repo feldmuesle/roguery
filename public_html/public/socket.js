@@ -102,6 +102,13 @@ $(document).ready(function(){
         socket.emit('viewSaved', {'user':user});
     });
     
+    $('#newGame').click(function(){
+    console.log('you want to play a new game');
+    // TODO: emit to socket and delete backup and replayed and set saved to true;
+    socket.emit('newGame', {'user':user});
+    
+});
+    
     //click a choice
     $(document).on('click','.choice', function(){
         console.log('you clicked a choice');
@@ -133,6 +140,7 @@ $(document).ready(function(){
         console.log(attrDesc);
     });
     
+    // start a new game with approved character
     socket.on('startGame', function(data){
         console.log('start game with player');
         character = data['character'];
@@ -140,6 +148,16 @@ $(document).ready(function(){
         console.dir(character);
         gameInit();
         displayPlayerStats(character);
+        if(character.attributes.coins != 20){
+            updatePlayerStats('coins', character.attributes.coins);
+        }
+    });
+    
+    socket.on('newGame', function(data){
+        $('#storyWrapper').hide();
+        $('#profileBox').hide();    
+        $('#gallery').show();
+        showGallery();
     });
     
     //notify user that game has been saved
@@ -147,11 +165,16 @@ $(document).ready(function(){
        console.log(data['msg']); 
     });
     
+    
     socket.on('output', function(data){
-        
-        var type = data['type'];
+        var className;
+        if(data['class'] ){
+            className = data['class'];
+        }else{
+            className = 'story';
+        }
         var text = data['text'];
-        appendToChat('story', capitaliseFirstLetter(text));
+        appendToChat(className, capitaliseFirstLetter(text));
     });
     
     socket.on('updateAttr', function(data){

@@ -258,14 +258,20 @@ function runEvent(storyteller, player, event){
 //    console.dir(event);
     player.event = event._id;
     
+    // set flag if event has one set
+    if(event.setFlag){
+        console.log('a flag is set!');
+        // player.addFlag() loops through player's flags and check if he already has it
+        player = player.addFlag(event.flag);      
+    }
+    
     //save player for every event -save in processOutcome instead!!
     player.save(function(err){
         if(err){console.log(err); return;}
-        console.log('player has been saved');
-        console.log(player.event);
+        console.log('player in event has been saved');
         
     });// end of player-save
-    
+            
     storyteller.write(event.text);
     // check if there are any attributes involved in event
     // check also if there are coins to lose and item-gain = buying-situation involved in event 
@@ -276,36 +282,50 @@ function runEvent(storyteller, player, event){
                 var gain = false;
                 // check if there are coins and if an item is to gain as well
                 // then it must be a buying-situation
-                // check if player has enough money, else remove item-gain
+                // check if player has enough money, else remove item-gain  
+                
                 if(evAttr.attribute == 'coins' && event.items.length > 0){
                     
                     var playerCoins = player.character[0].attributes['coins'];
                     console.log('player has '+playerCoins+' available.');
-                    // if player can't afford it
-                    if(playerCoins < evAttr.amount){
-                        // find item to gain and remove it
-                        for(var i=0; i< event.items.length; i++){
-                            if(event.items[i].action == 'gain'){
-                                gain = true;
-                                var msg = 'You don\'t have enough coins to buy '
-                                        +event.items[i].item[0].name;
+                    
+                    // loop through all items the event has
+                    for(var i=0; i< event.items.length; i++){ 
+                    
+                        if(event.items[i].action == 'gain'){
+                            // check if player got item in inventory
+                            var itemId = event.items[i].item[0].id;
+                            var index = Helper.getIndexByKeyValue(player.character[0].inventory,'id',itemId);
+
+                            if(index != null){
+                                var msg = 'Luckily you have already '
+                                            +event.items[i].item[0].name;
+                                msg += ' and don\'t need to buy one.';
                                 storyteller.write(msg);
                                 event.items.splice(i,1);
-                            }
-                        }
-                    }else{
-                        for(var i=0; i< event.items.length; i++){
-                            if(event.items[i].action == 'gain'){
+                            } else{
                                 gain = true;
-                                console.log('player can afford it!');
-                                player = player.looseAttr('coins', evAttr.amount);
-                                var character = player.character[0];
-                                var msg = 'You buy '+event.items[i].item[0].name;
-                                storyteller.write(msg);
-                                storyteller.updateAttr(character, evAttr.attribute, evAttr.amount, 'loose');
-                            }
-                        }
-                    }                                       
+
+                                // if player can't afford it
+                                if(playerCoins < evAttr.amount){  
+                                    var msg = 'You don\'t have enough coins to buy '
+                                            +event.items[i].item[0].name;
+                                    storyteller.write(msg);
+                                    event.items.splice(i,1);
+
+                                }else{
+                                    console.log('player can afford it!');
+
+                                    player = player.looseAttr('coins', evAttr.amount);
+                                    var character = player.character[0];
+                                    var msg = 'You buy '+event.items[i].item[0].name;
+                                    storyteller.write(msg);
+                                    storyteller.updateAttr(character, evAttr.attribute, evAttr.amount, 'loose');
+
+                                }    
+                            }                                            
+                }
+                    }
                 }
                 
                 if(!gain){
@@ -361,18 +381,38 @@ function runEvent(storyteller, player, event){
             }
         }
     }
+    
+    
     // check if there are any items involved in event
     if(event.items.length > 0){
         console.log('there are items involved in this event');
        
         for(var i=0; i<event.items.length; i++){
             var evItems = event.items[i];
-            var index = player.character[0].inventory.indexOf(evItems.item[0]._id);
+            var id = evItems.item[0].id;
+            var index = -1;
             console.dir(evItems);
-            console.log(index);
+            console.dir(player.character[0].inventory);
+            
+            if(player.character[0].inventory.length > 0){
+                var isPopulated = Helper.checkArrayForObject(player.character[0].inventory);
+                
+                if(isPopulated){
+                    console.log('players inventory is populated');
+                    index = Helper.getIndexByKeyValue(player.character[0].inventory,'id',id);
+
+                }else{
+                    id= evItems.item[0]._id;
+                    console.log('players inventory is not populated');
+                    index = player.character[0].inventory.indexOf(id);
+                }
+            }
+            
+            console.log('index: '+index);
+            
             if(evItems.action == 'loose'){
                 
-                if(index > -1){
+                if(index != null && index >= 0){
                     player.character[0].inventory.splice(index,1);
                     console.log('player looses '+evItems.item[0].name);
                     var character = player.character[0];
@@ -382,7 +422,7 @@ function runEvent(storyteller, player, event){
             }else if(evItems.action == 'gain'){
                 
                 //check if player already has item in inventory
-                if(index > -1){
+                if(index != null && index >= 0){
                     storyteller.write('You leave the '+evItems.item[0].name+' because you don\'t need more than one.');
                 }else{
                     console.log('player gains item');
@@ -390,13 +430,136 @@ function runEvent(storyteller, player, event){
                     console.log('player gains '+evItems.item[0].name);
                     var character = player.character[0];
                     storyteller.updateInventory(character, evItems.item[0], evItems.action);
-                }
-                
-            }
-            
+                }                
+            }            
         }
     }    
     
+    
+    // check branchtype
+    var branchType = event.branchType;
+    var current = event._id;
+    var next = {};    
+    var continueTo = {};
+    var continType = '';
+    next.current = current;   
+    
+    console.log('branchType: '+branchType);
+
+    switch(branchType){
+        case 'dice':
+            // roll the dices and get players attribute vs dice outcome
+            var result = rollDices(event.dice, storyteller, player);
+            continType = result['continType'];
+            continueTo = result['continueTo']; // == event/location from dice-roll
+            player = result['player'];           
+            break;
+        
+        case'choices':
+            continType = 'choices';
+            next.choices = event.choices;
+            break;
+            
+        case'continue':
+            console.log('continue');
+            if(event.continueTo.type == 'continueLoco'){
+                console.log('continue to a location;');
+                continType = 'location';
+                continueTo = event.continueTo.location;
+                
+            }else if(event.continueTo.type == 'continueEvent'){
+                console.log('continue to a event;');
+                continType = 'event';
+                continueTo = event.continueTo.event;
+                
+            }else{
+                // pick a random location 
+                console.log('hello from game-machine, random continue');
+                var nextStep = getRandomEvent(event, player);
+                continType = 'event';
+                continueTo = nextStep['pick'];
+                player = nextStep['player'];
+                console.log('random event has been picked');                
+            }
+            break;
+            
+        case'end':
+            
+            if(player == 'dead'){
+                continType = 'dead';
+            }
+            break;
+            
+    } 
+    next.continType =  continType;
+    next.continueTo = continueTo;
+    next.player = player;    
+    
+    return next;
+}
+
+//run event without action taken(gain/lose), used for replaying saved event, just rewrite story
+function runPassiveEvent(storyteller, player, event){
+            
+    storyteller.write(event.text);   
+    
+    // check if there are any attributes involved in event
+    // check also if there are coins to lose and item-gain = buying-situation involved in event 
+    if(event.attributes.length > 0){
+        for(var i=0; i<event.attributes.length; i++){
+            var evAttr = event.attributes[i]; 
+            if(evAttr.action == 'loose'){
+                var gain = false;
+                // check if there are coins and if an item is to gain as well
+                // then it must be a buying-situation
+                if(evAttr.attribute == 'coins' && event.items.length > 0){
+                    
+                    for(var i=0; i< event.items.length; i++){
+                        if(event.items[i].action == 'gain'){
+                            gain = true;
+                            var msg = '';
+                            // check if player got item in inventory
+                            var itemId = event.items[i].item[0].id;
+                            var index = Helper.getIndexByKeyValue(player.character[0].inventory,'id',itemId);
+                            
+                            if(index != null){
+                                var msg = 'Luckily you have already '
+                                            +event.items[i].item[0].name;
+                                msg += ' and don\'t need to buy one.';
+                            }else {
+                                // if player didn't buy it last time, it's because he could not afford it
+                                msg = 'You still don\'t have enough money to buy '
+                                            +event.items[i].item[0].name;
+                            }
+                                    
+                            storyteller.write(msg);
+                            event.items.splice(i,1);
+                        }
+                        
+                    }                                       
+                }
+                
+                if(!gain){
+
+                    // check if player is dead by loosing to much stamina
+                    if(player.character[0].attributes.stamina == 0){
+                        // end the game
+                        event.branchType = 'end'; 
+                    }
+                    console.log('player looses '+evAttr.amount+' of '+evAttr.attribute);
+                    var msg = evAttr.attribute+' -'+evAttr.amount;
+                    storyteller.writeWithClass('info',msg);
+                }
+                
+                                                
+            }else{                
+                var msg = evAttr.attribute+' +'+evAttr.amount;
+                console.log('player gains '+evAttr.amount+' of '+evAttr.attribute);
+                storyteller.writeWithClass('info',msg);                
+                
+            }
+        }
+    } 
     
     // check branchtype
     var branchType = event.branchType;
@@ -461,6 +624,7 @@ function runEvent(storyteller, player, event){
     return next;
 }
 
+
 // process Outcome after running a event and decide what to do next
 function processOutcome( continueChain, storyteller, result, callback ) {
     
@@ -471,6 +635,8 @@ function processOutcome( continueChain, storyteller, result, callback ) {
     next.current = current;
     next.continType = continType;
     next.player = result['player'];
+    
+    
     
     if(continueChain){
         
@@ -529,32 +695,103 @@ function processOutcome( continueChain, storyteller, result, callback ) {
 
 /****** exported game-functions **************/
 // continue a saved game
-exports.continueSavedGame = function(character, cb){
+exports.getSavedGame = function(character, cb){
     
     var sanChar = Helper.sanitizeString(character._id);
     var charOpts = [{path:'character.weapon', select:'name id -_id'}, 
                 {path:'character.inventory', select:'name id -_id'}, 
                 {path:'character.guild', select:'name id image -_id'}];
             
-    Player.findOne({'character._id':sanChar}).populate(charOpts)
-           .exec(function(err, player){
-           if(err){ return console.log(err);}
-           return player;
-           
-       }) 
+    Player.findOne({'character._id':sanChar}).populate(charOpts).exec(function(err, player){
+        if(err){ return console.log(err);}
+        
+        player.gameSave = 'saved';
+        player.save(function(){
+            return player;
+        });
+        
+    }) 
     .then(function(player){
         
         var opts = Event.getPopuQuery();
         Event.findOne({'_id':player.event}).populate(opts).exec(function(err, event){
-            if(err){ return console.log(err);}
+            if(err){ return console.log(err);}            
+            return event;
+        }).then(function(event){            
+            
             var data ={
                 'player': player,
                 'event' : event
             };
             return cb(data);
-        });
-        
+            
+        });     
     });
+};
+
+// clean  up in saved players, remove backups and replayed, set saved to true
+exports.setSavings = function(user, cb){
+    var sanId = Helper.sanitizeString(user);
+    
+    //get all players of user
+    Player.remove({'user' : sanId, 'gameSave':{$in :['backup','replay','false']}}, function(err, players){
+        if(err){console.log(err); return;}
+        
+        console.log('all backups and replays removed');
+        Player.findOne({'user':sanId, 'gameSave':'saved'}, function(err, player){
+            if(err){console.log(err); return;}
+            
+            // check if there is a saved player at all
+            if(player){
+                player.gameSave = 'true';
+                player.save(function(err){
+                    if(err){console.log(err); return;}
+                    console.log('saved player set to true');
+                    return cb();
+                });
+            }else{
+                return cb();
+            }
+            
+        });
+    });
+};
+
+// continue a saved game by running first event without actions
+exports.continueSavedGame = function(storyteller, player, event, cb){
+    // run first event without any actions, since actions have already happened to player
+    var result = runPassiveEvent(storyteller, player, event);
+    
+    processOutcome(true, storyteller, result, function(endResult){
+        // the callback is first triggered when there are no more events to continue
+        // = either got choices to ask player or game has reached its end or continue to 
+        
+        console.log('hello from processOutcome-callback');
+        var next = {};
+        var continType = endResult['continType'];
+        var current = endResult['current'];
+        next.continType = continType;
+        next.current = current;
+        next.player = endResult['player'];
+        
+        //TODO: if next event starts as a new paragraph, stop chain and let player press continue in order to process
+        if(continType == 'pressContinue'){
+            console.log('a new paragraph should start');
+            next.continueEvent = endResult['continueEvent'];
+            return cb(next);
+        }        
+        else if(continType == 'choices') {
+            console.log('choices given, let player decide');        
+            next.choices = endResult['choices']; // expect array of objId
+            return cb(next);
+            //query events to get choices-text, ids
+            //stop the chain and return cb with choices
+        }else if(continType == 'location'){
+            //TODO: triggerLocation
+        }else{
+            console.log('the game has ended here');
+        }
+    });  
 };
 
 // start the game

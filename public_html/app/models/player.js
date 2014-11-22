@@ -29,21 +29,51 @@ PlayerSchema.statics.saveGame = function(user, character, event, cb){
     console.log('sanId: '+sanId);
     console.log('sanChar: '+sanChar);
     
-    self.findOne({'character._id':sanChar}, function(err, player){
+    self.findOne({'user': sanId,'character._id':sanChar, 'gameSave':{$ne : 'saved'}}, function(err, player){
         if(err){console.log(err); return;}
+        
         if(player){
-            
             console.log('the player to save has been found');
             console.dir(player);
-//            player.character[0] = character;
-            player.event = event; 
-            player.gameSave = 'true'; 
-
-            player.save(function(err){
+            // if it's a saved game already, save it
+            if(player.gameSave == 'replay'){
+    //            player.character[0] = character;
+                // find the real saved player
+                self.findOne({'gameSave':'saved'}, function(err, savedPlayer){
+                    if(err){console.log(err);}
+                    savedPlayer.event = event;
+                    savedPlayer.character = player.character;
+                    savedPlayer.gameSave = 'saved';
+                    savedPlayer.save(function(err, savedPl){  
+                        if(err){console.log(err);}
+                        console.log('re-save player.');
+                        console.dir(savedPl);
+                        return cb(err);
+//                        player.gameSave = 'false';
+//                        
+//                        player.save(function(err){
+//                           if(err){console.log(err);}
+//                           console.log('replayed character saved');
+//                           return cb(err);
+//                        });
+                    });                    
+                });                
                 
-                console.log('player has been saved for real.');
-                return cb(err);
-            });
+            }else{
+                var newPlayer = self.createNewBackup(player.character[0], user);
+                newPlayer.gameSave = 'true';
+                newPlayer.event = event;
+                newPlayer.save(function(err){
+                    if(err){console.log('there is an error');console.log(err);}
+                    console.log('new player has been saved for real.');
+                    return cb(err);
+                });
+            }
+            
+            
+
+
+            
         }
     });
 };
@@ -59,7 +89,7 @@ PlayerSchema.statics.returnObjectId = function(idString){
 
 // method used for creating a new player and character used for backup when disconnecting
 PlayerSchema.statics.createNewBackup = function(character, userId){
-    console.log('create new Player');
+    console.log('create new Player for backup');
     var self = this || mongoose.model('Player');
     
     var player = new PlayerModel();
@@ -80,10 +110,24 @@ PlayerSchema.statics.createNewBackup = function(character, userId){
 };
 
 PlayerSchema.statics.createNew = function (character, userId, cb){
-    console.log('create new Player');
+    console.log('create new Player with character:');
+    console.dir(character);
     var self = this || mongoose.model('Player');
     var guildId;
     var weaponId;
+    var charItems = [];
+    
+    // get all item-ids if there are any
+    if(character.inventory.length > 0){        
+        
+        for(var i=0; i<character.inventory.length; i++){
+            console.log('hello from within inventory loop, i='+i);
+            var id = character.inventory[i].id.toString();
+            var sanId = Helper.sanitizeString(id);
+           charItems.push(sanId); 
+        }
+    }
+    
     // check if the guildId is a string or in an object
     if(character.guild.id){
         // sanitize values used for getting objectIds of guild and weapon
@@ -96,31 +140,39 @@ PlayerSchema.statics.createNew = function (character, userId, cb){
     
     var guild = self.model('Guild');
     var weapon = self.model('Weapon');
+    var item = self.model('Item');
     var player = new PlayerModel();
     
-    
-    guild.findOne({'id': guildId},'_id').exec(function(err, guild){
+    // get all object-ids of referenced fields
+    item.find({'id':{$in : charItems}},'_id').exec(function(err, items){
         if(err){console.log(err); return;}
-        return guild;
-    })
-    .then(function(guild){
-        weapon.findOne({'id': weaponId},'_id').exec(function(err, weapon){
+        return items;
+    }).then(function(items){
+    
+        guild.findOne({'id': guildId},'_id').exec(function(err, guild){
             if(err){console.log(err); return;}
-            return weapon;
+            return guild;
         })
-        .then(function(weapon){
-            character.guild = guild._id;
+        .then(function(guild){
+            weapon.findOne({'id': weaponId},'_id').exec(function(err, weapon){
+                if(err){console.log(err); return;}
+                return weapon;
+            })
+            .then(function(weapon){
+                character.guild = guild._id;
                 character.weapon = weapon._id;
+                character.inventory = items;
                 player.character = character;
                 player.user = mongoose.Types.ObjectId(userId);
                 player.save(function(err,player){
                     if(err){console.log(err); return;}
                    //repopulate
-                   self.populate(player,'character.weapon character.guild',function(err, player){
+                   self.populate(player,'character.weapon character.guild character.inventory',function(err, player){
                        if(err){console.log(err); return;}
                        return cb(player);
                    });
                 });                
+            });
         });
     });
   
