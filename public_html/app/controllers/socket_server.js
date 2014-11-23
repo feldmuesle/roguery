@@ -122,16 +122,19 @@ module.exports.response = function(socket){
        
         Game.getSavedGame(character, function(data){
             var savedPlayer = data['player'];
+            var flags = savedPlayer.flags;
             var event = data['event'];
             savedPlayer.gameSave = 'saved'; // mark this on, so we can find the current saved game
             // create new player for this
             console.log('create new player with character:');
             console.dir(character);
-            Player.createNew(character, user, function(player){
+            Player.createNew(character, flags, user, function(data){
                 console.log('new player created for replaying');
+                var player = data['player'];
+                var clientPlayer = data['clientPlayer']; // same as player but with populated inventory
                 player.gameSave = 'replay'; // mark new game, so we can find it and match it agains saved game if resaved
                 player.event = event;
-                var character = player.character[0];
+                var character = clientPlayer.character[0];
                 var storyteller = new Storyteller(socket);
 
                 // start the game client-side
@@ -192,6 +195,7 @@ module.exports.response = function(socket){
                         console.log('hello from runEventChain-callback');
                         var continType = data['continType'];
                         var player = data['player'];
+                        console.log('playerflags: '+player.flags);
                         
                         //store player together with socket
                         clients[index].player = player;                        
@@ -230,9 +234,15 @@ module.exports.response = function(socket){
         Game.getChoice(choiceId, function(event){
             console.log('hello from getChoice callback');
             Game.runEventChain(storyteller, player, event, function(data){
-               
+               console.log('HELLO from runEventChain after choices made HELLO HELLO HELLO');
                 var continType = data['continType'];
                 var player = data['player'];
+                console.log('playerflags: '+player.flags);
+//                player.character[0].name = 'test';
+//                player.save(function(err){
+//                    if(err){console.log(err); console.log('there is an error'); return;}
+//                    console.log('test-save of player');
+//                });
 
                 //store player together with socket
                 clients[index].player = player;
@@ -253,9 +263,12 @@ module.exports.response = function(socket){
         var userId = data['user'];
         var character = data['character'];
         var event = data['event'];
+        var index = Helper.getIndexByKeyValue(clients, 'user', userId);
+        var socketPlayer = clients[index].player;
+        var flags = socketPlayer.flags;
 
         console.log('save the game');
-        Player.saveGame(userId, character, event, function(err){
+        Player.saveGame(userId, flags, character, event, function(err){
             
             if(err){
                 socket.emit('gameSaved', {'msg':'oops, could not save game'});
@@ -318,10 +331,12 @@ module.exports.response = function(socket){
                     // then find the current player and save a backup if not already saved by user
                     Player.findOne({'_id':player._id}, function(err, player){
                         if(err){console.log(err); return;}
-                                               
+                        console.log('current Player when saving backup: ');
+                        console.dir(player);
                         // create a new back-up of this player
                         var newPlayer = Player.createNewBackup(player.character[0], userId);
                         newPlayer.event = player.event;
+                        newPlayer.flags = player.flags;
                         newPlayer.gameSave = 'backup';
                         newPlayer.save(function(err, newOne){
                             if(err){console.log(err); return;}

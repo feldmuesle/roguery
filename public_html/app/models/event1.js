@@ -216,7 +216,8 @@ EventSchema.statics.getPopuQuery = function(){
         {path:'reqFlag', select:'name id -_id'}, {path:'location', select:'name id -_id'}, 
         {path:'dice.failure.location', select:'name id -_id'},{path:'items.item'},
         {path:'dice.success.location', select:'name id -_id'}, {path:'dice.success.event', select:'name id -_id'}, 
-        {path:'dice.failure.event', select:'name id newPara -_id'},{path:'choices', select:'name id newPara choiceText'}, 
+        {path:'dice.failure.event', select:'name id newPara -_id'},
+        {path:'choices', select:'name id newPara choiceText reqFlag rejectFlag items'}, 
         {path:'continueTo.location', select:'name id -_id'}, {path:'continueTo.event', select:'name id newPara -_id'}, 
         {path:'continueTo.random', select:'name id -_id newPara reqFlag rejectFlag items'} ];
     

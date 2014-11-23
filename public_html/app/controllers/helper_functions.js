@@ -49,6 +49,31 @@ exports.getIndexByKeyValue = function(array, key, value){
     return null;
 };
 
+// find out if an array does not match
+exports.findNoMatchInArrays = function(array1, array2){
+    
+    var length1 = array1.length;
+    var length2 = array2.length;
+    
+    for (var i = 0; i< length1; i++){
+        
+        for(var j=0; j<length2; j++){
+            console.log('array1 = '+array1[i]);
+            console.log('array2 = '+array2[j]);
+            var item1 = array1[i].toString();
+            var item2 = array2[j].toString();
+            if (item1 == item2){
+                console.log('there is a match');
+                return true;
+            }
+        }                
+    }
+    
+    return false;
+};
+
+
+// find a match in array
 exports.findMatchInArrays = function(array1, array2){
     
     var length1 = array1.length;
