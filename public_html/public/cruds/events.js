@@ -35,6 +35,7 @@ var randCount = 1;
 
 function resetEventForm(){
     //make sure the form is cleaned up
+        $('#alertEvent').hide();
         $('#createEvent').trigger('reset');
         $('#createEvent textarea[name=text]').html('');
         $('#createEvent input[name=form]').val('createEvent');
@@ -74,6 +75,7 @@ function resetEventForm(){
         populateSelect(locations,'createEvent', 'location');
         populateSelect(locations, 'createEvent','succTrigger');
         populateSelect(locations, 'createEvent','failTrigger');
+        populateSelect(items, 'createEvent','item0');
         
 
 };
@@ -152,6 +154,7 @@ function foldOutRadio(radio){
                     break;
 
                 case'choices':
+                    console.log('HELLO FROM RADIOBUTTON CHOICES');
                     $('#continueFold').hide();
                     $('#diceFold').hide();
                     $('#choicesFold').show();
@@ -177,7 +180,8 @@ function foldOutRadio(radio){
 
                 case'failEventSgl':
                     // show select, populated with events
-                    populateSelect(events, 'createEvent', 'failTrigger');
+                    var locoEvents = getEventsByLoco(events, eLoco);
+                    populateSelect(locoEvents, 'createEvent', 'failTrigger');
                     $('#failTriggerFold').show();
                     break;
 
@@ -193,7 +197,8 @@ function foldOutRadio(radio){
 
                 case'succEventSgl':
                     // show select, populated with events
-                    populateSelect(events, 'createEvent', 'succTrigger');
+                    var locoEvents = getEventsByLoco(events, eLoco);
+                    populateSelect(locoEvents, 'createEvent', 'succTrigger');
                     $('#succTriggerFold').show();
                     break; 
 

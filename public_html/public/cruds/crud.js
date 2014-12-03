@@ -156,6 +156,8 @@ $(document).ready(function(){
                 locations = data['locations'];
                 updateCrudList( locations, 'locationList', 'location', 'updateLocation',
                     'locationBtnDel', 'deleteLocation');
+                // update events-dropdown in navigation
+                updateDropdown();
                 // clear all inputs in form
                 $('#createLocation').trigger('reset');
                 
@@ -494,6 +496,7 @@ $(document).ready(function(){
         // make sure form is clean
         $('#alertGuild').hide();
         $('#createGuild').trigger('reset');
+        populateSelect(locations, 'createGuild','location');
         
         // get id from span-element and item-object from items-array
         var guildId = this.id.substr(5,this.id.length); // guild = 5 chars
@@ -550,6 +553,7 @@ $(document).ready(function(){
                 locations = data['locations'];
                 updateCrudList( locations, 'locationList', 'location', 'updateLocation',
                     'locationBtnDel', 'deleteLocation');
+                updateDropdown();
                 console.log(data['locations']);
             }
         });
@@ -672,6 +676,32 @@ $(document).ready(function(){
        updateCrudList( locoEvents, 'eventList', 'event', 'updateEvent',
                     'eventBtnDel', 'deleteEvent');
     });
+    
+    // set eLoco to the automated active location when page reloads
+    var eLocoDefault = $('#autoSelect').children('a').attr('id');
+    eLoco = eLocoDefault.substr(5,eLocoDefault.length); // eLoco = 5 chars
+    console.log('default eloco = ');
+    console.log(eLocoDefault);
+    
+    // update events-dropdown 
+    function updateDropdown(){
+        console.log('update dropdown with changed locations');
+        var dropdown = $('#eventDrop').html('');
+        for(var i=0; i<locations.length; i++){
+            var li = '';
+            if(i === 0){
+                li = '<li id="autoSelect" class="active">'+
+                    '<a id="eLoco'+locations[i].id+'" class="eLoco" href="#tab1" data-toggle="tab">'+locations[i].name+'</a>'+
+                '</li>';
+            }else{
+                li ='<li class="">'+
+                    '<a id="eLoco'+locations[i].id+'" class="eLoco" href="#tab1" data-toggle="tab">'+locations[i].name+'</a>'+
+                '</li>';
+            }
+           $(dropdown).append(li);
+        }
+    }
+    
     
     /************ misc-functions *******************/
     

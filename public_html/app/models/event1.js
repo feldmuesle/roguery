@@ -8,7 +8,7 @@ var Location = require('./location.js');
 var Helper = require('../controllers/helper_functions.js');
 
 //validators
-var valEmpty = [Helper.valEmpty, 'The field \'{PATH}:\' must just not be empty.'];
+var valEmpty = [Helper.valEmpty, 'The title of an event must just not be empty.'];
 
 var EventSchema = Schema({
     id          :   {type: Number, unique:true},
@@ -343,7 +343,12 @@ EventSchema.statics.addDiceBranch = function(branch, event, cb){
             
             if(ev[0].id == succTrigger){
                 event.dice.success.event = ev[0]._id;
-                event.dice.failure.event = ev[1]._id;                   
+                if(ev[0].id == failTrigger){ // in case they are the same
+                    event.dice.failure.event = ev[0]._id;
+                }else{
+                    event.dice.failure.event = ev[1]._id;
+                }
+                                   
             }else{
                 event.dice.success.event = ev[1]._id;
                 event.dice.failure.event = ev[0]._id;

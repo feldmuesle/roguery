@@ -5,9 +5,10 @@ This is the start-up file
 // get all tools/modules needed
 
 var express = require('express');
+var http = require ('http');
 
 var app = express();
-var http = require ('http');
+
 var server = http.createServer(app);
 var port = (process.env.PORT | 0) || 3000;
 var db = require('mongoose');

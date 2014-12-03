@@ -175,10 +175,15 @@ function updatePlayerStats(attribute, newValue){
     
     if(attribute == 'stamina'){
         // if its stamina, also display maxStam-span
-        var desc = getAttributDesc(attribute, newValue);
+        var desc = '';
+        if(character.attributes.stamina == 0){
+            desc = 'DEAD';
+        }else{
+            desc = getAttributDesc(attribute, newValue);
+        }        
         var descSpan = '<span class="statDesc"> '+desc+'</span>';
         var maxStam = '<span id="maxStam">/'+character.attributes.maxStam+'</span>';
-        $('#profile').find('#'+attribute).html(newValue+maxStam+descSpan);
+        $('#profile').find('#'+attribute).html(newValue+maxStam+descSpan);        
         return;
     }
     
@@ -204,6 +209,11 @@ function appendToChat(cssClass, text){
 //clear text-window
 function clearText(){
     $('#storyEntries').html('');
+}
+
+function gameOver(){
+    
+    appendToChat('gameOver', '~* THE END *~');
 }
 
 /******* character generator ****************/

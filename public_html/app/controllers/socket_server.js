@@ -57,7 +57,7 @@ module.exports.response = function(socket){
         
         Player.find({user: sanId, gameSave:{$nin:['false','replay']}}, '-user -_id').populate(charOpts)
             .exec(function(err, players){
-                if(err){ return console.log(err);}
+                if(err){ socket.emit('systemErr', {'msg': 'Sorry, we could not find any saved games'}); return;}
                 console.dir(players);
                 //if the user has any saved games(players), get the characters
                 var games = [];
@@ -86,7 +86,7 @@ module.exports.response = function(socket){
                 {path:'character.guild', select:'name id image -_id'}];
         
         Player.find({'user':sanId}).populate(charOpts).exec(function(err, players){
-            if(err){console.log(err);return;}
+            if(err){ socket.emit('systemErr', {'msg': 'Sorry, something went wrong.'}); return;} 
             
             var characters = [];
             players.forEach(function(player){
@@ -121,6 +121,11 @@ module.exports.response = function(socket){
         }
        
         Game.getSavedGame(character, function(data){
+            // if there were any errors
+            if(data['err']){
+                socket.emit('systemErr',{'msg':'Sorry, something went wrong. Please contact the system administrator.'});
+                return;
+            }
             var savedPlayer = data['player'];
             var flags = savedPlayer.flags;
             var event = data['event'];
@@ -129,6 +134,11 @@ module.exports.response = function(socket){
             console.log('create new player with character:');
             console.dir(character);
             Player.createNew(character, flags, user, function(data){
+                // if there were any errors
+                if(data['err']){
+                    socket.emit('systemErr',{'msg':'Sorry, something went wrong. Please contact the system administrator.'});
+                    return;
+                }
                 console.log('new player created for replaying');
                 var player = data['player'];
                 var clientPlayer = data['clientPlayer']; // same as player but with populated inventory
@@ -238,21 +248,19 @@ module.exports.response = function(socket){
                 var continType = data['continType'];
                 var player = data['player'];
                 console.log('playerflags: '+player.flags);
-//                player.character[0].name = 'test';
-//                player.save(function(err){
-//                    if(err){console.log(err); console.log('there is an error'); return;}
-//                    console.log('test-save of player');
-//                });
 
                 //store player together with socket
                 clients[index].player = player;
                 console.log('continType = '+continType);
-                
+                                
                 var toDo = Game.processEventChain(data);
                 var newData = toDo['newData'];
                 var action = toDo['action'];
-                        
+                
                 socket.emit(action, newData);
+                
+                        
+                
             });
         });        
         

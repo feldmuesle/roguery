@@ -274,6 +274,20 @@ $(document).ready(function(){
        
     });
     
+    socket.on('end', function(data){
+        console.log('display ending');
+       gameOver(); 
+    });
+    
+    socket.on('dead', function(data){
+       gameOver(); 
+    });
+    
+    socket.on('systemErr', function(data){
+        console.log('there is an error');
+        appendToChat('error', capitaliseFirstLetter(data['msg']));
+    });
+    
     
     
 });// document.ready --> end

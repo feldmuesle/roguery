@@ -47,6 +47,11 @@ var storyTeller = function Storyteller (socket){
         
         self.socket.emit('rollDice', data);
     };
+    
+    self.tellError = function(){
+        var msg = 'Ooops, something went wrong. Please contact the system administrator.';
+      self.socket.emit('systemErr', {'msg':msg});  
+    };
      
     
 };
