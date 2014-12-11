@@ -6,6 +6,7 @@
 
 // import all models
 var mongoose = require('mongoose');
+var User = require('../models/user.js');
 var Location = require('../models/location.js');
 var Flag = require('../models/flag.js');
 var Item = require('../models/item.js');
@@ -577,6 +578,58 @@ exports.updateWeapon = function(res, req){
     });  
 };
 
+exports.gradeUser = function(res, req, role){
+    var admin = req.user;
+    console.dir(admin);
+    console.dir(req.body);
+    var userId = Helper.sanitizeString(req.body.id);
+    
+    //check for the admin if password matches and he really is an admin
+    User.findOne({_id:admin._id}).exec(function(err, admin){
+        if(err){console.log(err); return;}
+        return admin;
+    })
+    .then(function(admin){
+        var adminString = admin._id.toString();
+                
+        if(admin.validPassword(req.body.password) && admin.userRole === 'admin' && userId != adminString){
+            User.findOne({'_id':userId}, function(err, user){
+                if(err){console.log(err); return;}
+            
+                user.userRole = role;
+
+                user.save(function(err){
+                    if(err){
+                        console.log('something went wrong when upgrading the user.');
+                        console.log('error '+err); 
+                        res.send({
+                            'success'   : false,
+                            'msg'       : 'could not update user',
+                            'errors'    : err.errors});
+                    }else{
+                        User.find({},'_id username userRole',function(err, users){
+                            if(err){ return console.log(err);}
+                            res.send({
+                                'success'   : true,
+                                'msg'       : 'yuppi! - user-role updated.',
+                                'users'   :   users
+                            });
+
+                        });  
+                    }    
+                });
+            });
+        }else{
+            res.send({
+                'success'   : false,
+                'msg'       : 'You are not allowed to change this user-role',
+                'errors'   :  null
+            });
+        }
+        
+    });  
+};
+
 exports.updateEvent = function(res, req){
     var eventId = Helper.sanitizeNumber(req.body.id);
     Event.findOne({'id':eventId}, function(err, event){
@@ -663,11 +716,15 @@ exports.sendAllModels = function(res, req){
         //'flag reqFlag location items dice.failure.location dice.failure.event'+
 //                    ' dice.success.location dice.success.event choices continueTo.event continueTo.location'+
 //                    ' continueTo.random'
-        
-        Guild.find({},'-_id').exec(function(err, guilds){            
+        User.find({},'_id username userRole').exec(function(err, users){
             if(err){ return console.log(err);}
-            return guilds;                      
+            return users;
         })
+        .then(function(users){           
+            Guild.find({},'-_id').exec(function(err, guilds){            
+                if(err){ return console.log(err);}
+                return guilds;                      
+            })
         .then(function(guilds){
             Character.find({},'-_id').populate('guild weapon inventory','name id -_id').exec(function(err, characters){
                 if(err){ return console.log(err);}
@@ -714,6 +771,7 @@ exports.sendAllModels = function(res, req){
                 res.render('crud.ejs', {
                    'userId'     :   req.user._id,
                    'username'   :   req.user.username,
+                   'users'      :   users,
                    'message'    :   '',
                    'weapons'    :   weapons,
                    'characters' :   characters,
@@ -731,10 +789,11 @@ exports.sendAllModels = function(res, req){
         });
     });
     });
-    });  
+    }); 
+    });
 };
 
-exports.deleteItem = function(res, req){
+exports.deleteItem = function(res, req){    
     var itemId = Helper.sanitizeNumber(req.body.itemId);
     Item.findOne({'id':itemId},function(err, item){
         if(err){console.error(err); return;}
@@ -848,6 +907,15 @@ exports.deleteLocation = function(res, req){
 };
 
 exports.deleteEvent = function(res, req){
+    
+    var populateQuery = [{path:'flag', select:'name id _id'},{path:'rejectFlag', select:'name id -_id'}, 
+            {path:'reqFlag', select:'name id -_id'}, {path:'location', select:'name id -_id'}, 
+            {path:'dice.failure.location', select:'name id -_id'},{path:'items', select:'name id -_id'}, 
+            {path:'dice.success.location', select:'name id -_id'}, {path:'dice.success.event', select:'name id -_id'}, 
+            {path:'dice.failure.event', select:'name id -_id'},{path:'choices', select:'name id -_id'}, 
+            {path:'continueTo.location', select:'name id -_id'}, {path:'continueTo.event', select:'name id -_id'}, 
+            {path:'continueTo.random', select:'name id -_id'} ];
+        
     var eventId = Helper.sanitizeNumber(req.body.eventId);
     Event.findOne({'id':eventId},function(err, event){
         if(err){console.error(err); return;}
@@ -860,7 +928,7 @@ exports.deleteEvent = function(res, req){
                 'msg'       :   'could not delete event',
                 'errors'    :   err.message});
             }else{
-                Event.find(function(err, events){
+                Event.find().populate(populateQuery).exec(function(err, events){
                     if(err){console.log(err); return;}
 
                     res.send({

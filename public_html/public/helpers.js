@@ -154,3 +154,9 @@ function populateSelect(array, elementId, name){
             
         });
     }
+    
+// create modal-tile for create-forms
+function createTitleWithPlusIcon (name){
+    var title = '<span class="glyphicon glyphicon-plus"></span> '+name;
+    return title;
+}

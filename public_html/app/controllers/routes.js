@@ -106,14 +106,14 @@ module.exports = function(app, passport){
     
     // show crud-page
     //TODO: make only accessible to administrators 
-    app.get('/crud', isLoggedIn, function (req, res){
+    app.get('/crud', isLoggedIn, isAdmin, function (req, res){
         Crud.sendAllModels(res, req);
         
     });
     
     // handle post-requests from crud
     //TODO: restrict access to only for administror
-    app.post('/crud',isLoggedIn, function(req, res){
+    app.post('/crud',isLoggedIn, isAdmin, function(req, res){
         
         console.log('the form sent is: '+req.body.form);
         var action;
@@ -175,6 +175,14 @@ module.exports = function(app, passport){
                 case'updateCharacter':
                     Crud.updateCharacter(res, req);
                     break;
+                    
+                case'upgradeUser':
+                    Crud.gradeUser(res, req, 'admin');
+                    break;
+                    
+                case'downgradeUser':
+                    Crud.gradeUser(res, req, 'user');
+                    break;
                 
                 case'itemDel':
                     Crud.deleteItem(res, req);
@@ -204,9 +212,6 @@ module.exports = function(app, passport){
         }// if form was sent -> end
     
     });
-    
- 
-//    app.post('/crud',isLoggedIn, isMe, function(req, res){});
 
     
     // logout
@@ -214,86 +219,14 @@ module.exports = function(app, passport){
         req.logOut();
         res.redirect('/'); 
     });
+    
+    //The 404 Route (ALWAYS Keep this as the last route)
+    app.get('*', function(req, res){
+      res.redirect('/');
+    });
 };
 
-//middelware to check if nickname exists
-//function checkNickname(req, res){
-//    var User = require('../models/user.js');
-//    User.findOne({'nickname': req.body.nickname}, function(err, user){
-//        if(err){console.error(err); return;}
-//        
-//        // if there's already a user with this nickname, prompt user to choose another one
-//        if(user){
-//            
-//            var GuildModel = require('../models/guilds.js');
-//            GuildModel.find(function(err, guilds){
-//                if(err){ return console.log(err);}
-//
-//                // show form again to user
-//                res.render('game.ejs', {
-//                   guilds   :   guilds,
-//                   user     :   req.user,
-//                   message  :   'this nickname is already taken, please choose a different nickname.'
-//               }); 
-//            });
-//
-//        }else{
-//            console.log('there is no player called '+req.body.nickname+' yet');
-//            User.findOneAndUpdate({_id : req.user._id}, {nickname : req.body.nickname}, function(err, user){
-//               if(err){console.error(err); return;}
-//            }); 
-//            
-//        }              
-//    });
-//}
-//
-//
-////middleware to get all the stuff out of db (room, npcs, items)
-//function getEverything(res, req, next){
-//    
-//    var npcListen = require('./npc_listeners.js').listeners;
-//    var itemListen = require('./item_listeners.js').listeners;
-//    RoomModel.find().populate('npcs inventory').exec(function(err, rooms){
-//            if(err){ return console.log(err);}
-//            
-//            NpcModel.find().populate('inventory').exec(function(err,npcs){
-//                if(err){ return console.log(err);}
-//                
-//                ItemModel.find(function(err, items){
-//                   if(err){ return console.log(err);}
-//                    
-//                    var data = {
-//                    locations   :   rooms,
-//                    npcListen   :   npcListen,
-//                    itemListen  :   itemListen,
-//                    npcs        :   npcs,
-//                    items       :   items,
-//                    user        :   req.user,
-//                    message     :   ''
-//                    };
-//                    
-//                    req.everything = data;
-//                    return next();
-//                   
-//                });
-//            });          
-//        });
-//}
-//
-//
-//
-////middleware to get guild-model and render it
-//function showGuilds(user, res){
-//    var guild = require('../models/guilds.js');
-//    guild.find(function(err, guilds){
-//        if(err){ return console.log(err);}
-//        res.render('game.ejs', {
-//           user: user, // get user out of session and into template
-//           guilds : guilds
-//       }); 
-//    });
-//
-//}
+
 // route middleware to make sure a user is logged in
 function isLoggedIn(req, res, next){
     if(req.isAuthenticated()){
@@ -306,14 +239,14 @@ function isLoggedIn(req, res, next){
     }
 }
 
-// route middleware to make sure the user is me
-function isMe(req, res, next){
+// route middleware to make sure the user is administrator
+function isAdmin(req, res, next){
     console.log(req.user);
-    if(req.user.email == 'lisa'){
-        console.log('Yes you are me');
+    if(req.user.userRole == 'admin'){
+        console.log('Yes you are an administrator');
         next();
     }else{
-        console.log('you are not me');
+        console.log('You are no administrator');
         res.redirect('/');
     }
 }

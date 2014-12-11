@@ -16,8 +16,10 @@
             <div id="thumbGallery" class="row">
                 <%for( var i=0; i<characters.length; i++){%>
                     <div class="brik col-xs-4 col-md-3">
-                        <div id="thumb<%=characters[i].id%>" class="fadeImg thumbnail">
-                            <img src="./images/<%=characters[i].guild.image%>">
+                        <div id="thumb<%=characters[i].id%>" class="thumbnail">
+                            <div class="imgBox fadeImg">
+                                <img src="./images/<%=characters[i].guild.image%>">
+                            </div>                            
                         <p class="caption"><%=characters[i].name%> - <%=characters[i].guild.name%></p>
                         </div>                    
                     </div>                                    

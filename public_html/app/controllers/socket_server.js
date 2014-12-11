@@ -27,7 +27,8 @@ var addSocket = function(socket, user){
         var client = {'user':user, 'socket':socket};
         clients.push(client);
         numUsers++;
-        console.log('socket added to clientArray');      
+        console.log('socket added to clientArray'); 
+        console.dir(socket);
         
     } else {
         console.log('user already registered, no new client added.');
@@ -119,7 +120,7 @@ module.exports.response = function(socket){
             index = Helper.getIndexByKeyValue(clients, 'user',user);
 
         }
-       
+       // returns player and current event when game was saved
         Game.getSavedGame(character, function(data){
             // if there were any errors
             if(data['err']){
@@ -129,7 +130,7 @@ module.exports.response = function(socket){
             var savedPlayer = data['player'];
             var flags = savedPlayer.flags;
             var event = data['event'];
-            savedPlayer.gameSave = 'saved'; // mark this on, so we can find the current saved game
+//            savedPlayer.gameSave = 'saved'; // mark this on, so we can find the current saved game
             // create new player for this
             console.log('create new player with character:');
             console.dir(character);
@@ -268,10 +269,15 @@ module.exports.response = function(socket){
     
     // save game for user
     socket.on('saveGame', function(data){
+        console.log('hello from save game');
         var userId = data['user'];
         var character = data['character'];
         var event = data['event'];
-        var index = Helper.getIndexByKeyValue(clients, 'user', userId);
+        console.log('clients userId: '+userId);
+        console.log('clients event: '+event);
+        var index = Helper.getIndexByKeyValue(clients, 'socket', socket);
+        userId = clients[index].user;
+        console.log('userId saved in clients: '+userId);
         var socketPlayer = clients[index].player;
         var flags = socketPlayer.flags;
 
@@ -304,11 +310,12 @@ module.exports.response = function(socket){
             --numUsers;
 
             //take socket out of clients, then update texter
-            console.log(clients.length);
+            console.log('number of clients '+clients.length);
             console.log('socket'+socket.id);
             var clientI =  Helper.getIndexByKeyValue(clients, 'socket', socket);
             console.log('client-index: '+clientI);
-            console.log('client '+clients[clientI]);
+            console.log('client ')
+            console.dir(clients[clientI]);
             
             if(clientI == null){
                 console.dir(clients);
@@ -339,7 +346,9 @@ module.exports.response = function(socket){
                     // then find the current player and save a backup if not already saved by user
                     Player.findOne({'_id':player._id}, function(err, player){
                         if(err){console.log(err); return;}
-                        console.log('current Player when saving backup: ');
+                        
+                        if(player){
+                            console.log('current Player when saving backup: ');
                         console.dir(player);
                         // create a new back-up of this player
                         var newPlayer = Player.createNewBackup(player.character[0], userId);
@@ -364,7 +373,9 @@ module.exports.response = function(socket){
                                    });
                                }
                             });                            
-                        });                    
+                        });                
+                        }
+                            
                     });
                 });
             }            

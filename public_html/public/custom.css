@@ -260,9 +260,15 @@ li.exitDesc{
     
 }
 
+#avatarBox {
+    height: 320px;
+    overflow: hidden;
+    border-radius: 5px;
+    padding:0;
+}
+
 #avatar img{
-    max-width: 239px;
-    max-height: 270px;
+    width: 100%;
 }
 
 #avatar:after{
@@ -288,13 +294,32 @@ dt.dlHeading{
 }
 
 #gallery div.brik{
-    padding:5px;
+    padding:6px;
 }
+
+#gallery .imgBox{
+    height: 160px;
+    overflow: hidden;
+    position:relative;
+    border-radius: 10px;
+    
+}
+
+#gallery .textOver{
+    position: absolute; 
+    top: 100px; 
+    left: 0; 
+    width: 100%; 
+    text-align:center;
+    color:#fff;
+    background: rgb(0, 0, 0); /* fallback color */
+    background: rgba(0, 0, 0, 0.7);
+}
+
 
 #gallery img{
     width: 100%;
-    height: 130px;
-    overflow: hidden;
+    
 }
 
 .fadeImg:after{
@@ -311,15 +336,25 @@ dt.dlHeading{
 }
 
 #gallery .thumbnail:hover{
-    border: 1px solid #2E221F;
+/*    border: 1px solid #2E221F;*/
+    -webkit-box-shadow: 1px 6px 5px 0px rgba(50, 50, 50, 0.75);
+    -moz-box-shadow:    1px 6px 5px 0px rgba(50, 50, 50, 0.75);
+    box-shadow:         1px 6px 5px 0px rgba(50, 50, 50, 0.75);
 }
 
 #gallery .thumbnail{
     padding: 10px 10px 0px;
     margin: 0px;
-    border-radius: 15px;
+    border-radius: 10px;
+    border: none;
+/*    border: 1px solid #ddd;*/
     background-color: #Fefefe;
+    -webkit-box-shadow: 0px 1px 4px 0px rgba(50, 50, 50, 0.75);
+    -moz-box-shadow:    0px 1px 4px 0px rgba(50, 50, 50, 0.75);
+    box-shadow:         0px 1px 4px 0px rgba(50, 50, 50, 0.75);
 }
+
+
 
 #gallery .thumbnail .caption {
     overflow: hidden;
@@ -348,3 +383,11 @@ dt.dlHeading{
 /******** Modals ************/
 
 /* range input for character adjustments */
+
+
+/************** MEDIA QUERIES ********************/
+/*@media (max-width: 520px){ 
+  #gallery .imgBox {
+    height: 140px;
+  }
+}*/

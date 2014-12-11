@@ -127,6 +127,23 @@ EventSchema.path('dice.difficulty').validate(function(value){
     } 
 },'Please provide a difficulty for the diceroll between 5 and 40.');
 
+EventSchema.path('attributes').validate(function(){
+   console.log('hello from validate attributes');
+    var self = this || mongoose.model('Event');
+    console.log(self.attributes);
+    var pass = true;
+    if(self.attributes.length > 0){
+        // check if an attribute misses an amount
+        self.attributes.forEach(function(attrItem){
+            if(attrItem.amount <= 0){
+                pass =  false;
+                return;
+            }
+        });
+    }
+    return pass;
+},'Please provide an amount larger than 0 for the attribute');
+
 
 // restrict-delete: check if the event is used by other documents
 EventSchema.pre('remove', function(next){
@@ -165,6 +182,7 @@ EventSchema.pre('remove', function(next){
         });             
     });
 });
+
 
 /*********** methods *************/
 EventSchema.methods.saveUpdateAndReturnAjax = function(res){

@@ -43,12 +43,12 @@ function createGallery(charArray, type){
         var part1 ='';
         if(type == 'saved'){
             
-            part1 = '<div id="thumb'+i+'" class="saved fadeImg thumbnail">';
+            part1 = '<div id="thumb'+i+'" class="saved thumbnail">';
         }else {
-            part1 =  '<div id="thumb'+charArray[i].id+'" class="fadeImg thumbnail">';
+            part1 =  '<div id="thumb'+charArray[i].id+'" class=" thumbnail">';
         }
         
-         var part2 ='<img src="./images/'+charArray[i].guild.image+'">'+
+         var part2 ='<div class="imgBox fadeImg"><img src="./images/'+charArray[i].guild.image+'"></div>'+
                         '<p class="caption">'+charArray [i].name+' - '+charArray[i].guild.name+'</p>'+
                     '</div>'+
                 '</div>'; 

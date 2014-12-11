@@ -40,7 +40,7 @@ function resetEventForm(){
         $('#createEvent textarea[name=text]').html('');
         $('#createEvent input[name=form]').val('createEvent');
         $('#btnCreateEvent').text('create');
-//        $('#createEvent input[name=branchType]').removeProp('checked');
+        $('#createEvent input[type=checkbox]:checked').removeProp('checked');
         
         // hide all fold-outs
         $('#isChoiceFold').hide();
@@ -61,6 +61,7 @@ function resetEventForm(){
         $('#createEvent').find('input:checkbox').each(function(){
            console.log('setting checkbox-values back to true');
           $(this).val('true'); 
+          $(this).attr('checked', false);
        });
         
         
@@ -77,6 +78,8 @@ function resetEventForm(){
         populateSelect(locations, 'createEvent','failTrigger');
         populateSelect(items, 'createEvent','item0');
         
+        
+        
 
 };
 
@@ -86,6 +89,8 @@ $('#addEvent').click(function(){
         // select current eventLococation automatically
         console.log('addEvent set location to id '+eLoco);
         $('#createEvent select[name=location] option[value='+eLoco+']').attr('selected', 'selected');
+        // make sure branch-type-radios are set to dice
+        $('#createEvent input[name=branchType]:radio[value=dice]').prop('checked','checked');
         $('#diceFold').show();  // show diceFold by default
         $('#succTriggerFold').show();
         $('#failTriggerFold').show(); 
@@ -776,30 +781,40 @@ function removeAddOns(count, buttonId){
             for(var i=0; i < event.items.length; i++){
                 if(i != 0){
                     $('.add-item').click();
-                    $('#createEvent input[name=itemAction'+i+']:radio[value='+event.items[i].action+']').attr('checked',true);
+                    $('#itemFold'+i+' input[name=itemAction'+i+']:checked').removeAttr('checked');
+                    $('#createEvent input[name=itemAction'+i+']:radio[value='+event.items[i].action+']')
+                            .prop('checked','checked').trigger('change');
                     $('#createEvent select[name=item'+i+']').val(event.items[i].item[0].id).attr('selected','selected');                    
                 }else{
                     $('#itemFold').show();
-                    $('#createEvent input[name=itemAction0]:radio[value='+event.items[i].action+']').attr('checked',true);
+                    $('#createEvent input[name=itemAction'+i+']:radio[value='+event.items[i].action+']')
+                            .prop('checked','checked').trigger('change');
                     $('#createEvent select[name=item0]').val(event.items[0].item[0].id).attr('selected','selected');
                 }
             }
         }
         
         if(event.attributes.length > 0){
-            console.log('attributes.length = '+event.attributes.lenght);
+            console.log('attributes.length = '+event.attributes.length);
             $('#createEvent input[name=attributes]:checkbox').attr('checked',true);
             for(var i=0; i < event.attributes.length; i++){
                 if(i != 0){
                     $('.add-attr').click();
-                    $('#createEvent input[name=attrAction]:radio[value='+event.attributes[i].action+']').attr('checked',true);
+                    console.log('add attribute'+i+': '+event.attributes[i].action);
+                    $('#attrFold'+i+' input[name=attrAction'+i+']:checked').removeAttr('checked');
+//                    $('#createEvent input[name=attrAction'+i+']:radio[value='+event.attributes[i].action+']').attr('checked',true).trigger('change');
+                    $('#attrFold'+i+' input[name=attrAction'+i+']:radio[value='+event.attributes[i].action+']')
+                            .prop('checked','checked').trigger('change');
                     $('#createEvent select[name=attr'+i+']').val(event.attributes[i].attribute).attr('selected','selected');                    
                     $('#createEvent input[name=attrNumb'+i+']').val(event.attributes[i].amount);
                 }else{
-                    $('#attrFold').show();
-                    $('#createEvent input[name=attrAction0]:radio[value='+event.attributes[0].action+']').attr('checked',true);
+                    
+                    $('#attrFold input[name=attrAction0]:checked').removeAttr('checked');
+                    $('#attrFold input[name=attrAction0]:radio[value='+event.attributes[0].action+']')
+                            .prop('checked','checked').trigger('change');
                     $('#createEvent select[name=attr0]').val(event.attributes[0].attribute).attr('selected','selected');
                     $('#createEvent input[name=attrNumb0]').val(event.attributes[0].amount);
+                    $('#attrFold').show();
                 }
             }
         }
@@ -863,7 +878,8 @@ function removeAddOns(count, buttonId){
             case'continue':
                 // set the radios
 //                $('#createEvent input[name=branchType]:radio[value='+event.branchType+']').attr('checked',true);
-                $('#createEvent input[name=continue]:radio[value='+event.continueTo.type+']').attr('checked',true);
+                $('#createEvent input[name=continue]:radio[value='+event.continueTo.type+']')
+                        .prop('checked',true).trigger('change');
                                   
                 if(event.continueTo.type == 'continueLoco'){
                     populateSelect(locations,'createEvent','continueTo');

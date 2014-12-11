@@ -530,8 +530,8 @@ function runEvent(storyteller, player, event){
             var evItems = event.items[i];
             var id = evItems.item[0].id;
             var index = -1;
-            console.dir(evItems);
-            console.dir(player.character[0].inventory);
+//            console.dir(evItems);
+//            console.dir(player.character[0].inventory);
             
             if(player.character[0].inventory.length > 0){
                 var isPopulated = Helper.checkArrayForObject(player.character[0].inventory);
@@ -595,7 +595,7 @@ function runEvent(storyteller, player, event){
         
         case'choices':
             var choices = filterChoices(event, player);
-            console.dir(choices);
+//            console.dir(choices);
             if(choices.length < 1){
                 continType = 'systemErr';
                 next.choices = null;
@@ -886,14 +886,12 @@ exports.getSavedGame = function(character, cb){
     var charOpts = [{path:'character.weapon', select:'name id -_id'}, 
                 {path:'character.inventory', select:'name id -_id'}, 
                 {path:'character.guild', select:'name id image -_id'}];
-            
+    
+    // find right player/game according to character
     Player.findOne({'character._id':sanChar}).populate(charOpts).exec(function(err, player){
         if(err){ return cb({'err':err});}        
         
-        player.gameSave = 'saved';
-//        player.save(function(){
-//            return player;
-//        });
+        
         return player;
         
     }) 
@@ -906,11 +904,19 @@ exports.getSavedGame = function(character, cb){
             return event;
         }).then(function(event){            
             
+            // set gameSave to saved, so we can find it again if the game should be saved again
+            player.gameSave = 'saved';
+            
             var data ={
                 'player': player,
                 'event' : event
-            };
-            return cb(data);
+            };            
+            
+            // finally save player to make gameSave persistent
+            player.save(function(err){
+                if(err){ return cb({'err':err});} 
+                return cb(data);
+            });            
             
         });     
     });

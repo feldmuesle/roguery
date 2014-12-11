@@ -1,5 +1,5 @@
 <% include ./partials/header.ejs %>
-    <div class="tabbable col-xs-12 col-lg-6 col-lg-offset-3">
+    <div class="tabbable col-xs-12 col-lg-8 col-lg-offset-2">
         <ul class="nav nav-tabs nav-pills" id="myTab">
             <li class=" active dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown">Events <span class="caret"></span></a>
                 <ul id="eventDrop" class="dropdown-menu" role="menu">
@@ -22,9 +22,10 @@
             <li class=""><a href="#tab5" data-toggle="tab">Items</a></li>
             <li class=""><a href="#tab6" data-toggle="tab">Guilds</a></li>
             <li class=""><a href="#tab7" data-toggle="tab">Images</a></li>
+            <li class=""><a href="#tab8" data-toggle="tab">Users</a></li>
         </ul>
         <br><!-- nav-pills end -->
-        <div class="tab-content">
+        <div class="tab-content col-lg-10 col-lg-offset-1">
             <!--Event-tab start-->
             <div class="tab-pane active" id="tab1">
                 <div id="eventSuccess" class="alert alert-success"></div>
@@ -117,6 +118,26 @@
                 </ul>
             </div><!--Guild-tab end-->
 
+            <!--User-tab start-->
+            <div class="tab-pane" id="tab8">
+                <div id="userSuccess" class="alert alert-success"></div>
+                <div id="userError" class="alert alert-danger"></div>
+                <h3>Users</h3>
+                <ul id="userList" class="list-group list-unstyled">
+                    <%for(var i=0; i<users.length; i++){%>
+                        <li class="list-group-item">
+                            <%=users[i].username%>
+                            
+                            <%if(users[i].userRole === 'user'){%>
+                                <button class="upgradeUser pull-right btn btn-xs margin" id="<%=users[i]._id%>">Make administrator</button>
+                            <%}else{%>
+                                <button class="downgradeUser pull-right btn btn-xs margin" id="<%=users[i]._id%>">Undo administrator</button>
+                            <%}%>    
+                        </li>
+                    <%}%>
+                </ul>
+            </div><!--Users-tab end-->
+
         </div><!-- tab-content end-->
     </div><!-- tabable end -->
 
@@ -143,6 +164,10 @@
     <!-- modal window for create-guild-form -->
         <% include ./partials/guildForm.ejs %>
     <!-- guild-modal-end -->
+
+    <!-- modal window for upgrade-user-form -->
+        <% include ./partials/userForm.ejs %>
+    <!-- user-modal-end -->
         
     <!-- modal window for displaying a record -->
     <div class="modal fade" id="displayRecord" tabindex="-1" role="dialog" aria-labelledby="displayRecord" aria-hidden="true">
@@ -164,6 +189,7 @@
 
 </div><!-- wrapper end-->
 <script>  <!--
+    var users = <%-JSON.stringify(users)%>;
     var weapons = <%-JSON.stringify(weapons)%>;
     var characters = <%-JSON.stringify(characters)%>;
     var items = <%-JSON.stringify(items)%>;

@@ -37,13 +37,14 @@ PlayerSchema.set('toObject', {getters : true});
 PlayerSchema.statics.saveGame = function(user, flags, character, event, cb){
     
     var self = this || mongoose.model('Player');
-    
+    console.log('hello from Player.saveGame');
     // sanitize query-values
     var sanId = mongoose.Types.ObjectId(user);
     var sanChar = mongoose.Types.ObjectId(character._id);
     
     console.log('sanId: '+sanId);
     console.log('sanChar: '+sanChar);
+    console.log('event: '+event);
     
     self.findOne({'user': sanId,'character._id':sanChar, 'gameSave':{$ne : 'saved'}}, function(err, player){
         if(err){return cb(err);}
@@ -54,13 +55,14 @@ PlayerSchema.statics.saveGame = function(user, flags, character, event, cb){
             // if it's a saved game already, save it
             if(player.gameSave == 'replay'){
     //            player.character[0] = character;
+                console.log('save previously saved game');
                 // find the real saved player
                 self.findOne({'gameSave':'saved'}, function(err, savedPlayer){
                     if(err){console.log(err);}
                     savedPlayer.event = event;
                     savedPlayer.flags = flags;
                     savedPlayer.character = player.character;
-                    savedPlayer.gameSave = 'saved';
+                    savedPlayer.gameSave = 'true';
                     savedPlayer.save(function(err, savedPl){  
                         if(err){console.log(err);}
                         console.log('re-save player.');

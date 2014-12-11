@@ -4,14 +4,12 @@
 
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
-//var Player = require('./player.js');
 
 var UserSchema = new mongoose.Schema({
-    username   :   {type:String, trim:true},
+    username   :   {type:String, trim:true, lowercase:true},
     password   :   {type:String, trim:true },
-    email      :   {type:String, trim:true },
     date       :   Date,
-    userRole   :   {type:String, default:'user'}
+    userRole   :   {type:String, trim:true, default:'user'}
 });
 
 UserSchema.path('date')

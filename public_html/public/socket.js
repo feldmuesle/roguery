@@ -155,7 +155,9 @@ $(document).ready(function(){
     
     socket.on('newGame', function(data){
         $('#storyWrapper').hide();
-        $('#profileBox').hide();    
+        $('#profileBox').hide();
+        $('#newGame').hide();
+        $('#save').hide();
         $('#gallery').show();
         showGallery();
     });
@@ -254,7 +256,12 @@ $(document).ready(function(){
         $('#viewSaved').hide();
         if(index != null){
             console.log('we know which one is the backup!');
-            $('#thumb'+index).css('border','1px solid red');
+//            $('#thumb'+index).css('border','1px solid red');
+            var textOver = document.createElement('h3');
+            $(textOver).attr('class', 'textOver');
+            $(textOver).html('backup');
+            $('#thumb'+index).children('.imgBox').append(textOver);
+//            $('#thumb'+index).append(textOver);
             
         }
     });
