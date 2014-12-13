@@ -66,19 +66,19 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 
 
 /**************************************************************************************************/
-
+// get user from routes as soon as logged in to the game
+    eventEmitter.on('loggedIn', function(data){
+        console.log('hello from event emitter listening on loggedIn-event');
+        console.log('user has been logged in '+data['user']);
+        var userId = data['user'];
+        var token = data['token'];
+        game.addToken (userId, token);
+        
+    });
 /********** game ********/
 io.sockets.on('connection', function(socket){
     console.log('connection works');
-    
-    // get user from routes as soon as logged in to the game
-//    eventEmitter.on('loggedIn', function(user){
-//        console.log('user has been logged in '+user.username);
-//        console.log('default socket id:'+socket.id);
-//        game.addSocket(socket, user);
-//        socket.emit('setSocket', {'socketId':socket.id});
-//        
-//    });    
+     
     
     // start the game
         game.response(socket);
@@ -87,7 +87,7 @@ io.sockets.on('connection', function(socket){
 });
 
 /*********** routes *************/
-require('./app/controllers/routes.js')(app, passport); // load the routes and pass in our app and fully configured passport
+require('./app/controllers/routes.js')(app, passport, eventEmitter); // load the routes and pass in our app and fully configured passport
 
 /********** launch ************/
 server.listen(port);

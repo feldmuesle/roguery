@@ -124,6 +124,17 @@ exports.autoIncrementId = function(mongooseArray){
      
 };
 
+//create random token
+exports.getToken = function(stringLength){
+    var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
+    var ranString = '';
+    for (var i=0; i<stringLength; i++) {
+        var rnum = Math.floor(Math.random() * chars.length);
+        ranString += chars.substring(rnum,rnum+1);
+    }
+    return ranString;
+};
+
 // get random index of array
 exports.getRandomArrayItem = function(array){
    

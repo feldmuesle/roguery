@@ -17,21 +17,42 @@ var numUsers =0;
 var MAXSUM = 100; // sum attributes must sum up to
 var COINS = 20; // default amount for coins;
 
-// add socket to array of current connected sockets
-var addSocket = function(socket, user){
+// set the token and user
+var addToken = function(userId, token){
     
-    var index = Helper.getIndexByKeyValue(clients, 'user', user);
+    console.log('hello from addToken, token = '+token);
+    console.log('userId: '+userId);
+    var index = Helper.getIndexByKeyValue(clients, 'user', userId);
     
     if(index == null){
-        socket.room = user;
-        var client = {'user':user, 'socket':socket};
+        var client = {'user':userId, 'token':token};
         clients.push(client);
         numUsers++;
-        console.log('socket added to clientArray'); 
-        console.dir(socket);
+        console.log('new user with token added to clientArray'); 
         
     } else {
-        console.log('user already registered, no new client added.');
+        console.log('user already registered, no new client with token added.');
+    }    
+};
+
+module.exports.addToken = addToken;
+
+// add socket to array of current connected sockets
+var addSocket = function(socket, token){
+    console.log('hello from addSocket');
+    console.log(token);
+    
+    var index = Helper.getIndexByKeyValue(clients, 'token', token);
+    console.log('index: '+index);
+    console.dir(clients[index]);
+    if(index != null){
+        clients[index].socket = socket;
+//        numUsers++;
+        console.log('socket added to clientArray'); 
+        
+        
+    } else {
+        console.log('token not matched');
     }    
 };
 
@@ -49,8 +70,11 @@ module.exports.response = function(socket){
     // send previously saved games to client
     socket.on('viewSaved', function(data){
         console.log('view the saved games.');
-        var userId = data['user']; 
-        var sanId = Helper.sanitizeString(userId);
+        var token = data['user']; 
+        var index = Helper.getIndexByKeyValue(clients, 'token', token);
+        var userId = clients[index].user;
+        var userString = userId.toString();
+        var sanId = Helper.sanitizeString(userString);
         
         var charOpts = [{path:'character.weapon', select:'name id -_id'}, 
                 {path:'character.inventory', select:'name id -_id'}, 
@@ -59,7 +83,7 @@ module.exports.response = function(socket){
         Player.find({user: sanId, gameSave:{$nin:['false','replay']}}, '-user -_id').populate(charOpts)
             .exec(function(err, players){
                 if(err){ socket.emit('systemErr', {'msg': 'Sorry, we could not find any saved games'}); return;}
-                console.dir(players);
+//                console.dir(players);
                 //if the user has any saved games(players), get the characters
                 var games = [];
                 var backup; 
@@ -78,9 +102,12 @@ module.exports.response = function(socket){
     
     //delete previously saved game
     socket.on('gameDel', function(data){
-        var userId = data['user'];
+        var token = data['user'];
+        var index = Helper.getIndexByKeyValue(clients, 'token', token);
+        var userId = clients[index].user;
+        var userString = userId.toString();
         var character = data['character'];
-        var sanId = Helper.sanitizeString(userId);
+        var sanId = Helper.sanitizeString(userString);
         
         var charOpts = [{path:'character.weapon', select:'name id -_id'}, 
                 {path:'character.inventory', select:'name id -_id'}, 
@@ -110,16 +137,23 @@ module.exports.response = function(socket){
     socket.on('playSaved', function(data){
        console.log('continue to play a saved game.');
        var character = data['character'];
-       var user = data['user'];
+       var token = data['user'];
        
        //check if socket and user are already set in clients-array
-        var index = Helper.getIndexByKeyValue(clients, 'user',user);
+        var index = Helper.getIndexByKeyValue(clients, 'token', token);
        
-        if(index === null){
-            addSocket(socket, user);
-            index = Helper.getIndexByKeyValue(clients, 'user',user);
+        if(index != null){
+            addSocket(socket, token);
+            index = Helper.getIndexByKeyValue(clients, 'token',token);
 
+        }else{
+            console.log('something went wrong');
+            return;
         }
+        
+        var user = clients[index].user;
+//        console.log('index: '+index);
+//        console.dir(clients[index]);
        // returns player and current event when game was saved
         Game.getSavedGame(character, function(data){
             // if there were any errors
@@ -130,7 +164,7 @@ module.exports.response = function(socket){
             var savedPlayer = data['player'];
             var flags = savedPlayer.flags;
             var event = data['event'];
-//            savedPlayer.gameSave = 'saved'; // mark this on, so we can find the current saved game
+            
             // create new player for this
             console.log('create new player with character:');
             console.dir(character);
@@ -186,7 +220,7 @@ module.exports.response = function(socket){
             //OBS! we dont need to check for user, since we just put it there ourselves. 
             //instead userId should get sanitized
             // get userId from clients-array by socket and start the game
-            var index = Helper.getIndexByKeyValue(clients, 'user',data['user']);
+            var index = Helper.getIndexByKeyValue(clients, 'token',data['user']);
             
             if(index != null){
                 var userId = clients[index].user;
@@ -238,8 +272,14 @@ module.exports.response = function(socket){
         
         // get player out from clients-array by socket 
         var index = Helper.getIndexByKeyValue(clients, 'socket',socket);
+        console.log('index '+index);
         var player = clients[index].player;
         var storyteller = new Storyteller(socket);
+        
+        if(index == null){
+            storyteller.tellError();
+            return;
+        }
         
         // fetch entire chosen event from db and run new eventChain
         Game.getChoice(choiceId, function(event){
@@ -248,7 +288,7 @@ module.exports.response = function(socket){
                console.log('HELLO from runEventChain after choices made HELLO HELLO HELLO');
                 var continType = data['continType'];
                 var player = data['player'];
-                console.log('playerflags: '+player.flags);
+                console.log('player - userId: '+player.user);
 
                 //store player together with socket
                 clients[index].player = player;
@@ -270,13 +310,13 @@ module.exports.response = function(socket){
     // save game for user
     socket.on('saveGame', function(data){
         console.log('hello from save game');
-        var userId = data['user'];
+        var token = data['user'];
         var character = data['character'];
         var event = data['event'];
-        console.log('clients userId: '+userId);
+        console.log('clients token: '+token);
         console.log('clients event: '+event);
         var index = Helper.getIndexByKeyValue(clients, 'socket', socket);
-        userId = clients[index].user;
+        var userId = clients[index].user;
         console.log('userId saved in clients: '+userId);
         var socketPlayer = clients[index].player;
         var flags = socketPlayer.flags;
@@ -293,7 +333,9 @@ module.exports.response = function(socket){
     });
     
     socket.on('newGame', function(data){
-        var user = data['user'];
+        var token = data['user'];
+        var index = Helper.getIndexByKeyValue(clients, 'token', token);
+        var user = clients[index].user;
         Game.setSavings(user, function(){
             socket.emit('newGame');
         });
@@ -313,9 +355,6 @@ module.exports.response = function(socket){
             console.log('number of clients '+clients.length);
             console.log('socket'+socket.id);
             var clientI =  Helper.getIndexByKeyValue(clients, 'socket', socket);
-            console.log('client-index: '+clientI);
-            console.log('client ')
-            console.dir(clients[clientI]);
             
             if(clientI == null){
                 console.dir(clients);

@@ -14,7 +14,7 @@ var Player = require('../models/player.js');
 var Guild = require('../models/guild.js');
 var Weapon = require('../models/weapon.js');
 var Character = require('../models/character.js');
-var Event = require('../models/event1.js');
+var Event = require('../models/event.js');
 var Helper = require('./helper_functions.js');
 
 
@@ -764,7 +764,7 @@ exports.sendAllModels = function(res, req){
                 
                 //get the images for the guilds
                 var images  = Guild.getImages();
-
+                
                 console.log(attributes);
                 
                 if(err){ return console.log(err);}

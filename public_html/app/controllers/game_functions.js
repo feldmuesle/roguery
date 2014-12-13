@@ -3,7 +3,7 @@
  */
 
 // get all neccessary imports
-var Event = require('../models/event1.js');
+var Event = require('../models/event.js');
 var Location = require('../models/location.js');
 var Item = require('../models/item.js');
 var Player = require('../models/player.js');
@@ -924,7 +924,8 @@ exports.getSavedGame = function(character, cb){
 
 // clean  up in saved players, remove backups and replayed, set saved to true
 exports.setSavings = function(user, cb){
-    var sanId = Helper.sanitizeString(user);
+    var userString = user.toString();
+    var sanId = Helper.sanitizeString(userString);
     
     //get all players of user
     Player.remove({'user' : sanId, 'gameSave':{$in :['backup','replay','false']}}, function(err, players){

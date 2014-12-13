@@ -2,7 +2,7 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var Event = require('./event1.js');
+var Event = require('./event.js');
 var Helper = require('../controllers/helper_functions.js');
 
 //validators

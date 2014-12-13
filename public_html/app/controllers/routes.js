@@ -1,4 +1,4 @@
-/* 
+ /* 
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -10,7 +10,10 @@ var Character = require('../models/character.js');
 var Crud = require('./crud_functions.js');
 var Helper = require('./helper_functions.js');
 
-module.exports = function(app, passport){
+module.exports = function(app, passport, eventEmitter){
+    
+    
+        
         
     // homepage (with login-links)
     app.get('/', function(req, res){
@@ -51,7 +54,15 @@ module.exports = function(app, passport){
     app.get('/game', isLoggedIn, function (req, res){
                 
         console.log('hello from game-routes');
+        // get user and send it to the socket together with token, send token to client
+        var userId = req.user._id;
+        var token = Helper.getToken(8);
         
+        eventEmitter.emit('loggedIn',{
+            'user':userId,
+            'token': token
+        });
+                
         var opts = [{path:'weapon', select:'name id -_id'}, 
                     {path:'inventory', select:'name id -_id'}, 
                     {path:'guild', select:'name id image -_id'}];
@@ -89,11 +100,13 @@ module.exports = function(app, passport){
                         guilds.push(guild);
                     }
                 }
+                
+                
 
                 res.render('game.ejs', {
                    'guilds'     :   guilds,
-                   'characters' :  characters,
-                   'userId'     :   req.user._id,
+                   'characters' :   characters,
+                   'userId'     :   token,
                    'username'   :   req.user.username,
                    'games'      :   games,
                    'weapons'    :   weapons,
@@ -250,3 +263,4 @@ function isAdmin(req, res, next){
         res.redirect('/');
     }
 }
+
