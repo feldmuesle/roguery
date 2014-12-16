@@ -21,6 +21,8 @@ $(document).ready(function(){
 
 
 /********* interaction with game **********/
+    initialize();
+    
     $('#play').click(function(){
         
         var data = {
@@ -231,9 +233,9 @@ $(document).ready(function(){
     });
     
     socket.on('gameDeleted', function(data){
-        console.log('game has been deleted');
-       savedGames = data['characters'];
-       createGallery(savedGames, 'saved');
+       
+        savedGames = data['characters'];
+        createGallery(savedGames, 'saved');
         $('#heading').find('h2').html('<span class="fa fa-sign-in"></span> continue saved game');
         $('#viewGallery').show();
         $('#viewSaved').hide();       

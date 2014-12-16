@@ -4,7 +4,7 @@ To change this template file, choose Tools | Templates
 and open the template in the editor.
 */
 /* 
-    Created on : 06-09-2014, 19:51:21
+    Created on : 18-10-2014, 19:51:21
     Author     : Lisa
 */
 
@@ -152,6 +152,11 @@ li.choice{
 
 li.dices, li.info{    
     color: crimson;
+    font-weight: bold;
+}
+
+li.gameOver {
+    font-size: 1.5em;
     font-weight: bold;
 }
 

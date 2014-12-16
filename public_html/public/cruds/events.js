@@ -38,7 +38,7 @@ function resetEventForm(){
     $('#createEvent textarea[name=text]').html('');
     $('#createEvent input[name=form]').val('createEvent');
     $('#btnCreateEvent').text('create');
-    $('#createEvent input[type=checkbox]:checked').removeProp('checked');
+    $('#createEvent input[type=checkbox]:checked').removeAttr('checked');
 
     // hide all fold-outs
     $('#isChoiceFold').hide();
@@ -94,10 +94,12 @@ $('#addEvent').click(function(){
 // fold out if checkbox gets checked
 function foldOut(checkbox, foldId){
     $('#createEvent input[name='+checkbox+']').click(function(){
-        
+        console.log('you checked a checkbox');
         var self = $(this);
         if(self.is(':checked')){ 
             $('#'+foldId).show();
+            console.log('should get checked');
+            
         }else{                  
             $('#'+foldId).hide();
             
@@ -106,7 +108,8 @@ function foldOut(checkbox, foldId){
             if(checkbox == 'reqFlag'){ removeAddOns(flagCount,'removeFlag');}
             if(checkbox == 'rejectFlag'){ removeAddOns(rejectFlagCount,'removeRejectFlag');}
             if(checkbox == 'attributes'){ removeAddOns(attrCount,'removeAttr');}            
-        }       
+        }     
+        $(self).trigger('change');
     });
 }
 
@@ -478,6 +481,7 @@ function removeAddOns(count, buttonId){
        
        // set current eventLocation 
        eLoco = location;
+       console.log(isFlagged);
        
        var event = {
             'form'      :   form,
@@ -622,6 +626,8 @@ function removeAddOns(count, buttonId){
            event.id = $('#eventId').val();
        }
        
+       console.dir(event);
+       
        $.post('/crud',event, function(data){
          
            if(!data['success']){
@@ -660,14 +666,16 @@ function removeAddOns(count, buttonId){
         // make sure form is clean
         $('#alertEvent').hide();
         $('#createEvent').trigger('reset');
-        $('#createEvent input:checkbox').removeAttr('checked');        
         resetEventForm();  
+//        $('#createEvent input:checkbox').removeAttr('checked'); 
+        $('#createEvent input:checkbox').val('true');
+        
                 
         // get id from button-element and item-object from items-array
         var eventId = this.id.substr(5,this.id.length); // event = 5 chars
         var event = getRecordById(events, eventId);
         eLoco = event.location.id;
- 
+        console.dir(event);
         // populate item in modal form
         $('#createEvent input[name=form]').val('updateEvent');
         $('#createEvent input[name=name]').val(event.name);        
@@ -685,7 +693,8 @@ function removeAddOns(count, buttonId){
         }
 
         if(event.setFlag != false){
-            $('#createEvent input[name=isFlagged]:checkbox').attr('checked',true);
+            $('#createEvent input[name=isFlagged]:checkbox').attr('checked',false).trigger('change');
+            $('#createEvent input[name=isFlagged]:checkbox').prop('checked',true).trigger('change');
             $('#createEvent input[name=flagDesc]').val(event.flag.name);
             $('#isFlaggedFold').show();
         }

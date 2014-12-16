@@ -233,8 +233,6 @@ function getRandomEvent(event, player){
         picked = 'none';
     }
     
-    console.log('picked: '+picked.name);
-    
     // return player and picked event;
     var sendBack = {
         'player'    : player,

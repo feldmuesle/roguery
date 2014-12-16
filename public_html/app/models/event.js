@@ -49,7 +49,7 @@ var EventSchema = Schema({
 });
 
 // sub-schemas
-{
+
 var EventItemSchema = new Schema({
     item    :    [Item.schema],
     action  :    {type:String, trim:true, lowercase:true, required:true}  
@@ -162,6 +162,7 @@ EventSchema.methods.saveUpdateAndReturnAjax = function(res){
         {path:'continueTo.random', select:'name id -_id'} ];
     
     var event = this || mongoose.model('Event');
+    console.log('save and update ajax');
         event.save(function(err){
             if(err){
                 res.send({
@@ -174,6 +175,7 @@ EventSchema.methods.saveUpdateAndReturnAjax = function(res){
                     return events;
                     
                     }).then(function(events){
+                        console.log('updated event: '+event);
                         res.send({
                         'success'   : true,
                         'msg'       : 'yuppi! - event has been updated.',
@@ -417,31 +419,5 @@ EventSchema.statics.addChoicesBranch = function(branch, event, cb){
 //    }
 };
 
-
-
 var EventModel = mongoose.model('Event', EventSchema);
 module.exports = EventModel;
-
-// create some items
-{
-//    var key = {id:1, name:'a golden key'};
-//    var box = {id:2, name:'a little box'};
-//    var book = {id:3, name:'a book'};
-//    var hat = {id:4, name:'an old hat'};
-//    var pearl = {id:5, name:'a black pearl'};
-//    var needle = {id:6, name:'a pointy needle'};
-//
-//
-//    var items = [key, box, book, hat, pearl, needle];
-//    console.log(items.length);
-//    
-//    for( var j=0; j<items.length; j++){
-//        var item = new ItemModel(items[j]);
-//        item.save(function(err, items){
-//            if(err){console.log(err); return;}
-//            console.log('item saved.');
-//            console.log(item);
-//        });
-//        console.log('i = '+j);
-//    }
-}

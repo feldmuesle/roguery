@@ -8,6 +8,8 @@ var eLoco = 0;
 
 $(document).ready(function(){
    
+   console.dir(events);
+   
     // hide alert-windows for now
     $('#alertUser').hide();
     $('#alertEvent').hide();
@@ -33,9 +35,12 @@ $(document).ready(function(){
     $('#characterError').hide();
     
     // show automatically dropdown with first event-location
-    var locoEvents = getEventsByLoco(events,locations[0].id);
-    updateCrudList( locoEvents, 'eventList', 'event', 'updateEvent',
-                    'eventBtnDel', 'deleteEvent');
+    if(locations.length > 0){
+        var locoEvents = getEventsByLoco(events,locations[0].id);
+        updateCrudList( locoEvents, 'eventList', 'event', 'updateEvent',
+                        'eventBtnDel', 'deleteEvent');
+    }
+    
     
     /******** SHOW MODAL FORMS ********/
     
@@ -79,6 +84,11 @@ $(document).ready(function(){
         $('#createGuild').trigger('reset');
         $('#createGuild input[name=form]').val('createGuild');
         $('#btnCreateGuild').text('create');
+        var option = $('#createGuild select[name=location]').first('option').val();
+        console.log('first option: '+option);
+        if(option != 0){
+            $('#createGuild select[name=location]').prepend('<option value="0">random location</option>');
+        }
         var title = createTitleWithPlusIcon('new guild');
         $('#createGuilds').find('.modal-title').html(title);
         $("#createGuilds").modal('show'); 
@@ -557,6 +567,12 @@ $(document).ready(function(){
         $('#createGuild').trigger('reset');
         $('#createGuilds').find('.modal-title').html('update guild');
         populateSelect(locations, 'createGuild','location');
+        
+        // add random location to location-select
+        var option = $('#createGuild select[name=location]').first('option').val();
+        if(option != 0){
+            $('#createGuild select[name=location]').prepend('<option value="0">random location</option>');
+        }
         
         // get id from span-element and item-object from items-array
         var guildId = this.id.substr(5,this.id.length); // guild = 5 chars

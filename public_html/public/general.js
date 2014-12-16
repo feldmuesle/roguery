@@ -18,9 +18,11 @@ $(function(){
     $('#playSaved').hide();
     $('#gameDel').hide();
     $('#pickRand').click(function(){displayRandCharacter();});
-    socket.emit('initialized', {'user':user}); // send token to server
-    
 });
+
+function initialize(){
+    socket.emit('initialized', {'user':user}); // send token to server
+}
 
 // set screen-height, hide startup-form and show the game!!
 function gameInit(){
@@ -66,6 +68,7 @@ function showGallery(){
    if(savedGames.length > 0){
        $('#viewSaved').show();
    }
+   
 }
 
 $('#viewGallery').click(function(){
@@ -90,34 +93,34 @@ function getStatsList(character){
     var stamina = '<dt><span class="glyphicon glyphicon-heart"></span> Stamina </dt>'+
         '<dd id="stamina">'+character.attributes.stamina+'<span id="maxStam">/'+character.attributes.maxStam+'</span>'+
         '<span class="statDesc" id="staminaDesc"> '+getAttributDesc('stamina',character.attributes.stamina)+'</span></dd>';
-    var charisma='<dt><span class="glyphicon glyphicon-fire"></span> Charisma </dt>'+
+    var charisma='<dt><span class="glyphicon glyphicon-tint"></span> Charisma </dt>'+
         '<dd id="charisma">'+character.attributes.charisma+
         '<span class="statDesc" id="charismaDesc"> '+getAttributDesc('charisma',character.attributes.charisma)+'</span></dd>';
     var duelling = '<dt><span class="glyphicon glyphicon-flash"></span> Duelling </dt>'+
         '<dd id="duelling">'+character.attributes.duelling+
         '<span class="statDesc" id="duellingDesc"> '+getAttributDesc('duelling',character.attributes.duelling)+'</span></dd>';
-    var scouting = '<dt><span class="glyphicon glyphicon-move"></span> Scouting </dt>'+
+    var scouting = '<dt><span class="glyphicon glyphicon-search"></span> Scouting </dt>'+
         '<dd id="scouting">'+character.attributes.scouting+
         '<span class="statDesc" id="scoutingDesc"> '+getAttributDesc('scouting',character.attributes.scouting)+'</span></dd>';
-    var heroism = '<dt><span class="glyphicon glyphicon-move"></span> Heroism </dt>'+
+    var heroism = '<dt><span class="glyphicon glyphicon-heart-empty"></span> Heroism </dt>'+
         '<dd id="heroism">'+character.attributes.heroism+
         '<span class="statDesc" id="heroismDesc"> '+getAttributDesc('heroism',character.attributes.heroism)+'</span></dd>';
-    var roguery = '<dt><span class="glyphicon glyphicon-fire"></span> Roguery </dt>'+
+    var roguery = '<dt><span class="glyphicon glyphicon-certificate"></span> Roguery </dt>'+
         '<dd id="roguery">'+character.attributes.roguery+
         '<span class="statDesc" id="rogueryDesc"> '+getAttributDesc('roguery',character.attributes.roguery)+'</span></dd>';
-    var magic = '<dt><span class="glyphicon glyphicon-flash"></span> Magic </dt>'+
+    var magic = '<dt><span class="glyphicon glyphicon-fire"></span> Magic </dt>'+
         '<dd id="magic">'+character.attributes.magic+
         '<span class="statDesc" id="magicDesc"> '+getAttributDesc('magic',character.attributes.magic)+'</span></dd>';
-    var healing = '<dt><span class="glyphicon glyphicon-move"></span> Healing </dt>'+
+    var healing = '<dt><span class="glyphicon glyphicon-leaf"></span> Healing </dt>'+
         '<dd id="healing">'+character.attributes.healing+
         '<span class="statDesc" id="healingDesc"> '+getAttributDesc('healing',character.attributes.healing)+'</span></dd>';
-    var luck = '<dt><span class="glyphicon glyphicon-fire"></span> Luck </dt>'+
+    var luck = '<dt><span class="glyphicon glyphicon-star"></span> Luck </dt>'+
         '<dd id="luck">'+character.attributes.luck+
         '<span class="statDesc" id="luckDesc"> '+getAttributDesc('luck',character.attributes.luck)+'</span></dd>';
-    var streetwise = '<dt><span class="glyphicon glyphicon-fire"></span> Streetwise </dt>'+
+    var streetwise = '<dt><span class="glyphicon glyphicon-bell"></span> Streetwise </dt>'+
         '<dd id="streetwise"> '+character.attributes.streetwise+
         '<span class="statDesc" id="streetwiseDesc"> '+getAttributDesc('streetwise',character.attributes.streetwise)+'</span></dd>';
-    var coins = '<dt><span class="glyphicon glyphicon-flash"></span> Coins </dt>'+
+    var coins = '<dt><span class="glyphicon glyphicon-record"></span> Coins </dt>'+
         '<dd id="coins">'+coins+'</dd>';
 
     stats.push(name, guild, stamina, charisma, duelling, scouting, heroism,
