@@ -25,7 +25,6 @@ var EventSchema = Schema({
     rejectFlag  :   [{type: Schema.Types.ObjectId, ref:'Flag', index:true}],
     attributes  :   [AttributeSchema],
     branchType  :   {type:String, trim:true, lowercase:true, required:true},
-//    branch      :   [{type: Schema.Types.Mixed}]
     dice        :   {    
         attribute   :   {type:String, trim:true, lowercase:true},
         difficulty  :   {type:Number},
@@ -62,55 +61,21 @@ var AttributeSchema = new Schema({
     action      :   {type:String, trim:true, lowercase:true, required:true},
     amount      :   {type:Number, min:1, max:10, required:true}
 }); 
+
 var AttributeModel = mongoose.model('Attribute', AttributeSchema);
-//
-//var DiceSchema = new Schema({
-//    
-//    attribute   :   {type:String, trim:true, lowercase:true, required:true},
-//    difficulty  :   {type:Number, min:5, max:25, required:true},
-//    success     :   {
-//        type    :   {type:String, trim:true, lowercase:true, required:true},
-//        location:   {type: Schema.Types.ObjectId, ref:'Location', index:true},
-//        event   :   {type: Schema.Types.ObjectId, ref:'Event', index:true}
-//    },
-//    failure     :   {
-//        type    :   {type:String, trim:true, lowercase:true, required:true},
-//        location:   {type: Schema.Types.ObjectId, ref:'Location', index:true},
-//        event   :   {type: Schema.Types.ObjectId, ref:'Event', index:true}
-//        }
-//        
-//});
-//
-//var DiceModel = mongoose.model('Dice', DiceSchema);
-//
-//var ChoiceSchema = new Schema({
-//    type    :   {type:String, trim:true, lowercase:true, required:true},
-//    amount  :   {type:Number, min:1, max:8, required:true},
-//    events  :   [{type: Schema.Types.ObjectId, ref:'Event', index:true}]
-//});
-//var ChoiceModel = mongoose.model('Choice', ChoiceSchema);
-//
-//var ContinueSchema = new Schema({
-//    event   :   {type: Schema.Types.ObjectId, ref:'Event', index:true},
-//    location:   {type: Schema.Types.ObjectId, ref:'Location', index:true}
-//});
-//var ContinueModel = mongoose.model('Continue', ContinueSchema);
-}
 
 EventSchema.set('toObject', {getters : true});
 
 //sanitize strings before saving
 EventSchema.pre('save', function(next){
     var self = this || mongoose.model('Event');
-    console.log('hello from pre-save: '+self.name);
     self.name = Helper.sanitizeString(self.name);
-//    self._id  = self.name;
     next();
 });
 
 //validation
 EventSchema.path('choiceText').validate(function(value){
-    console.log('hello from validate choiceText');
+  
     var self = this || mongoose.model('Event');
     if(self.isChoice){
         return value.length >0;
@@ -118,7 +83,7 @@ EventSchema.path('choiceText').validate(function(value){
 },'Please provide a text for the choice.');
 
 EventSchema.path('dice.difficulty').validate(function(value){
-   console.log('hello from validate difficulty');
+
     var self = this || mongoose.model('Event');
     if(self.branchType == 'dice'){
         if(value >= 5 && value <= 40){
@@ -128,9 +93,9 @@ EventSchema.path('dice.difficulty').validate(function(value){
 },'Please provide a difficulty for the diceroll between 5 and 40.');
 
 EventSchema.path('attributes').validate(function(){
-   console.log('hello from validate attributes');
+   
     var self = this || mongoose.model('Event');
-    console.log(self.attributes);
+
     var pass = true;
     if(self.attributes.length > 0){
         // check if an attribute misses an amount
@@ -199,18 +164,13 @@ EventSchema.methods.saveUpdateAndReturnAjax = function(res){
     var event = this || mongoose.model('Event');
         event.save(function(err){
             if(err){
-                console.log('something went wrong when updating a event.');
-                console.log('error '+err); 
                 res.send({
                     'success'   : false,
                     'msg'       : 'could not update event',
                     'errors'    : err.errors});
             }else{
                 EventModel.find({},'-_id').populate(populateQuery).exec(function(err, events){
-                    if(err){ return console.log(err);}
-                    
-//                    console.log('events sent back after update:');
-//                    console.dir(events);
+                    if(err){ return console.log(err);}                    
                     return events;
                     
                     }).then(function(events){
@@ -219,7 +179,6 @@ EventSchema.methods.saveUpdateAndReturnAjax = function(res){
                         'msg'       : 'yuppi! - event has been updated.',
                         'events'   :   events
                     });
-
                 });  
             }   
         });     
@@ -244,7 +203,7 @@ EventSchema.statics.getPopuQuery = function(){
 
 // insert attributes if there are any
 EventSchema.statics.addAttributes = function(attributes, event){
-    console.log('attributes are: '+attributes);
+    
     if(attributes != 'false'){
         // loop through array and create attribute for each
         attributes.forEach(function(attr){
@@ -257,8 +216,7 @@ EventSchema.statics.addAttributes = function(attributes, event){
 
 // insert items if there are any
 EventSchema.statics.addItems = function(rawItems, event){
-    console.log('items are: ');
-    console.dir(rawItems);
+    
     // if there are any items at all
     if(rawItems != 'false'){
         var itemIds = [];
@@ -266,13 +224,11 @@ EventSchema.statics.addItems = function(rawItems, event){
         rawItems.forEach(function(item){
             var sanId = Helper.sanitizeNumber(item.item);
             itemIds.push(sanId);    
-            console.log('event.addItemds: item found.');
         });         
        
         // query items in array to get object_id
         Item.find({'id':{$in:itemIds}}).exec(function(err, items){
                 if(err){console.log(err); return;}
-                console.dir(items);
                 return items;                        
         }).then(function(items){
             for(var i=0; i<items.length; i++){
@@ -280,19 +236,15 @@ EventSchema.statics.addItems = function(rawItems, event){
                 
                 //loop through rawItems and match id in order to get correct action
                 for(var j=0; j<rawItems.length; j++){
-                    console.log('hello from rawItems-loop.');
+                  
                     if(items[i].id == rawItems[j].item){
                         // create new EventItem-model
                         var eventItem = new EventItemModel();
                         eventItem.item = items[i];
                         eventItem.action = rawItems[j].action;
-                        console.log('there is a match - id'+items[i].id+' '+rawItems[j].action);
                         event.items.push(eventItem);
                     }
-                    else{console.log('no match found');}
                 }                    
-                          
-                console.log(event.items.length+' items added to event');
             }; 
             return event;
         });      
@@ -302,31 +254,29 @@ EventSchema.statics.addItems = function(rawItems, event){
 
 // add branch if branchtype = dice
 EventSchema.statics.addDiceBranch = function(branch, event, cb){
-    console.log('hello from addDiceBranch');
+    
     var self = this || mongoose.model('Event');
     event.dice.attribute = branch.attribute;
     event.dice.difficulty = branch.difficulty;
     event.dice.success.type = branch.success.type;
     event.dice.failure.type = branch.failure.type;
-    console.log('event.dice so far: '+event.dice);
+ 
     var locos = [];
     var events = [];
+    
     // sanitize the ids before using in query
     var succTrigger = Helper.sanitizeNumber(branch.success.trigger);
-    var failTrigger = Helper.sanitizeNumber(branch.failure.trigger);
-    
+    var failTrigger = Helper.sanitizeNumber(branch.failure.trigger);    
     
     branch.success.type == 'succLoco'? locos.push(succTrigger):events.push(succTrigger);
     branch.failure.type == 'failLoco'? locos.push(failTrigger):events.push(failTrigger);
     
     if(locos.length == 2){
-        console.log('expected 2 locations: getting '+locos.length);
-        console.log('sanitized ids '+locos);
         Location.find({'id':{$in : locos}}).exec(function(err, locos){
             if(err){console.log(err); return;}
-            console.log('hello from find dice-locos');
+            
             if(locos[0].id == succTrigger){
-                console.log('yes it is true');
+                
                 event.dice.success.location = locos[0]._id;
                 // check if there are two locations or only one (because they are the same)
                 if(locos.length > 1){
@@ -334,8 +284,6 @@ EventSchema.statics.addDiceBranch = function(branch, event, cb){
                 }else{
                     event.dice.failure.location = locos[0]._id;
                 }
-                
-                console.log('event.dice.success.location '+event.dice.success.location);
             }else{
                 event.dice.failure.location = locos[0]._id;
                 if(locos.length > 1){
@@ -343,40 +291,30 @@ EventSchema.statics.addDiceBranch = function(branch, event, cb){
                 }else{
                     event.dice.success.location = locos[0]._id;
                 }
-                
-                console.log('event.dice.success.location '+event.dice.success.location);
-            }
-            console.log('dice: trigger two locations '+event.dice);
-            
+            }            
             return cb(event);
-        }); 
+        });
+        
     } else if(events.length == 2){
-        console.log('expected 2 events: getting '+events.length);
-        console.log(events);
         self.find({'id':{$in : events}}).exec(function(err, ev){
             if(err){console.log(err); return;}
-            
-            console.log('eventId = '+ev[0].id);
-            console.log('succesTrigger= '+succTrigger);
-            
+                        
             if(ev[0].id == succTrigger){
                 event.dice.success.event = ev[0]._id;
                 if(ev[0].id == failTrigger){ // in case they are the same
                     event.dice.failure.event = ev[0]._id;
                 }else{
                     event.dice.failure.event = ev[1]._id;
-                }
-                                   
+                }                                   
             }else{
                 event.dice.success.event = ev[1]._id;
                 event.dice.failure.event = ev[0]._id;
             }          
-            console.log('dice: trigger two locations '+event.dice);
             return cb(event);
         }); 
+        
     } else {
-        console.log('expected 1 event: '+events.length);
-        console.log('expected 1 location: '+locos.length);
+        
         if(branch.success.type == 'succLoco'){
             // if there's only one location and it's for success, failure must be event
             Location.findOne({'id':succTrigger}).exec(function(err, loco){
@@ -405,20 +343,15 @@ EventSchema.statics.addDiceBranch = function(branch, event, cb){
             );  
         }
     }
-    
-    
-    //event.branch.push(dice);
-    // return cb(event)
 };
 
 // add branch if branchtype = continue
 EventSchema.statics.addContinueBranch = function(branch, event, cb){
-    console.log('hello from addContinueBranch');
+ 
     var self = this || mongoose.model('Event');
 
     // if its an event/location, sanitize id before making query
     if(branch.type != 'continueRand'){
-        console.log('continue to other than random event');
         var continueTo = Helper.sanitizeNumber(branch.continueTo);
     }
     
@@ -428,7 +361,6 @@ EventSchema.statics.addContinueBranch = function(branch, event, cb){
         Location.findOne({'id':continueTo}).exec(function(err, loco){
             if(err){console.log(err); return;}
             event.continueTo.location = loco._id;
-            console.log('branch pushed '+event.branch);
             return cb(event);
         }); 
     }else if(branch.type == 'continueEvent'){
@@ -438,10 +370,10 @@ EventSchema.statics.addContinueBranch = function(branch, event, cb){
             return cb(event);
         });
     }else {
-        // TODO: get random event before sending to client
+        // get random event before sending to client
         var sanitized = [];
         branch.continueTo.forEach(function(eve){      
-            console.log('hello from random loop');
+            
             var ev = Helper.sanitizeNumber(eve);
             sanitized.push(ev);
         });

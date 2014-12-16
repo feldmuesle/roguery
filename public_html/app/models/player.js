@@ -18,44 +18,21 @@ var PlayerSchema = Schema({
 
 PlayerSchema.set('toObject', {getters : true});
 
-//PlayerSchema.pre('save', function(next){
-//    
-//    var self = this || mongoose.model('Player');
-//    console.log('hello from pre-save player.');
-//    console.log('player to save = '+self);
-//    next();
-//});
-//
-//PlayerSchema.post('save', function(next){
-//    
-//    var self = this || mongoose.model('Player');
-//    console.log('hello from post-save player.');
-//    console.log('player to save = '+self);
-//    next;
-//});
-
 PlayerSchema.statics.saveGame = function(user, flags, character, event, cb){
     
     var self = this || mongoose.model('Player');
-    console.log('hello from Player.saveGame');
+    
     // sanitize query-values
     var sanId = mongoose.Types.ObjectId(user);
     var sanChar = mongoose.Types.ObjectId(character._id);
-    
-    console.log('sanId: '+sanId);
-    console.log('sanChar: '+sanChar);
-    console.log('event: '+event);
-    
+        
     self.findOne({'user': sanId,'character._id':sanChar, 'gameSave':{$ne : 'saved'}}, function(err, player){
         if(err){return cb(err);}
         
         if(player){
-            console.log('the player to save has been found');
-            console.dir(player);
             // if it's a saved game already, save it
             if(player.gameSave == 'replay'){
-    //            player.character[0] = character;
-                console.log('save previously saved game');
+ 
                 // find the real saved player
                 self.findOne({'gameSave':'saved'}, function(err, savedPlayer){
                     if(err){console.log(err);}
@@ -63,10 +40,8 @@ PlayerSchema.statics.saveGame = function(user, flags, character, event, cb){
                     savedPlayer.flags = flags;
                     savedPlayer.character = player.character;
                     savedPlayer.gameSave = 'true';
-                    savedPlayer.save(function(err, savedPl){  
+                    savedPlayer.save(function(err){  
                         if(err){console.log(err);}
-                        console.log('re-save player.');
-                        console.dir(savedPl);
                         return cb(err);
                     });                    
                 });                
@@ -78,33 +53,23 @@ PlayerSchema.statics.saveGame = function(user, flags, character, event, cb){
                 newPlayer.flags = player.flags;
                 newPlayer.save(function(err){
                     if(err){console.log('there is an error');console.log(err);}
-                    console.log('new player has been saved for real.');
-                    console.dir(newPlayer);
                     return cb(err);
                 });
             }
-            
-            
-
-
-            
         }
     });
 };
 
 PlayerSchema.statics.returnObjectId = function(idString){
-    console.log('try to cast to objectId');
+
     var string = idString.toString();
-    console.log(string);
     var objectId = mongoose.Types.ObjectId(string);
-    console.log(objectId);
     return objectId;
 };
 
 // method used for creating a new player and character used for backup when disconnecting
 PlayerSchema.statics.createNewBackup = function(character, userId){
-    console.log('create new Player for backup');
-        
+            
     var player = new PlayerModel();
     var newChar = new Character();
     newChar.id = character.id;
@@ -118,13 +83,11 @@ PlayerSchema.statics.createNewBackup = function(character, userId){
     player.user = userId;
     player.character = newChar;
     
-    return player;
-    
+    return player;    
 };
 
 PlayerSchema.statics.createNew = function (character, flags, userId, cb) {
-    console.log('create new Player with character:');
-    console.dir(character);
+    
     var self = this || mongoose.model('Player');
     var guildId;
     var weaponId;
@@ -134,7 +97,6 @@ PlayerSchema.statics.createNew = function (character, flags, userId, cb) {
     if(character.inventory.length > 0){        
         
         for(var i=0; i<character.inventory.length; i++){
-            console.log('hello from within inventory loop, i='+i);
             var id = character.inventory[i].id.toString();
             var sanId = Helper.sanitizeString(id);
             charItems.push(sanId); 
@@ -202,8 +164,7 @@ PlayerSchema.statics.createNew = function (character, flags, userId, cb) {
                 });                
             });
         });
-    });
-  
+    });  
 };
 
 /******* methods **********************/
@@ -214,24 +175,23 @@ PlayerSchema.methods.looseAttr = function(attr, amount){
         self.character[0].attributes[attr] -= amount;
     }else {
         self.character[0].attributes[attr] = 0;
+        
         if(attr == 'stamina'){
-            console.log('it all became too much for you, you died');
             return 'dead';
         }
     }
-    console.log('new '+attr+': '+self.character[0].attributes[attr]);
     return self;
 };
 
 PlayerSchema.methods.addFlag = function(newFlag){
-    console.log('hello from addFlag to player');
+ 
     var self = this || mongoose.model('Player', PlayerSchema);
     var existsAlready = false;
     self.flags.forEach(function(flag){
         // object-id need to be string to be able to be compared
         var stringyfied = flag.toString();
+        
         if(stringyfied == newFlag._id){
-            console.log('player has already this flag');
             existsAlready = true;
             return;
         }
@@ -239,7 +199,6 @@ PlayerSchema.methods.addFlag = function(newFlag){
     // if it's a new flag, add it to player
     if(!existsAlready){
         self.flags.push(newFlag._id); 
-        console.log('new flag added to player');
     }  
     return self;
 };

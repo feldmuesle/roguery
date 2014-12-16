@@ -6,6 +6,7 @@ $(function(){
     $('#game').hide();
     $('#save').hide();
     $('#newGame').hide();
+    $('#savedGame').hide();
     $('#storyWrapper').hide();
     $('#profileBox').hide();
     $('#gameSignup').hide();
@@ -17,6 +18,7 @@ $(function(){
     $('#playSaved').hide();
     $('#gameDel').hide();
     $('#pickRand').click(function(){displayRandCharacter();});
+    socket.emit('initialized', {'user':user}); // send token to server
     
 });
 
@@ -35,10 +37,8 @@ function gameInit(){
 function createGallery(charArray, type){
         
     var html = '';
-    console.dir(charArray);
+    
     for( var i=0; i<charArray.length; i++){
-        console.dir(charArray[i]);
-        console.log(charArray[i].id);
         var thumb = '<div class="brik col-xs-4 col-md-3">';
         var part1 ='';
         if(type == 'saved'){
@@ -128,7 +128,6 @@ function getStatsList(character){
 
 // display character with attributes
 function displayPlayerStats(character){
-        console.log('hello from display PlayerSats');
         
         var stats = getStatsList(character);        
         var playerstats = '<h3>Profile</h3>';
@@ -171,7 +170,6 @@ function updateInventory(item, action){
     
 // update single attribute in  
 function updatePlayerStats(attribute, newValue){
-    console.log('hello from updatePlayerStats');
     
     if(attribute == 'stamina'){
         // if its stamina, also display maxStam-span
@@ -211,16 +209,25 @@ function clearText(){
     $('#storyEntries').html('');
 }
 
-function gameOver(){
-    
+function gameOver(){    
     appendToChat('gameOver', '~* THE END *~');
+}
+
+function savedGameNotify(msg){
+    $('#savedGame').find('p').text(msg);
+    $('#savedGame').show();
+    $('#savedGame').slideDown('slow').fadeIn(3000, function(){
+            setTimeout(function(){
+                $('#savedGame').fadeOut({duration:1000, queue:false}).slideUp('slow');
+            },2000);
+            
+        });
 }
 
 /******* character generator ****************/
 
 // initialize game with random playing character - show in modal window
 function displayRandCharacter(){
-    console.log('show random playing character');
     var opts = createRandOpts();
     character = createRandCharacter(opts);
     setCharacter(character);
@@ -235,7 +242,7 @@ function displayRandCharacter(){
 
 // display character when clicking on thumbnail
 $(document).on('click','.thumbnail',function(){
-    console.log('you clicked a thumbnail');
+   
     // characters being created by user does not have a proper id, but index is asigned when creating gallery
     var charId = this.id.substr(5,this.id.length); // thumb = 5 chars
     if($(this).hasClass('saved')){
@@ -245,7 +252,6 @@ $(document).on('click','.thumbnail',function(){
         $('#play').hide();
         $('#customize').hide();
         $('#character').hide();
-        console.dir(character);
     }else{
         character = getRecordById(characters, charId);
         $('#playSaved').hide();
@@ -264,8 +270,6 @@ $(document).on('click','.thumbnail',function(){
 function createRandOpts(){
     var rand1 = getRandomNumber(0,characters.length-1);
     var rand = getRandomNumber(0,characters.length-1);
-    
-    
     var opts = {
         weapon : characters[rand1].weapon,
         name : characters[rand].name,
@@ -277,29 +281,25 @@ function createRandOpts(){
 
 //create a random character
 function createRandCharacter(opts){        
-    console.log('create random character');
+   
     var character = {
         weapon :opts.weapon,
         name : opts.name,
         guild : opts.guild,
         inventory : [],
         attributes:{}
-    };
-      
+    };      
     
     var values = getRandAttributes(MAXSUM);
     
     for(var key in values){
         character.attributes[key] = values[key];
     }
-    // set maxStam to rand. more than stamina
-    
     
     // set amount of coins to 20 as default
     character.attributes.coins = COINS;
-    console.dir(character);
-        return character;
-    };
+    return character;
+};
     
 
     
@@ -345,16 +345,15 @@ function setCharacter(character){
     var stats = [];
     var count = 0;
     
-    console.dir(character);
     // get DOM-elemnts
     var inventory = $('#inventory');
     var display = $('#characterStats');
+    
     // reset height
     $('#displayBody').height(300);
     //clear lists to make sure no old data is left
     display.html('');
     inventory.html('<dt class="dlHeading">Inventory</dt>');
-    console.log('image to display = '+character.guild.image);
     var stats = getStatsList(character);
     
     // append all stats
@@ -379,8 +378,6 @@ function setCharacter(character){
         $('#displayBody').height(300+(10*count));  
     }
     
-    
-    
     //set image according to guild
     $('#avatar').find('img').attr('src','./images/'+character.guild.image);
 }
@@ -396,13 +393,10 @@ $('#character').click(function(){
 $('#customize').click(function(){
     $('#customizeCharacter').trigger('reset');
     customizeCharacter(character);
-    console.log(character);
 });
     
 // populate modal with update-form for character with data
 function customizeCharacter(character){
-    console.log('hello from character modal customization');
-    console.dir(character);
     $('#characterForms').modal('show');
 
     // reset the form
@@ -421,8 +415,6 @@ function customizeCharacter(character){
         var val = $(this).val();
         $(this).next('.value').val(val);
         var sum = validateSum(character.attributes);
-        
-        console.log('you are changing range');
     });
     
     $('#customizeCharacter input[name=name]').val(character.name);
@@ -456,7 +448,6 @@ function getCustomized (){
                     'magic', 'healing', 'luck', 'streetwise'];
     
     for (var i=0; i<attributes.length; i++){ 
-        console.log('get attributes from form: '+attributes[i]);
         character.attributes[attributes[i]] = $('#customizeCharacter input[name='+attributes[i]+']').val();
     }
     
@@ -464,11 +455,7 @@ function getCustomized (){
     var stamina = character.attributes.stamina;
     var rand = getRandomNumber(1,5);
     character.attributes.maxStam = parseInt(stamina)+rand;
-    console.log('stamina from getCustomized: '+stamina);
-    console.log('maxstam from getCustomized: '+character.attributes.maxStam);
     character.attributes.coins = COINS;
-    console.log('updated character ');
-    console.dir(character);
     return character;
 }
 
@@ -479,11 +466,9 @@ function sumAttributes(attributes){
         // take only real attributes
         if(key != 'maxStam' && key != 'coins'){
             var value = $('#customizeCharacter input[name='+key+']').next('input').val();
-            console.log(key+' ='+value);
             sum += parseInt(value);
         }
     }
-    console.log('sumAttribute: sum='+sum);
     return sum;
 }
 
@@ -502,8 +487,7 @@ function validateSum (attributes){
             'color': '#b94a48',
             'background-color': '#f2dede',
             'border-color': '#ebccd1'
-        });
-        
+        });        
         return false;
     }else{
         $('#alertSum').hide();
@@ -523,7 +507,6 @@ function setAutoHeight(){
     var windowH = $(document).height();
     $('#sidebar').height(windowH);
     var sidebarH = $('#sidebar').height();
-    console.log('window height is '+windowH);
     $('#storyWrapper').height(windowH -80);
 }
 

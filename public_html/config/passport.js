@@ -22,8 +22,6 @@ module.exports = function(passport){
     });
     
     /*********** local signup ***************/
-    // we are using named strategies since we have one for login and one for signup
-    // by default, if there was no name, it would just be called 'local'
     passport.use('local-signup', new LocalStrategy({
 
         // by default local-strategy uses username and password, we will override it with email
@@ -32,20 +30,21 @@ module.exports = function(passport){
         passReqToCallback: true // pass back entire request to callback
     }, function(req, username, password, done){
           // asynchronous
-          // User.findOne wont fire unless data is sent back
+          
           process.nextTick(function(){
               // find a user whose name is the same as the forms name
               username = username.toLowerCase();
-              // we are checking to see if the user trying to login already exists 
+              
+              // check if user already exists
               User.findOne({'username' : username}, function(err, user){
                   if(err){ // if there are any errors return them
                       return done(err);
                   }
-                  // check if there's already a user with this email
+                  // check if there's already a user with this name
                   if(user){
                       return done(null, false, req.flash('signupMessage', 'The user with this username has already signed up.'));
                   }else{
-                      // if there is no user with that email
+                      // if there is no user with that name
                       // create the user
                       var newUser = new User();
                       // set the users local credentials
@@ -54,7 +53,6 @@ module.exports = function(passport){
                       // save the user
                       newUser.save(function(err){
                          if(err){
-                             console.log('there is an error when saving');
                              console.log(err); return;
                              //throw err;
                           }else {
@@ -75,8 +73,8 @@ module.exports = function(passport){
         passReqToCallback: true
         
     }, function(req, username, password, done){
-        // find a user whose email is the same as the forms email
-        // we are checking to see if the user trying to login already exists
+      
+        // check if user exists
         username = username.toLowerCase();
 
         User.findOne({'username': username}, function(err, user){

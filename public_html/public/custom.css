@@ -32,8 +32,8 @@ thumbnails = #F7EDBF;
     
 }
 
-#user{
-    margin-right: 20px;
+#username{
+    float:left;
 }
 
 #game{
@@ -50,11 +50,24 @@ thumbnails = #F7EDBF;
 
 /**************** buttons *****************/
 
-/*#loadGame, #newGame{
-    width: 180px;
-}*/
 .btn-info {
     background-color:#58351A; 
+}
+
+/******** buttons in topbar ***********/
+
+#save, #newGame, #logout{
+    width: 120px;
+    float:right;
+    margin-right: 5px;
+}
+
+#newGame{
+    margin-right: 5px;
+}
+
+#save{
+    margin-right: 5px;    
 }
 
 /***************** list-styles *************/
@@ -79,13 +92,18 @@ thumbnails = #F7EDBF;
 #profile {
     width:100%;
     overflow:hidden;
+/*    margin-top:0;*/
 }
 
+#profile h3{
+    margin-top:0px;
+}
 
 
 #profile dt, #profileInventory dt {
     float:left;
     width:40%; /* adjust the width; make sure the total of both is 100% */
+    
 }
 #profile dd, #profileInventory dd{
     float:left;
@@ -116,6 +134,7 @@ thumbnails = #F7EDBF;
 /*    position: absolute;*/
     bottom: 10px;
     padding-right: 45px;
+    margin-top: 20px;
     
 }
 
@@ -206,8 +225,13 @@ input[type=number]::-webkit-outer-spin-button {
 
 /******* lists ***************/
 
-li{
+/*li{
     background-color: red !important;
+}*/
+
+li.list-group-item .clickable {
+    cursor: pointer !important;
+    color:red;
 }
 
 .margin {
@@ -290,7 +314,7 @@ dt.dlHeading{
 
 /*** gallery *******/
 #gallery{
-    margin-bottom: 25px;
+    margin-top: 25px;
 }
 
 #gallery div.brik{
@@ -384,6 +408,11 @@ dt.dlHeading{
 
 /* range input for character adjustments */
 
+
+li.list-group-item .clickable {
+    cursor: pointer !important;
+    color: #428bca;
+}
 
 /************** MEDIA QUERIES ********************/
 /*@media (max-width: 520px){ 

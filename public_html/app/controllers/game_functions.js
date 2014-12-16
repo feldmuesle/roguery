@@ -11,7 +11,6 @@ var Guild = require('../models/guild.js');
 var Weapon = require('../models/weapon.js');
 var Character = require('../models/character.js');
 var attrDesc = require('../models/attributes.json');
-
 var Helper = require('./helper_functions.js');
 
 /******** private game functions and calculations ***********/
@@ -24,7 +23,6 @@ function rollSuperDice(player, storyteller, attribute, difficulty){
 
         // cast 20 sided superdice 
         var superDice = Helper.getRandomNumber(1,20);
-        console.log('superDice '+superDice);
 
         // if superDice is higher than playerAttr add one point of attribute to player/increase maxStam by one                  
         if(superDice > playerAttr){
@@ -34,9 +32,11 @@ function rollSuperDice(player, storyteller, attribute, difficulty){
                 'outcome':'win',
                 'advanced':true
             };
+            
+            // notify client about outcome
             storyteller.rollDice(outcome);
     
-            console.log('advanced!' +superDice);
+            // check attribute and if stamina gain one maxStam
             if(attribute == 'stamina'){
                 player.character[0].attributes.maxStam++;                
                 storyteller.updateAttr(player.character[0],'stamina', 1, 'gain');
@@ -44,7 +44,7 @@ function rollSuperDice(player, storyteller, attribute, difficulty){
                 player.character[0].attributes[attribute]++;
                 storyteller.updateAttr(player.character[0], attribute, 1, 'gain');
             }
-            console.log('you gained one point of '+attribute);
+            
             return player;
         }
     }
@@ -62,17 +62,16 @@ function rollSuperDice(player, storyteller, attribute, difficulty){
 
 // filter away choices that request flags/items player doesn't have or reject flags
 function filterChoices(event, player){
-    console.log('hello from filter choices');
+    
     var choices = event.choices; // array of objectIds
     var length = choices.length;  
     var reqMatches = false;
     var rejectMatches = false;    
     var filtered = [];
     
-    // loop through array of random events and get all request-flags
+    // loop through array of random events and check their request-flags
     for(var i=0; i<length; i++){
-        console.log('filter choices loop nr.'+i+1);
-        console.log('choice: '+choices[i].name);
+     
         var choiceReqs = [];
         var choiceRejects = [];
         var itemMatches = true;
@@ -80,25 +79,22 @@ function filterChoices(event, player){
         var hasRequires = false; 
         
 
-        // loop through req-flags of each event
+        // loop through req-flags of each choice
         choices[i].reqFlag.forEach(function(flag){
-            console.log('there are request-flags, gets added to req-array');
+            // if there are any set boolean to true and add flag to array
             hasRequires = true;
             choiceReqs.push(flag);
         });
-        if(choices[i].reqFlag.length <1){
-            console.log('choice has no flags required');
+        
+        // check if choice-event reqests any flags
+        if(choices[i].reqFlag.length < 1){            
             reqMatches = 'none';
         }
         
-        // loop through reject-flags of each event
+        // loop through reject-flags of each choice
         choices[i].rejectFlag.forEach(function(flag){
-            console.log('there are reject-flags, gets added to reject-array');
             choiceRejects.push(flag);
         });
-        if(choices[i].rejectFlag.length <1){
-            console.log('choice has no flags rejected');
-        }
         
         // loop through items of each event and check if there are any required items
         choices[i].items.forEach(function(evItem){            
@@ -107,64 +103,56 @@ function filterChoices(event, player){
                 var item = evItem.item[0]._id;
                 var index = player.character[0].inventory.indexOf(item);
                 hasItem = true; 
+                
+                // check for a match 
                 if(index < 0){
                     // player does not have item                     
-                    itemMatches = false;
-                    console.log('player does not have required item.');
-                }else{
-                    console.log('player has required item');
+                    itemMatches = false;                    
                 }             
-            }else{
-                console.log('items otherwise engaged than required');
-                
             }
         });
         
         if(choices[i].items.length <1){
-            console.log('choice has no items attached');
             itemMatches = 'none';
         }
 
+        // check if there are any matches between flags on choice and player
         reqMatches = Helper.findMatchInArrays(player.flags, choiceReqs);
         rejectMatches = Helper.findMatchInArrays(player.flags, choiceRejects);
-        console.log('reqMatches: '+reqMatches);
-        console.log('rejectMatches: '+rejectMatches);
+       
         // if no match the events is not rejected
         if(!rejectMatches){
             // if there are any matches requiring, sort them in new array
             if((itemMatches && reqMatches) || (itemMatches && !hasRequires)||(reqMatches && !hasItem) ){
-                console.log('choice matches or no match needed, added');
                 filtered.push(choices[i]);
             }else{
-                console.log('item or requested flag not matched. filtered away.');
+//                console.log('item or requested flag not matched. filtered away.');
             }
         }else{
-            console.log('choice got rejected');
+//            console.log('choice got rejected');
         }
     } // loop through random events end
         
-    console.log(filtered.length +' filtered choices');
+    // return all choices not filtered away    
     return filtered;
 }
 
+// pick a random even
 function getRandomEvent(event, player){
     var randoms = event.continueTo.random;
     var length = randoms.length;
     var filtered = [];
-    var reqItems = []; // array stores only events requiring items the player has
-    
+    var reqItems = []; // array stores only events requiring items the player has    
     var picked = 'nothing';
-    console.log('hello from getRandomEvent');
+    
+    // set the flag on player if event has any
     if(event.setFlag){
-        console.log('a flag is set within reandom! '+event.flag);
-        // player.addFlag() loops through player's flags and check if he already has it
         player = player.addFlag(event.flag);      
     }
     
     // loop through array of random events and get all request-flags
     for(var i=0; i<length; i++){
-        console.log('random event loop nr.'+i+1);
-        console.log(randoms[i].name);
+        
         var reqMatches = true;
         var rejectMatches = false;
         var itemMatches = true;
@@ -173,32 +161,26 @@ function getRandomEvent(event, player){
         if(randoms[i].reqFlag.length >0){
             // loop through req-flags of each event
             randoms[i].reqFlag.forEach(function(flag){
+                
+                // check for a match
                 var index = player.flags.indexOf(flag);
                 if(index < 0){
                     reqMatches = false;
-                    console.log('player does not have required flag');
-                }else{
-                    console.log('player has required flag');
                 }
             });
-        }else{
-          console.log('event has no flags required');  
         }
         
         // check if event has any flags required
         if(randoms[i].rejectFlag.length >0){
             // loop through reject-flags of each event
             randoms[i].rejectFlag.forEach(function(flag){
+                
+                // check for a match
                 var index = player.flags.indexOf(flag);
                 if(index >= 0){
                     rejectMatches = true;
-                    console.log('event rejects players flag');
-                }else{
-                    console.log('player has not rejected flag');
                 }
             });
-        }else{
-            console.log('event has no flags required');  
         }
         
         
@@ -207,59 +189,47 @@ function getRandomEvent(event, player){
             // loop through items of each event and check if there are any required items
             randoms[i].items.forEach(function(evItem){
 
-    //            var rejectItems = [];
                 if(evItem.action === 'require'){                
                     var item = evItem.item[0]._id;
                     var index = player.character[0].inventory.indexOf(item);
-                    console.log('index');
+                    
+                    // check for match
                     if(index < 0){
                         itemMatches = false;
-                        console.log('player does not have required item');
                     }else{
                         if(!rejectMatches){
-                            console.log('player has requested item');
                             reqItems.push(randoms[i]);
                         }                    
                     }
-                }else{
-                    console.log('items engaged in other means.');
                 }
-            });
-        
-        }else{
-            console.log('event has no items attached');  
+            });        
         }
         
         
-        // if there are the events is not rejected
-        // if there are events
+        // if the event is not rejected
         if(!rejectMatches){
             // if there are any matches requiring, sort them in new array
             if(itemMatches && reqMatches){
                 filtered.push(randoms[i]);  
-                console.log('random event passed filter');
-            }else{
-                console.log('player does not have required item or flag, event filtered away');
+//            }else{
+//                console.log('player does not have required item or flag, event filtered away');
             }
-            
-        }else{
-            console.log('player has flag rejected by this event, event filtered away');
+//        }else{
+//            console.log('player has flag rejected by this event, event filtered away');
         }
-    } // loop through random events end
-    console.log('filtered events: '+filtered.length);
+    } // loop through random events ->end
+    
+    
     // check if there were any events requiring an item the player has added
     if(filtered.length > 0){
         // if the event requires an item which the player has, its in reqItems-array
         // pick that event
         if(reqItems.length > 0){
-            console.log('an event requiring an item got picked');
             picked = Helper.getRandomArrayItem(reqItems);    
         }else{
-            console.log('an event without requiring an item got picked');
             picked = Helper.getRandomArrayItem(filtered); 
         }               
     }else{
-        console.log('all random events got filtered away');
         picked = 'none';
     }
     
@@ -275,47 +245,39 @@ function getRandomEvent(event, player){
 }
 
 function rollDices(diceBranch, storyteller, player){
-    console.log('roll dices');
     
-    // get attribute
+    // get data from branch
     var attribute = diceBranch.attribute;
     var difficulty = diceBranch.difficulty;
     var continueTo = {};
     var continType = '';
-    console.log('attribute: '+attribute);
+    
     // get players amount of attribute
     var playerAttr = player.character[0].attributes[attribute]; 
-    console.log('playerAttr to begin with: '+playerAttr);
+  
     // roll dices
     var dice1 = Helper.getRandomNumber(1,6);
-    console.log('dice1 '+dice1);
     var dice2 = Helper.getRandomNumber(1,6);
-    console.log('dice2 '+dice2);
+    
     // add dices to players amount of given attribute
     var playerAttr = player.character[0].attributes[attribute]+dice1 + dice2; 
-    console.log('playerAttr with dices: '+playerAttr);
     
-    if(playerAttr > difficulty){
-        // player wins dice
+    // player wins dice
+    if(playerAttr > difficulty){        
         // check if the roll is advanced
-        player = rollSuperDice(player, storyteller, attribute, difficulty);
-        
+        player = rollSuperDice(player, storyteller, attribute, difficulty);        
         continType = diceBranch.success.type;
         
         if(continType == 'succLoco'){
             continueTo = diceBranch.success.location;
             continType = 'location';
-            console.log('success continue to location: '+diceBranch.success.location.name);
         }else{
             continueTo = diceBranch.success.event;
             continType = 'event';
-            console.log('success continue to event: '+diceBranch.success.event.name);
-        }
-        
+        }        
 
     }else{
-        console.log('you got beaten!');
-        // tell player about outcome of dice-rolls
+        // player lost, tell about it
                        
         var outcome = {
             'attribute':attribute,
@@ -327,27 +289,24 @@ function rollDices(diceBranch, storyteller, player){
         
         //special for magic-rolls beat-up: loose 1 or 2 stamina(rand)
         if(attribute == 'magic'){
-//            console.log('this is a magic roll');
+
             var rand = Helper.getRandomNumber(1,2);
-            console.log('failed magic-roll:player should loose '+rand+' of stamina');
+            
             if(player.character[0].attributes.stamina - rand > 1){
                 player.character[0].attributes.stamina -= rand;
                 storyteller.updateAttr(player.character[0], 'stamina', rand, 'loose');
-//                console.log('player lost stamina because of lost magic-roll');
             }
             
         } 
         
         continType = diceBranch.failure.type;
-        console.log('failure continType: '+continType);
+        
         if(continType == 'failLoco'){
             continueTo = diceBranch.failure.location;
             continType = 'location';
-            console.log('failure continue to location: '+diceBranch.failure.location.name);
         }else{
             continueTo = diceBranch.failure.event;
             continType = 'event';
-            console.log('failure continue to event: '+diceBranch.failure.event.name);
         }
     }
     
@@ -361,65 +320,54 @@ function rollDices(diceBranch, storyteller, player){
 
 // run a single event and return the player(with added/lost attr, items) and where to continueTo next
 function runEvent(storyteller, player, event){
-    console.log('hello from runEvent'); 
     var condition = 'alive';
-//    console.log('event: ');
-//    console.dir(event);
     player.event = event._id;
     
     // set flag if event has one set
     if(event.setFlag){
-        console.log('a flag is set!' +event.flag);
-        // player.addFlag() loops through player's flags and check if he already has it
         player = player.addFlag(event.flag);      
-    }
+    }    
     
-    
+    // tell Mongoose explixitly to save these fields
     player.markModified('flags');
     player.character[0].markModified('inventory');
+    
     //save player for every event -save in processOutcome instead!!
     player.save(function(err){
-        if(err){console.log(err); console.log('there is an error'); return;}
-//        console.dir(doc);
-        console.log('player in event has been saved');
-//       console.log('inventory:'+player.character[0].inventory);
-//       console.log('flags:'+player.flags);
+        if(err){storyteller.tellError(); return;}
         
-    });// end of player-save
+    });
     
-    
+    // send event-text to client
     if(event.text.length >0){
         storyteller.write(event.text);
     }
     
-//    console.dir(event);
-    
     // check if there are any attributes involved in event
     // check also if there are coins to lose and item-gain = buying-situation involved in event 
     if(event.attributes.length > 0){
-        console.log('there are attributes');
+        
         for(var i=0; i<event.attributes.length; i++){
+            
             var evAttr = event.attributes[i]; 
             if(evAttr.action == 'loose'){
+                
                 var noThanks = false;
                 var buy = false;
                 // check if there are coins and if an item is to gain as well
                 // then it must be a buying-situation
-                // check if player has enough money, else remove item-gain  
+                // check if player has enough money, else remove item-gain from event
                 
                 if(evAttr.attribute == 'coins' && event.items.length > 0){
                     
                     var playerCoins = player.character[0].attributes['coins'];
-                    console.log('player has '+playerCoins+' available.');
                     
                     // loop through all items the event has
                     for(var i=0; i< event.items.length; i++){ 
                     
                         if(event.items[i].action == 'gain'){
                             // check if player got item in inventory
-//                            var itemId = event.items[i].item[0].id;
                             var itemId = event.items[i].item[0]._id;
-//                            var index = Helper.getIndexByKeyValue(player.character[0].inventory,'id',itemId);
                             var index = player.character[0].inventory.indexOf(itemId);
                             
 
@@ -431,8 +379,6 @@ function runEvent(storyteller, player, event){
                                 event.items.splice(i,1);
                                 noThanks = true;
                             } else{
-                                
-
                                 // if player can't afford it
                                 if(playerCoins < evAttr.amount){  
                                     var msg = 'You don\'t have enough coins to buy '
@@ -442,8 +388,7 @@ function runEvent(storyteller, player, event){
                                     noThanks = true;
 
                                 }else{
-                                    console.log('player can afford it!');
-
+                                    // player can afford item and buys it
                                     player = player.looseAttr('coins', evAttr.amount);
                                     var character = player.character[0];
                                     var msg = 'You buy '+event.items[i].item[0].name;
@@ -457,26 +402,20 @@ function runEvent(storyteller, player, event){
                 }
                 
                 if(!noThanks || buy){
-                    console.log('gain is false');
+                    
                     var character = player.character[0];
                     var oldValue = character.attributes[evAttr.attribute];
                     // make player loose attributes and return player afterwards
                     condition = player.looseAttr(evAttr.attribute, evAttr.amount); 
-                    // check if player is dead by loosing to much stamina
-                    console.log('condition: '+condition);
-                    
                     var newValue = player.character[0].attributes[evAttr.attribute];
 
                     // make sure not to take more attributes than existing
                     var newAmount = oldValue - newValue; 
-
-                    
-                    console.log('player looses '+newAmount+' of '+evAttr.attribute);
                     storyteller.updateAttr(character, evAttr.attribute, newAmount, 'loose');
                     
+                    // check if player is dead by loosing to much stamina
                     if(condition == 'dead'){
                         // end the game
-                        console.log('player has died.');
                         //remove all items of event - they are not needed
                         event.items = [];
                         event.branchType = 'end'; 
@@ -484,13 +423,11 @@ function runEvent(storyteller, player, event){
                     }else {
                         player = condition;
                     }
-                }
-                
-                                                
+                }                                                
             }else{
                 // gain of stamina must not exceed maxstamina
                 if(evAttr.attribute == 'stamina'){
-                    console.log('you are about to gain stamina');
+                    
                     var maxStam = player.character[0].attributes['maxStam'];
                     var stamina = player.character[0].attributes['stamina'];
                     var newStam = evAttr.amount + stamina;
@@ -498,8 +435,8 @@ function runEvent(storyteller, player, event){
                     if( newStam >= maxStam){
                         // set stamina to maxstam
                         player.character[0].attributes['stamina'] = maxStam;
-                        var character = player.character[0];
-                        console.log('you cannot gain that much stamina');
+                        
+                        var character = player.character[0];                        
                         var diff = newStam - maxStam;
                         var gained = evAttr.amount - diff;
                         storyteller.updateAttr(character, evAttr.attribute, gained, 'gain');
@@ -508,15 +445,11 @@ function runEvent(storyteller, player, event){
                         var character = player.character[0];
                         storyteller.updateAttr(character, evAttr.attribute, evAttr.amount, 'gain');
                     }
-                }else{
-                    
+                }else{                    
                     player.character[0].attributes[evAttr.attribute] += evAttr.amount;  
                     var character = player.character[0];
-                    console.log('player gains '+evAttr.amount+' of '+evAttr.attribute);
                     storyteller.updateAttr(character, evAttr.attribute, evAttr.amount, 'gain');
-                }
-                
-                
+                }           
             }
         }
     }
@@ -524,36 +457,29 @@ function runEvent(storyteller, player, event){
     
     // check if there are any items involved in event
     if(event.items.length > 0){
-        console.log('there are items involved in this event');
-       
+        
         for(var i=0; i<event.items.length; i++){
+            
             var evItems = event.items[i];
             var id = evItems.item[0].id;
             var index = -1;
-//            console.dir(evItems);
-//            console.dir(player.character[0].inventory);
             
             if(player.character[0].inventory.length > 0){
                 var isPopulated = Helper.checkArrayForObject(player.character[0].inventory);
                 
                 if(isPopulated){
-                    console.log('players inventory is populated');
                     index = Helper.getIndexByKeyValue(player.character[0].inventory,'id',id);
 
                 }else{
                     id= evItems.item[0]._id;
-                    console.log('players inventory is not populated');
                     index = player.character[0].inventory.indexOf(id);
                 }
             }
-            
-            console.log('index: '+index);
-            
+                        
             if(evItems.action == 'loose'){
                 
                 if(index != null && index >= 0){
                     player.character[0].inventory.splice(index,1);
-                    console.log('player looses '+evItems.item[0].name);
                     var character = player.character[0];
                     storyteller.updateInventory(character, evItems.item[0], evItems.action);
                 }
@@ -564,9 +490,7 @@ function runEvent(storyteller, player, event){
                 if(index != null && index >= 0){
                     storyteller.write('You leave the '+evItems.item[0].name+' because you don\'t need more than one.');
                 }else{
-                    console.log('player gains item');
                     player.character[0].inventory.push(evItems.item[0]._id);
-                    console.log('player gains '+evItems.item[0].name);
                     var character = player.character[0];
                     storyteller.updateInventory(character, evItems.item[0], evItems.action);
                 }                
@@ -582,8 +506,6 @@ function runEvent(storyteller, player, event){
     var continType = '';
     next.current = current;   
     
-    console.log('branchType: '+branchType);
-
     switch(branchType){
         case 'dice':
             // roll the dices and get players attribute vs dice outcome
@@ -608,12 +530,10 @@ function runEvent(storyteller, player, event){
         case'continue':
             
             if(event.continueTo.type == 'continueLoco'){
-                console.log('continue to a location;');
                 continType = 'location';
                 continueTo = event.continueTo.location;
                 
             }else if(event.continueTo.type == 'continueEvent'){
-                console.log('continue to a event;');
                 continType = 'event';
                 continueTo = event.continueTo.event;
                 
@@ -627,17 +547,13 @@ function runEvent(storyteller, player, event){
                     continueTo = null;
                 }else{
                     continType = 'event';
-                    continueTo = result['pick'];
-                    console.log('random event has been picked');     
-                }
-                           
+                    continueTo = result['pick'];     
+                }                           
             }
             break;
             
-        case'end':
-            console.log('condition in branchtype: '+condition);
+        case'end':            
             if(condition == 'dead'){
-                console.log('branchtype player is dead');
                 var msg = 'This has been a lethal strike and you are released from this world. RIP';
                 storyteller.writeWithClass('info',msg);
             }
@@ -657,7 +573,6 @@ function runEvent(storyteller, player, event){
 
 //run event without action taken(gain/lose), used for replaying saved event, just rewrite story
 function runPassiveEvent(storyteller, player, event){
-    console.log('hello from passive event');
     var condition = 'alive';        
     storyteller.write(event.text);   
     
@@ -692,8 +607,7 @@ function runPassiveEvent(storyteller, player, event){
                                     
                             storyteller.write(msg);
                             event.items.splice(i,1);
-                        }
-                        
+                        }                        
                     }                                       
                 }
                 
@@ -710,7 +624,6 @@ function runPassiveEvent(storyteller, player, event){
                         event.attributes = [];
                     }
                     
-                    console.log('player looses '+evAttr.amount+' of '+evAttr.attribute);
                     var msg = evAttr.attribute+' -'+evAttr.amount;
                     storyteller.writeWithClass('info',msg);
                 }
@@ -718,9 +631,7 @@ function runPassiveEvent(storyteller, player, event){
                                                 
             }else{                
                 var msg = evAttr.attribute+' +'+evAttr.amount;
-                console.log('player gains '+evAttr.amount+' of '+evAttr.attribute);
-                storyteller.writeWithClass('info',msg);                
-                
+                storyteller.writeWithClass('info',msg);                      
             }
         }
     } 
@@ -733,8 +644,6 @@ function runPassiveEvent(storyteller, player, event){
     var continType = '';
     next.current = current;   
     
-    console.log('branchType: '+branchType);
-
     switch(branchType){
         case 'dice':
             // roll the dices
@@ -742,8 +651,7 @@ function runPassiveEvent(storyteller, player, event){
             var result = rollDices(event.dice, storyteller, player);
             continType = result['continType'];
             continueTo = result['continueTo']; // == event/location from dice-roll
-            player = result['player'];
-            console.log('hello after roll dices');            
+            player = result['player'];           
             break;
         
         case'choices':
@@ -752,31 +660,24 @@ function runPassiveEvent(storyteller, player, event){
             break;
             
         case'continue':
-            console.log('continue');
             if(event.continueTo.type == 'continueLoco'){
-                console.log('continue to a location;');
                 continType = 'location';
                 continueTo = event.continueTo.location;
             }else if(event.continueTo.type == 'continueEvent'){
-                console.log('continue to a event;');
                 continType = 'event';
                 continueTo = event.continueTo.event;
             }else{
                 // pick a random location 
-                console.log('hello from game-machine, random continue');
                 var nextStep = getRandomEvent(event, player);
                 continType = 'event';
                 continueTo = nextStep['pick'];
-                player = nextStep['player'];
-                console.log('random event has been picked');
-                
+                player = nextStep['player'];                
             }
             break;
             
         case'end':
-            console.log('condition in branchtype: '+condition);
+            
             if(condition == 'dead'){
-                console.log('branchtype player is dead');
                 var msg = 'This has been a lethal strike and you are released from this world. RIP';
                 storyteller.writeWithClass('info',msg);
             }
@@ -802,14 +703,11 @@ function processOutcome( continueChain, storyteller, result, callback ) {
     var current = result['current']; 
     next.current = current;
     next.continType = continType;
-    next.player = result['player'];
-    console.log('process outcome: continType: '+continType);
-    
+    next.player = result['player'];    
     
     if(continueChain){
         
-        if(continType == 'choices') {
-            console.log('processOutcome: choices given, let player decide');    
+        if(continType == 'choices') {   
             next.choices = result['choices']; // expect array of objId
             //TODO: filter choices
             processOutcome(false,storyteller, next, callback);
@@ -817,41 +715,35 @@ function processOutcome( continueChain, storyteller, result, callback ) {
             //stop the chain and return cb with choices
             
         } else if(continType == 'event' && result['continueTo'].newPara){
-            console.log('next event start a new paragraph');
             next.continType = 'pressContinue';             
             next.continueEvent = result['continueTo'];            
             processOutcome(false,storyteller, next, callback);
             
         // in case there has been an error when filtering choices or picking a random event
-        } else if(continType == 'systemErr'){   
-            console.log('there is an error');
+        } else if(continType == 'systemErr'){ 
             next.continType = 'systemErr';             
             next.continueEvent = null;
 //            storyteller.tellError();
             processOutcome(false,storyteller, next, callback);
             
-        }else if(continType == 'end' || continType == 'dead'){            
-            console.log('it has come to an end: continType= '+continType);
+        }else if(continType == 'end' || continType == 'dead'){          
             processOutcome(false,storyteller, next, callback);
             
         }else{
             var continueTo = result['continueTo'];
             //continue chain and trigger next event/location
-            console.log('processOutcome: trigger new '+continType);
-//            console.dir(continueTo);
-
             if(continType == 'event'){
                 // get new event from db and trigger a new event
                 var opts = Event.getPopuQuery();
                 Event.findOne({'id': continueTo.id}).populate(opts).exec(function(err,event1){
                     if(err){storyteller.tellError();return;}
-                    console.log('to do: fire new event');
+                    
                     // check if there is any event at all
                     if(event1){
                         var result = runEvent(storyteller, player, event1);
                         processOutcome( true, storyteller, result, callback );
                     }else{
-                        console.log('something went wrong, no event to continue to');
+                       
                         storyteller.tellError();
                         processOutcome(false, storyteller, result, callback);
                     }
@@ -861,11 +753,9 @@ function processOutcome( continueChain, storyteller, result, callback ) {
                 // trigger a new location
                 Location.findOne({'id': continueTo.id}, '-_id').populate('event').exec(function(err,loco1){
                     if(err){storyteller.tellError();return;}
-//                    console.dir(loco1);
                     return loco1;
                 }).then(function(loco1){
                     storyteller.write(loco1.text);;
-//                    console.dir(loco1);
                     next.continType = 'event';
                     next.continueTo = loco1.event;                    
                     processOutcome(true,storyteller, next, callback);               
@@ -873,7 +763,6 @@ function processOutcome( continueChain, storyteller, result, callback ) {
             }
         }  
     }else{
-        console.log('continueChain is false');
         callback(result);
     }
 };
@@ -896,8 +785,6 @@ exports.getSavedGame = function(character, cb){
         
     }) 
     .then(function(player){
-        console.log('get saved game: player = ');
-        console.dir(player);
         var opts = Event.getPopuQuery();
         Event.findOne({'_id':player.event}).populate(opts).exec(function(err, event){
             if(err){ return cb({'err':err});}            
@@ -931,7 +818,6 @@ exports.setSavings = function(user, cb){
     Player.remove({'user' : sanId, 'gameSave':{$in :['backup','replay','false']}}, function(err, players){
         if(err){console.log(err); return;}
         
-        console.log('all backups and replays removed');
         Player.findOne({'user':sanId, 'gameSave':'saved'}, function(err, player){
             if(err){console.log(err); return;}
             
@@ -940,7 +826,6 @@ exports.setSavings = function(user, cb){
                 player.gameSave = 'true';
                 player.save(function(err){
                     if(err){console.log(err); return;}
-                    console.log('saved player set to true');
                     return cb();
                 });
             }else{
@@ -960,7 +845,6 @@ exports.continueSavedGame = function(storyteller, player, event, cb){
         // the callback is first triggered when there are no more events to continue
         // = either got choices to ask player or game has reached its end or continue to 
         
-        console.log('hello from processOutcome-callback');
         var next = {};
         var continType = endResult['continType'];
         var current = endResult['current'];
@@ -970,20 +854,15 @@ exports.continueSavedGame = function(storyteller, player, event, cb){
         
         //TODO: if next event starts as a new paragraph, stop chain and let player press continue in order to process
         if(continType == 'pressContinue'){
-            console.log('a new paragraph should start');
             next.continueEvent = endResult['continueEvent'];
             return cb(next);
         }        
-        else if(continType == 'choices') {
-            console.log('choices given, let player decide');        
+        else if(continType == 'choices') {        
             next.choices = endResult['choices']; // expect array of objId
             return cb(next);
             //query events to get choices-text, ids
             //stop the chain and return cb with choices
-        }else if(continType == 'location'){
-            //TODO: triggerLocation
-        }else{
-            console.log('the game has ended here');
+        }else {
             return cb(next);
         }
     });  
@@ -991,13 +870,13 @@ exports.continueSavedGame = function(storyteller, player, event, cb){
 
 // start the game
 exports.startGame = function(character, userId, cb){
-    console.log('start game');
-    // TODO: get guild-location of character and make location- select dependent on outcome . then(blaba)
+    
     // create new player
     var flags = []; // new player has no flags yet;
     Player.createNew(character, flags, userId, function(data){
         var player = data['player'];
         var selectopts = {};
+        
         // check if the character's guild has a certain start-location, or if to pick a random one instead
         // guild.start = 0 == pick a random location for start
         if(player.character[0].guild.start == 0){
@@ -1019,8 +898,7 @@ exports.startGame = function(character, userId, cb){
                 
                 return event;
             }).then(function(event){
-                console.log('random location picked: '+location.name);
-                
+                                
                 var data = {
                     'location'  : location,
                     'event'     : event,
@@ -1035,8 +913,6 @@ exports.startGame = function(character, userId, cb){
 
 // run events until choices are given and player has to decide next turn
 exports.runEventChain = function(storyteller, player, event, cb){
-    console.log('run event chain');
-    console.log('player - userId = '+player.user);
     
     var result = runEvent(storyteller, player, event);
     
@@ -1044,7 +920,6 @@ exports.runEventChain = function(storyteller, player, event, cb){
         // the callback is first triggered when there are no more events to continue
         // = either got choices to ask player or game has reached its end or continue to 
         
-        console.log('hello from processOutcome-callback');
         var next = {};
         var continType = endResult['continType'];
         var current = endResult['current'];
@@ -1052,24 +927,21 @@ exports.runEventChain = function(storyteller, player, event, cb){
         next.current = current;
         next.player = endResult['player'];
         
-        //TODO: if next event starts as a new paragraph, stop chain and let player press continue in order to process
+        //if next event starts as a new paragraph, stop chain and let player press continue in order to process
         if(continType == 'pressContinue'){
-            console.log('a new paragraph should start');
             next.continueEvent = endResult['continueEvent'];
             return cb(next);
         }        
-        else if(continType === 'choices') {
-            console.log('choices given, let player decide');        
+        else if(continType === 'choices') {       
             next.choices = endResult['choices']; // expect array of objId            
             //query events to get choices-text, ids
             //stop the chain and return cb with choices
             return cb(next);
-        }else if(continType === 'systemErr'){
-            console.log('there is an error');
-            return cb(next);
-        }else{
             
-            console.log('the game has ended here');
+        }else if(continType === 'systemErr'){
+            return cb(next);
+            
+        }else{ // game ends
             return cb(next);
         }
     });  
@@ -1079,6 +951,7 @@ exports.runEventChain = function(storyteller, player, event, cb){
 exports.getChoice = function(eventId, cb){
     var id = Helper.sanitizeNumber(eventId);
     var opts = Event.getPopuQuery();
+    
     Event.findOne({'id':id}).populate(opts).exec(function(err, event){
        if(err){console.log(err); return;}
        return cb(event);
@@ -1090,7 +963,6 @@ exports.processEventChain = function(data){
     
     var continType = data['continType'];
     var newData = {};
-    console.log('process eventchain: continType = '+continType);
 
     if(continType == 'choices'){
         var choices = data['choices'];
@@ -1102,7 +974,6 @@ exports.processEventChain = function(data){
         };
 
     }else if(continType == 'pressContinue'){
-        console.log('please press continue');
 
         var nextEvent = data['continueEvent'].id;
         var current = data['current'];
@@ -1115,7 +986,6 @@ exports.processEventChain = function(data){
         newData = {'msg': 'We are terribly sorry, but there has been an error. Please contact the system administrator'};
     }else {
         // you have come to the end!
-        console.log('you have come to the end!');
         newData = {'end':'The end has come'};
         continType = 'end';
     }
@@ -1139,9 +1009,7 @@ exports.checkAttributeSum = function (attributes, maxSum){
             sum += parseInt(value);
         }        
     }    
-    console.log('The sum is: '+sum);
     var valid = (sum == maxSum) ? true : false;
-    console.log(valid);
     return valid;
 };
 

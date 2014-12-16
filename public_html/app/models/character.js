@@ -44,40 +44,21 @@ CharacterSchema.pre('save', function(next){
     var self = this || mongoose.model('Character');
     // sanitize strings
     self.name = Helper.sanitizeString(self.name);
-    
-    //set maxStam to random bit higher than stamina
-//    var stamina = Helper.sanitizeNumber(JSON.stringify(self.attributes.stamina));
-//    var rand = Helper.getRandomNumber(1,5);
-//    console.log('maxstam result: '+stamina +rand);
-//    self.attributes.maxStam = stamina + rand;
-//    var attr = self.attributes.toObject();
-//    for(var key in attr){
-//        if(attr.hasOwnProperty(key)){
-//            console.log('pre save character-attributes: '+key);
-//            var value = attr[key];
-//            self.attributes[key] = Helper.sanitizeNumber(JSON.stringify(value));
-//            if(key =='maxStam'){
-//                self.attributes[key] = Helper.sanitizeNumber(JSON.stringify(attr['stamina']));
-//            }
-//        }      
-//    }
     next();
 });
 
 // restrict-delete: check if the item is used in an event and prevent deletion
 CharacterSchema.pre('remove', function(next){
-    console.log('hello from character pre-remove');
+    
     var self = this || mongoose.model('Character');
     
     self.model('Player').find({'character._id': self._id}).exec(function(err, players){
-        if(err){console.log(err); next(err);}
-        console.log('hello from player-query');
+        if(err){console.log(err); next(err);}        
         return players;
     })
     .then(function(players){
         if(players.length > 0){
             var customErr = new Error('Cannot delete character due to depending player');
-            console.log('yes there is an error');
             next(customErr);
         }else{
             next();
@@ -105,37 +86,3 @@ CharacterSchema.statics.createForPlayer = function(charObj){
 
 var CharacterModel = mongoose.model('Character', CharacterSchema);
 module.exports = CharacterModel;
-
-
-// create a character in DB
-{
-
-//    var cat = {
-//        id: 2,
-//        name: 'Moritz',
-//        guild: mongoose.Types.ObjectId('5451451c931f36e4238895c9'),
-//        gender: 'male',
-//        attributes:{},
-//        weapon: mongoose.Types.ObjectId('5451451c931f36e4238895c3'),
-//        inventory: []   
-//    };
-//    
-//    var dwarf = {
-//        id: 1,
-//        name: 'Thurax',
-//        guild: mongoose.Types.ObjectId('5451451c931f36e4238895ca'),
-//        gender: 'male',
-//        attributes:{},
-//        weapon: mongoose.Types.ObjectId('5451451c931f36e4238895c8'),
-//        inventory: []   
-//    };
-//
-//    var character = new CharacterModel(dwarf);
-//    console.log(character);
-//    character.save(function(err, character){
-//        if(err){console.log(err); return;}
-//        console.log('character saved');
-//        console.log(character);
-//    
-//    });
-}

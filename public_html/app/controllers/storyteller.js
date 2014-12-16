@@ -3,26 +3,22 @@
  */
 
 var storyTeller = function Storyteller (socket){
+    
     var self = this;
     self.socket = socket;
     
     self.setsocket = function(socket){self.socket = socket;};
     
     self.write = function(text){
-//        console.log(text);
-//        console.log('hello from storyteller-listener write: sending msg to client');
         self.socket.emit('output', {'text':text});
     };
     
     self.writeWithClass = function(className, text){
-        console.log(text);
-//        console.log('storyteller write with class');
         self.socket.emit('output', {'text':text, 'class':className});
     };
     
     self.updateAttr = function(character, attribute, amount, action){
-        console.log(action +' '+amount+' '+attribute);  
-//        console.log('hello from storyteller: updating attributes');
+
         var data = {
             'character': character,
             'attribute': attribute,
@@ -33,8 +29,7 @@ var storyTeller = function Storyteller (socket){
     };
     
     self.updateInventory = function(character, item, action){
-        console.log(action +' '+item);  
-//        console.log('hello from storyteller: updating inventory');
+        
         var data = {
             'character': character,
             'item': item,
@@ -43,17 +38,14 @@ var storyTeller = function Storyteller (socket){
         self.socket.emit('updateInventory', data);
     };
     
-    self.rollDice = function(data){ // data = 
-        
+    self.rollDice = function(data){    
         self.socket.emit('rollDice', data);
     };
     
     self.tellError = function(){
         var msg = 'Ooops, something went wrong. Please contact the system administrator.';
       self.socket.emit('systemErr', {'msg':msg});  
-    };
-     
-    
+    };    
 };
 
 module.exports = storyTeller;

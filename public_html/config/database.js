@@ -1,14 +1,14 @@
 /* 
-connect to MongoDB
+this file configures the database-connection
  */
 
 var credentials = {
-"hostname":"localhost",
-"port":27017,
-"username":"",
-"password":"",
-"name":"",
-"db":"roguery"
+    "hostname":"localhost",
+    "port":27017,
+    "username":"",
+    "password":"",
+    "name":"",
+    "db":"roguery"
 };
 
 function generate_mongo_url(obj){

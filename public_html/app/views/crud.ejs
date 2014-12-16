@@ -35,7 +35,7 @@
                 <ul id="eventList" class="list-group list-unstyled">
                    <%for(var i=0; i<events.length; i++){%>
                         <li class="list-group-item">
-                            <span id="event<%=events[i].id%>" class="updateEvent"><%=events[i].name%></span>
+                            <span id="event<%=events[i].id%>" class="updateEvent clickable"><%=events[i].name%></span>
                             <button class="deleteEvent pull-right btn btn-xs margin" id="eventBtnDel<%=events[i].id%>">Delete</button>
                         </li>
                    <%}%>
@@ -50,7 +50,7 @@
                 <ul id="locationList" class="list-group list-unstyled">
                     <%for(var i=0; i<locations.length; i++){%>
                         <li class="list-group-item">
-                            <span id="location<%=locations[i].id%>" class="updateLocation"><%=locations[i].name%></span>
+                            <span id="location<%=locations[i].id%>" class="updateLocation clickable"><%=locations[i].name%></span>
                             <button class="deleteLocation pull-right btn btn-xs margin" id="locationBtnDel<%=locations[i].id%>">Delete</button>
                         </li>
                     <%}%>
@@ -65,7 +65,7 @@
                 <ul id="charactersList" class="list-group list-unstyled">
                     <%for(var i=0; i<characters.length; i++){%>
                         <li class="list-group-item">
-                            <span id="character<%=characters[i].id%>" class="updateCharacter"><%=characters[i].name%></span>
+                            <span id="character<%=characters[i].id%>" class="updateCharacter clickable"><%=characters[i].name%></span>
                             <button class="deleteCharacter pull-right btn btn-xs margin" id="characterBtnDel<%=characters[i].id%>">Delete</button>
                         </li>
                     <%}%>
@@ -80,7 +80,7 @@
                 <ul id="weaponList" class="list-group list-unstyled">
                     <%for(var i=0; i<weapons.length; i++){%>
                         <li class="list-group-item">
-                            <span id="weapon<%=weapons[i].id%>" class="updateWeapon"><%=weapons[i].name%></span>
+                            <span id="weapon<%=weapons[i].id%>" class="updateWeapon clickable"><%=weapons[i].name%></span>
                             <button class="deleteWeapon pull-right btn btn-xs margin" id="weaponBtnDel<%=weapons[i].id%>">Delete</button>
                         </li>
                     <%}%>
@@ -95,7 +95,7 @@
                 <ul id="itemList" class="list-group list-unstyled">
                     <%for(var i=0; i<items.length; i++){%>
                         <li class="list-group-item">
-                            <span id="item<%=items[i].id%>" class="updateItem"><%=items[i].name%></span>
+                            <span id="item<%=items[i].id%>" class="updateItem clickable"><%=items[i].name%></span>
                             <button class="deleteItem pull-right btn btn-xs margin" id="itemBtnDel<%=items[i].id%>">Delete</button>
                         </li>
                     <%}%>
@@ -111,7 +111,7 @@
                 <ul id="guildList" class="list-group list-unstyled">
                     <%for(var i=0; i<guilds.length; i++){%>
                         <li class="list-group-item">
-                            <span id="guild<%=guilds[i].id%>" class="updateGuild"><%=guilds[i].name%></span>
+                            <span id="guild<%=guilds[i].id%>" class="updateGuild clickable"><%=guilds[i].name%></span>
                             <button class="deleteGuild pull-right btn btn-xs margin" id="guildBtnDel<%=guilds[i].id%>">Delete</button>
                         </li>
                     <%}%>

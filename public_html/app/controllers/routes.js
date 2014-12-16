@@ -1,8 +1,8 @@
  /* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * This file contains all routes
  */
+
+// import needed files
 var Player = require('../models/player.js');
 var Guild = require('../models/guild.js');
 var Weapon = require('../models/weapon.js');
@@ -11,11 +11,9 @@ var Crud = require('./crud_functions.js');
 var Helper = require('./helper_functions.js');
 
 module.exports = function(app, passport, eventEmitter){
-    
-    
+      
         
-        
-    // homepage (with login-links)
+    // index (with login-links)
     app.get('/', function(req, res){
         console.log('hello from index');
         res.render('index.ejs'); // load index.ejs as template
@@ -35,8 +33,6 @@ module.exports = function(app, passport, eventEmitter){
     
     // show the signup-form and pass in any flash data if it exists
     app.get('/signup', function(req, res){
-        
-        console.log('Hello from route get signup');
        res.render('signup.ejs', {message: req.flash('signupMessage')}); 
        
     });
@@ -50,11 +46,10 @@ module.exports = function(app, passport, eventEmitter){
     
     
     
-    // show start-screen for existing player
+    // show start-screen for game
     app.get('/game', isLoggedIn, function (req, res){
-                
-        console.log('hello from game-routes');
-        // get user and send it to the socket together with token, send token to client
+        
+        // get user and send it to the socket together with token
         var userId = req.user._id;
         var token = Helper.getToken(8);
         
@@ -62,7 +57,8 @@ module.exports = function(app, passport, eventEmitter){
             'user':userId,
             'token': token
         });
-                
+        
+        //query all default characters from db, as well as weapons and guilds                
         var opts = [{path:'weapon', select:'name id -_id'}, 
                     {path:'inventory', select:'name id -_id'}, 
                     {path:'guild', select:'name id image -_id'}];
@@ -76,6 +72,7 @@ module.exports = function(app, passport, eventEmitter){
                 return weapons;
             })
         .then(function(weapons){
+            
             // find previously saved games and backup from last disconnected game
             Player.find({user: req.user._id, gameSave:{$ne:'false'}}, '-user -_id').populate('character').exec(function(err, players){
                 if(err){ return console.log(err);}
@@ -88,6 +85,7 @@ module.exports = function(app, passport, eventEmitter){
                 
                 //get the guilds from characters to ensure administrator has released them; 
                 var guilds = [];
+                
                 for(var i=0; i<characters.length; i++){
                     var appGuildId = characters[i].guild.id;
                     var index = Helper.getIndexByKeyValue(guilds, 'id',appGuildId);
@@ -100,9 +98,8 @@ module.exports = function(app, passport, eventEmitter){
                         guilds.push(guild);
                     }
                 }
-                
-                
-
+                                
+                // send all data to client, notice that it's a token sent instead of user-id                
                 res.render('game.ejs', {
                    'guilds'     :   guilds,
                    'characters' :   characters,
@@ -117,18 +114,16 @@ module.exports = function(app, passport, eventEmitter){
     });
     });
     
-    // show crud-page
-    //TODO: make only accessible to administrators 
+    // show crud-page, restrict access to only administrators 
     app.get('/crud', isLoggedIn, isAdmin, function (req, res){
         Crud.sendAllModels(res, req);
         
     });
     
-    // handle post-requests from crud
-    //TODO: restrict access to only for administror
+    // handle post-requests from crud, restrict access to only administror
     app.post('/crud',isLoggedIn, isAdmin, function(req, res){
         
-        console.log('the form sent is: '+req.body.form);
+        // get the action defined in AJAX-call
         var action;
         if(req.body.form){
             action = req.body.form;
@@ -136,7 +131,7 @@ module.exports = function(app, passport, eventEmitter){
             action = req.body.delete;
         }
         
-        // if a form was sent, either create or update
+        // either create, update or delete
         if(action){
             
             switch(action){
@@ -243,11 +238,8 @@ module.exports = function(app, passport, eventEmitter){
 // route middleware to make sure a user is logged in
 function isLoggedIn(req, res, next){
     if(req.isAuthenticated()){
-        
-        console.log('Yes your are authenticated');
         next();
     }else{
-        console.log('you are not logged in');
         res.redirect('/');
     }
 }
@@ -256,10 +248,8 @@ function isLoggedIn(req, res, next){
 function isAdmin(req, res, next){
     console.log(req.user);
     if(req.user.userRole == 'admin'){
-        console.log('Yes you are an administrator');
         next();
     }else{
-        console.log('You are no administrator');
         res.redirect('/');
     }
 }

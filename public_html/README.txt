@@ -1,3 +1,6 @@
+1) Download and install Node
+2) run application by typing node server.js 
+
 Start-up MongoDB locally:
 
 - open cmd-prompt and go to mongoDB(C:\Program Files\MongoDB 2.6 Standard\bin) and paste in:

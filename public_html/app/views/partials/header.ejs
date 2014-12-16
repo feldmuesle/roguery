@@ -16,13 +16,16 @@
 <body>
 <div id="wrapper" class="container-fluid">
     <div id="topBar" class="row">        
-        <div id="greeting" class="col-xs-12 col-sm-6 col-sm-offset-6 col-md-5 col-md-offset-7 pull-right text-right">
-            <div class="col-xs-12 col-md-6">
+        <div id="greeting" class="col-xs-12 col-md-8 col-md-offset-2">
+            <div id="username" class="">
                 <span class="fa fa-user"></span>
                 Hello <%= username %>
             </div>            
+            <a id="logout" href="/logout" class="col-xs-3 col-md-2 btn btn-default btn-xs">Logout</a>
             <button id="newGame" class="col-xs-3 col-md-2 btn btn-default btn-xs">New Game</button>
-            <button id="save" class="col-xs-3 col-md-2 btn btn-default btn-xs">Save Game</button>
-            <a href="/logout" class="col-xs-3 col-md-2 btn btn-default btn-xs">Logout</a>
-        </div>
+            <button id="save" class="col-xs-3 col-md-2 btn btn-default btn-xs">Save Game</button>            
+        </div>        
     </div>    
+    <div id="savedGame" class="row">
+        <p class="col-xs-12 col-md-8 col-md-offset-3"></p>
+    </div>
