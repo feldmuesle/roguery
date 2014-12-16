@@ -15,7 +15,6 @@ module.exports = function(app, passport, eventEmitter){
         
     // index (with login-links)
     app.get('/', function(req, res){
-        console.log('hello from index');
         res.render('index.ejs'); // load index.ejs as template
     });
     

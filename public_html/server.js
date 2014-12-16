@@ -32,7 +32,6 @@ var configDB = require('./config/database.js');
 
 // connect to database
 db.connect(configDB.url);
-console.log(configDB.url);
 
 require('./config/passport')(passport); //pass passport for configuration
 
