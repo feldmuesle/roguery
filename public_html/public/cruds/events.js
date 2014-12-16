@@ -94,12 +94,9 @@ $('#addEvent').click(function(){
 // fold out if checkbox gets checked
 function foldOut(checkbox, foldId){
     $('#createEvent input[name='+checkbox+']').click(function(){
-        console.log('you checked a checkbox');
         var self = $(this);
         if(self.is(':checked')){ 
-            $('#'+foldId).show();
-            console.log('should get checked');
-            
+            $('#'+foldId).show();            
         }else{                  
             $('#'+foldId).hide();
             
@@ -148,7 +145,6 @@ function foldOutRadio(radio){
                     break;
 
                 case'choices':
-                    console.log('HELLO FROM RADIOBUTTON CHOICES');
                     $('#continueFold').hide();
                     $('#diceFold').hide();
                     $('#choicesFold').show();
@@ -481,7 +477,6 @@ function removeAddOns(count, buttonId){
        
        // set current eventLocation 
        eLoco = location;
-       console.log(isFlagged);
        
        var event = {
             'form'      :   form,
@@ -625,9 +620,7 @@ function removeAddOns(count, buttonId){
        if(form == 'updateEvent'){
            event.id = $('#eventId').val();
        }
-       
-       console.dir(event);
-       
+              
        $.post('/crud',event, function(data){
          
            if(!data['success']){
@@ -675,7 +668,7 @@ function removeAddOns(count, buttonId){
         var eventId = this.id.substr(5,this.id.length); // event = 5 chars
         var event = getRecordById(events, eventId);
         eLoco = event.location.id;
-        console.dir(event);
+        
         // populate item in modal form
         $('#createEvent input[name=form]').val('updateEvent');
         $('#createEvent input[name=name]').val(event.name);        

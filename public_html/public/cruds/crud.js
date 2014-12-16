@@ -7,9 +7,7 @@ var COINS = 20;
 var eLoco = 0;
 
 $(document).ready(function(){
-   
-   console.dir(events);
-   
+ 
     // hide alert-windows for now
     $('#alertUser').hide();
     $('#alertEvent').hide();
@@ -85,7 +83,7 @@ $(document).ready(function(){
         $('#createGuild input[name=form]').val('createGuild');
         $('#btnCreateGuild').text('create');
         var option = $('#createGuild select[name=location]').first('option').val();
-        console.log('first option: '+option);
+       
         if(option != 0){
             $('#createGuild select[name=location]').prepend('<option value="0">random location</option>');
         }
