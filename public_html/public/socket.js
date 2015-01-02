@@ -119,17 +119,26 @@ $(document).ready(function(){
     socket.on('initialize', function(data){
         attrDesc = data['attrDesc'];
     });
+    
+    // update token
+    socket.on('updateToken', function(data){
+        var token = data['token'];
+        console.log('update token from '+user+' to '+token);
+        user = token;
+        
+    });
             
     // start a new game with approved character
     socket.on('startGame', function(data){
         character = data['character'];
         gameInit();
         displayPlayerStats(character);
-        if(character.attributes.coins != 20){
+        if(character.attributes.coins !== 20){
             updatePlayerStats('coins', character.attributes.coins);
         }
     });
     
+    // alter user-interface and show gallery
     socket.on('newGame', function(data){
         $('#storyWrapper').hide();
         $('#profileBox').hide();
@@ -145,7 +154,7 @@ $(document).ready(function(){
        savedGameNotify(data['msg']);
     });
     
-    
+    // add output to DOM
     socket.on('output', function(data){
         var className;
         if(data['class'] ){
@@ -192,28 +201,6 @@ $(document).ready(function(){
         appendToChat('dices', capitaliseFirstLetter(msg));
     });
     
-    socket.on('choices', function(data){
-        
-        var choices = data['choices'];
-        currEvent = data['current']; // set current event in case of saving
-        var list = '<ul>';
-        for(var i=0; i<choices.length; i++){
-            var choice = '<li id="choice'+choices[i].id+'" class="choice link">'+choices[i].choiceText+'</li>';
-            list += choice;
-        }
-        list += '</ul>';
-        appendToChat('dices', list);
-    });
-
-
-    socket.on('pressContinue', function(data){
-        nextEvent = data['event'];
-        currEvent = data['current'];
-        var continueBtn = '<span id="continueBtn" class="link">continue</span>';
-        appendToChat('gameBtn', continueBtn);
-       
-    });
-    
     socket.on('viewSavedGames', function(data){
         savedGames = data['games'];
         var backup = data['backup'];
@@ -241,6 +228,28 @@ $(document).ready(function(){
         $('#viewSaved').hide();       
     });
     
+    socket.on('choices', function(data){
+        
+        var choices = data['choices'];
+        currEvent = data['current']; // set current event in case of saving
+        var list = '<ul>';
+        for(var i=0; i<choices.length; i++){
+            var choice = '<li id="choice'+choices[i].id+'" class="choice link">'+choices[i].choiceText+'</li>';
+            list += choice;
+        }
+        list += '</ul>';
+        appendToChat('dices', list);
+    });
+
+
+    socket.on('pressContinue', function(data){
+        nextEvent = data['event'];
+        currEvent = data['current'];
+        var continueBtn = '<span id="continueBtn" class="link">continue</span>';
+        appendToChat('gameBtn', continueBtn);
+       
+    });
+        
     socket.on('end', function(data){
        gameOver(); 
     });

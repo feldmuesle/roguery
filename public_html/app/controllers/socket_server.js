@@ -17,7 +17,7 @@ var numUsers =0;
 var MAXSUM = 100; // sum attributes must sum up to
 var COINS = 20; // default amount for coins;
 
-// set the token and user
+// set the token and userId in clients array
 var addToken = function(userId, token){
     
     var index = Helper.getIndexByKeyValue(clients, 'user', userId);
@@ -32,14 +32,28 @@ var addToken = function(userId, token){
 
 module.exports.addToken = addToken;
 
-// add socket to array of current connected sockets
+// add socket to clients-array of current connected sockets 
+// where token matches the one sendt from client
 var addSocket = function(socket, token){
     
     var index = Helper.getIndexByKeyValue(clients, 'token', token);
     
-    if(index != null){
+    if(index !== null){
         clients[index].socket = socket;        
     }    
+};
+
+// update token for current socket
+var updateToken = function(oldToken){
+    
+    var newToken = Helper.getToken(8);
+    var index = Helper.getIndexByKeyValue(clients, 'token', oldToken);
+    
+    if(index !== null){
+        console.log('update token from '+oldToken+' to '+newToken+' for user '+clients[index].user);
+        clients[index].token = newToken; 
+        return newToken;
+    }
 };
 
 // socket-response and listeners
@@ -54,7 +68,10 @@ module.exports.response = function(socket){
     // retrieve token from client and add the socket to matched client
     socket.on('initialized', function(data){        
         var token = data['user'];
-        addSocket(socket, token);
+        addSocket(socket, token);   
+        // update token
+        var newToken = updateToken(token);
+        socket.emit('updateToken', {'token':newToken});
     });
     
     // send previously saved games to client
@@ -136,7 +153,7 @@ module.exports.response = function(socket){
        //check if socket and user are already set in clients-array
         var index = Helper.getIndexByKeyValue(clients, 'token', token);
        
-        if(index != null){
+        if(index !== null){
             addSocket(socket, token);
             index = Helper.getIndexByKeyValue(clients, 'token',token);
 
@@ -182,16 +199,21 @@ module.exports.response = function(socket){
 
                     //store player together with socket
                     clients[index].player = player;
+                    
+                    // get new token and update in clients-array
+                    var newToken = Helper.getToken(8);
+                    clients[index].token = newToken;
 
                     var toDo = Game.processEventChain(data);
                     var newData = toDo['newData'];
                     var action = toDo['action'];
 
                     socket.emit(action, newData);
+                    // update token client-side
+                    socket.emit('updateToken', {'token':newToken});
                 });
                 
-            });
-            
+            });            
         });       
     });
         
@@ -205,11 +227,12 @@ module.exports.response = function(socket){
         
         if(isValid){
             
-            // get index for user in clients-array 
-            var index = Helper.getIndexByKeyValue(clients, 'token',data['user']);
+            // get index for user in clients-array by token sent from client
+            var token = data['user'];
+            var index = Helper.getIndexByKeyValue(clients, 'token',token);
             
             // if record found, start the game
-            if(index != null){
+            if(index !== null){
                 var userId = clients[index].user;
                 Game.startGame(character, userId, function(data){
                     
@@ -230,7 +253,11 @@ module.exports.response = function(socket){
                         var player = data['player'];
                                                 
                         //store player together with socket
-                        clients[index].player = player;                        
+                        clients[index].player = player;   
+                        
+                        // get new token and update in clients-array
+                        var newToken = Helper.getToken(8);
+                        clients[index].token = newToken;
                         
                         // process and send result to client
                         var toDo = Game.processEventChain(data);
@@ -238,7 +265,8 @@ module.exports.response = function(socket){
                         var action = toDo['action'];
 
                         socket.emit(action, newData);
-                        
+                        // update token client-side
+                        socket.emit('updateToken', {'token':newToken});                        
                     });
                     
                 });
@@ -250,7 +278,7 @@ module.exports.response = function(socket){
         }        
     });
     
-    
+    // continue game after choice is made, start new event-chain
     socket.on('choiceMade', function(data){
         var choiceId = data['choice'];
         
@@ -271,18 +299,24 @@ module.exports.response = function(socket){
             
             Game.runEventChain(storyteller, player, event, function(data){
                
-                var continType = data['continType'];
                 var player = data['player'];
 
                 //store player together with socket
                 clients[index].player = player;
+                
+                // get new token and update in clients-array
+                var newToken = Helper.getToken(8);
+                clients[index].token = newToken;
                                 
                 // process and send result to client
                 var toDo = Game.processEventChain(data);
                 var newData = toDo['newData'];
                 var action = toDo['action'];
                 
-                socket.emit(action, newData);           
+                socket.emit(action, newData);  
+                
+                // update token client-side
+                socket.emit('updateToken', {'token':newToken});   
             });
         });                
     });
@@ -297,7 +331,7 @@ module.exports.response = function(socket){
         var index = Helper.getIndexByKeyValue(clients, 'token', token);
         
         // if player is not found, send an error-message to client 
-        if(index == null){
+        if(index === null){
             socket.emit('gameSaved', {'msg':'Could not save game'});
             return;
         }
@@ -315,17 +349,33 @@ module.exports.response = function(socket){
                 socket.emit('gameSaved', {'msg':'Game has been saved'});
             }
         });
+        
+        // get new token and update in clients-array
+        var newToken = Helper.getToken(8);
+        clients[index].token = newToken;
+        socket.emit('updateToken', {'token':newToken});
     });
     
+    // after pressing btn 'new game' 
     socket.on('newGame', function(data){
         var token = data['user'];
         var index = Helper.getIndexByKeyValue(clients, 'token', token);
-        var user = clients[index].user;
         
-        // reset all gameSaves on player and start new game
-        Game.setSavings(user, function(){
-            socket.emit('newGame');
-        });
+        if(index !== null){
+            var user = clients[index].user;
+            
+            // get new token and update in clients-array
+            var newToken = Helper.getToken(8);
+            clients[index].token = newToken;
+        
+            // reset all gameSaves on player, start new game and update token client-side
+            Game.setSavings(user, function(){
+                
+                socket.emit('newGame');
+                socket.emit('updateToken', {'token':newToken});
+            });
+        }
+        
     });
             
     //when a user disconnects

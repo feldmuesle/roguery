@@ -60,6 +60,9 @@ app.use(passport.initialize());
 app.use(passport.session()); //persistent login-sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
+// restrict socket-connection to only url as origin and avoid csrf with sockets
+io.set('origins', 'http://localhost:'+port); // enter real url once deployed
+
 /*********** GAME ***************************************/
 
 // get user from routes as soon as logged in to the game

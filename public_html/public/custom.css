@@ -8,15 +8,6 @@ and open the template in the editor.
     Author     : Lisa
 */
 
-/*
-colors:
-topbar = #F7EDBF;
-game-bg = #2E221F;
-chat-bg = #F1EED9;
-button-green = #798616;
-thumbnails = #F7EDBF;
-
-*/
 
 @import url(http://fonts.googleapis.com/css?family=Source+Code+Pro:500,700,600);
 
@@ -49,11 +40,6 @@ thumbnails = #F7EDBF;
 }
 
 /**************** buttons *****************/
-
-.btn-info {
-    background-color:#58351A; 
-}
-
 /******** buttons in topbar ***********/
 
 #save, #newGame, #logout{
