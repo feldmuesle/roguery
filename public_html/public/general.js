@@ -41,7 +41,7 @@ function createGallery(charArray, type){
     var html = '';
     
     for( var i=0; i<charArray.length; i++){
-        var thumb = '<div class="brik col-xs-4 col-md-3">';
+        var thumb = '<div class="brik col-xs-4">';
         var part1 ='';
         if(type == 'saved'){
             
@@ -213,7 +213,7 @@ function clearText(){
 }
 
 function gameOver(){    
-    appendToChat('gameOver', '~* THE END *~');
+    appendToChat('gameOver', '~ * THE END * ~');
 }
 
 function savedGameNotify(msg){

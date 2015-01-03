@@ -8,28 +8,43 @@ and open the template in the editor.
     Author     : Lisa
 */
 
+/*
+COLORS:
+red bright: #d2322d;
+red dark: #ac2925;
+*/
+
 
 @import url(http://fonts.googleapis.com/css?family=Source+Code+Pro:500,700,600);
+@import url(http://fonts.googleapis.com/css?family=Satisfy);
+@import url(http://fonts.googleapis.com/css?family=Great+Vibes);
+@import url(http://fonts.googleapis.com/css?family=Dancing+Script:400,700);
+
 
 #wrapper{
     margin:0px auto;
 }
 
 #topBar{
-/*    height:50px;
+    margin-bottom: 20px;
     background-color: #382313;
     padding: 7px 0;
-    color: #fff;*/
+    color: #fff;
     
 }
 
 #username{
     float:left;
+    font-family: 'Satisfy', cursive;
+    font-size: 140%;
 }
 
 #game{
-    padding-top: 25px;
-    
+    padding-top: 25px;    
+}
+
+#savedGame {
+    color: #d2322d;
 }
 
 /********* sidebar *****************/
@@ -48,12 +63,18 @@ and open the template in the editor.
     margin-right: 5px;
 }
 
-#newGame{
-    margin-right: 5px;
+#newGame, #save{
+    margin-right: 8px;
 }
 
-#save{
-    margin-right: 5px;    
+.btn-default:hover{
+    color: #fff;
+    background-color: #d2322d;
+    border-color: #ac2925;
+}
+
+#topBar .btn-default:hover{
+    border:2px solid #fff;
 }
 
 /***************** list-styles *************/
@@ -78,11 +99,12 @@ and open the template in the editor.
 #profile {
     width:100%;
     overflow:hidden;
-/*    margin-top:0;*/
+    margin-top:0;
 }
 
 #profile h3{
     margin-top:0px;
+    font-family: 'Satisfy', cursive;
 }
 
 
@@ -99,41 +121,29 @@ and open the template in the editor.
 #profileInventory .profileHeading {
     width:100%;
 }
-/** chat ***************/
-.highlight{
-    font-weight: bold;
-}
+
+/*************************************************************************/
+/****** STORY ************************************************************/
+
 
 #storyWrapper{
-    bottom: 0px; 
-/*    position: relative;*/
-/*    max-height: 360px;
-    overflow-y: hidden;*/
     background-color: #Fefefe;
-    border-radius: 25px;
-    margin-bottom: 30px;
-    
+    border-radius: 25px;   
 }
-
 
 #storyEntries{
 /*    position: absolute;*/
     bottom: 10px;
     padding-right: 45px;
-    margin-top: 20px;
     
 }
 
-#storyEntries li.help {
-    font-weight: bold;
-    
+#storyEntries li ul{
+    list-style: disc;
 }
-/*choices*/
+
 li.story {
     margin: 7px 0;
-}
-li.choice{    
-    color: #0b97c4;
 }
 
 li.dices, li.info{    
@@ -141,21 +151,41 @@ li.dices, li.info{
     font-weight: bold;
 }
 
+li.choice{    
+    color: #d2322d;
+    padding-top: 3px;    
+}
+
 li.gameOver {
-    font-size: 1.5em;
+    font-family: 'Satisfy', cursive;
     font-weight: bold;
+    font-size: 1.9em;
+    margin-top: 25px;
 }
 
 .link{
     font-weight:bold;
-    font-size: 115%;
+    font-size: 112%;
     cursor:pointer;  
 }
 
+li.choice:hover{
+    text-shadow: 0.5px 0.5px 0px rgba(210, 45, 50, 0.3);
+    font-size: 125%;
+}
+
+#continueBtn{
+    display: block;
+    padding-top: 15px;
+}
+
+#continueBtn:hover {
+    text-decoration: underline;
+}
 
 
-
-/******** FORMS ***************/
+/******************************************************************************/
+/******** FORMS ***************************************************************/
 
 label.formH {
     font-size: 1.2em;
@@ -172,7 +202,8 @@ input.value{
 }
 
 
-/*spinner*/
+/***** spinner ***************************************************/
+
 .spinner {
   width: 75px;
 }
@@ -212,7 +243,8 @@ input.value{
   top: 0;
   left: 4px;
 }
-/*spinner end*/
+
+/*** spinner end **************************************************************/
 
 /*hide default-spinner in Chrome and Firefox*/
 input[type=number]::-webkit-inner-spin-button,
@@ -220,18 +252,22 @@ input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
+
+
 /////// CRUD ////////////////////
 
 /******* lists ***************/
 
-/*li{
-    background-color: red !important;
-}*/
-
-li.list-group-item .clickable {
+li.list-group-item .clickable { 
     cursor: pointer !important;
-    color:red;
+    color: #428bca;
 }
+
+/*li.list-group-item.clickable:hover {
+    cursor: pointer !important;
+    color: #428bca;
+    text-shadow: 1px 1px 0px rgba(210, 45, 50, 0.3);
+}*/
 
 .margin {
     margin-left: 10px;
@@ -239,32 +275,6 @@ li.list-group-item .clickable {
 
 .modal-form{
     padding: 5px 10px;
-}
-
-#fields .dynamic{
-    margin-bottom: 15px;
-}
-
-li.description h5, li.exitDesc h6{
-    display: inline-block;
-    margin: 5px 0px;
-    font-weight: bold;
-}
-
-li.exitDesc h6{
-    font-size: 13px;    
-}
-
-li.exitDesc{
-    margin-left:10px;
-}
-
-.subfield{
-    font-size:90%;
-}
-
-#swap{
-    display:none;
 }
 
 /****** Modal displaying character before playing ******/
@@ -321,7 +331,7 @@ dt.dlHeading{
 }
 
 #gallery .imgBox{
-    height: 160px;
+    height: 180px;
     overflow: hidden;
     position:relative;
     border-radius: 10px;
@@ -367,7 +377,7 @@ dt.dlHeading{
 
 #gallery .thumbnail{
     padding: 10px 10px 0px;
-    margin: 0px;
+    margin: 10px;
     border-radius: 10px;
     border: none;
 /*    border: 1px solid #ddd;*/
@@ -409,9 +419,14 @@ dt.dlHeading{
 /* range input for character adjustments */
 
 
-li.list-group-item .clickable {
+li.list-group-item .clickable { 
     cursor: pointer !important;
     color: #428bca;
+}
+
+li.list-group-item .clickable:hover {
+/*    color: #0B1EA0;*/
+    text-shadow: 0.5px 0.5px 0px rgba(11, 30, 160, 0.5);
 }
 
 /************** MEDIA QUERIES ********************/
