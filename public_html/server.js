@@ -24,6 +24,8 @@ var morgan = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
+var sweetCaptcha = new require('sweetcaptcha')('231703',
+    '89e15ebd12c9c85cd8606bd4333c8f7d','2501160610aa24bd70c83e1c0960413e');
 
 var configDB = require('./config/database.js');
 
@@ -36,8 +38,8 @@ db.connect(configDB.url);
 require('./config/passport')(passport); //pass passport for configuration
 
 // setup of express
-app.use(morgan('dev')); //log every http-request to console
-app.use(cookieParser()); //read cooies (needed for auth)
+//app.use(morgan('dev')); //log every http-request to console
+app.use(cookieParser()); //read cookies (needed for auth)
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true})); // get input-values from forms
 
@@ -83,7 +85,7 @@ io.sockets.on('connection', function(socket){
 
 /*********** ROUTES *************/
 // load the routes and pass in our app, fully configured passport and eventEmitter
-require('./app/controllers/routes.js')(app, passport, eventEmitter); 
+require('./app/controllers/routes.js')(app, passport, eventEmitter,sweetCaptcha); 
 
 /********** launch ************/
 server.listen(port);

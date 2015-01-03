@@ -9,10 +9,11 @@ var Weapon = require('../models/weapon.js');
 var Character = require('../models/character.js');
 var Crud = require('./crud_functions.js');
 var Helper = require('./helper_functions.js');
+var sweetcaptcha;
 
-module.exports = function(app, passport, eventEmitter){
+module.exports = function(app, passport, eventEmitter, sweetCaptcha){
       
-        
+    sweetcaptcha = sweetCaptcha;
     // index (with login-links)
     app.get('/', function(req, res){
         res.render('index.ejs'); // load index.ejs as template
@@ -32,12 +33,21 @@ module.exports = function(app, passport, eventEmitter){
     
     // show the signup-form and pass in any flash data if it exists
     app.get('/signup', function(req, res){
-       res.render('signup.ejs', {message: req.flash('signupMessage')}); 
+        // retrieve captcha and send it to client
+        sweetcaptcha.api('get_html', function(err, html){
+            if(err){
+                res.render('index.ejs');
+            }else{
+                res.render('signup.ejs', {message: req.flash('signupMessage'), 
+                                        captcha: html}); 
+            }   
+        });
+       
        
     });
     
     // process the signup form
-    app.post('/signup',passport.authenticate('local-signup',{
+    app.post('/signup',isHuman, passport.authenticate('local-signup',{
         successRedirect: '/game', // if everything worked redirect to user-profile
         failureRedirect: '/signup', // if something went wrong, redirect to singup
         failureFlash: true // allow flash-messages
@@ -233,6 +243,26 @@ module.exports = function(app, passport, eventEmitter){
     });
 };
 
+
+// route middleware to make sure a human being is signing up by checking captcha
+function isHuman(req, res, next){
+    
+    sweetcaptcha.api('check', {sckey: req.body["sckey"], scvalue: req.body["scvalue"]}, function(err, response){
+        if (err) return console.log(err);
+        if(response === 'true'){
+            next();
+        }else{
+            sweetcaptcha.api('get_html', function(err, html){
+                if(err){
+                    res.render('index.ejs');
+                }else{
+                    res.render('signup.ejs', {message:'Something went wrong. Try again!',
+                                            captcha: html}); 
+                }   
+            });            
+        }
+    });
+}
 
 // route middleware to make sure a user is logged in
 function isLoggedIn(req, res, next){
