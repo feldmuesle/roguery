@@ -50,7 +50,6 @@ var updateToken = function(oldToken){
     var index = Helper.getIndexByKeyValue(clients, 'token', oldToken);
     
     if(index !== null){
-        console.log('update token from '+oldToken+' to '+newToken+' for user '+clients[index].user);
         clients[index].token = newToken; 
         return newToken;
     }
@@ -146,7 +145,7 @@ module.exports.response = function(socket){
     
     // continue playing a previously saved game
     socket.on('playSaved', function(data){
-       console.log('continue to play a saved game.');
+      
        var character = data['character'];
        var token = data['user'];
        

@@ -275,7 +275,7 @@ function isLoggedIn(req, res, next){
 
 // route middleware to make sure the user is administrator
 function isAdmin(req, res, next){
-    console.log(req.user);
+    
     if(req.user.userRole == 'admin'){
         next();
     }else{

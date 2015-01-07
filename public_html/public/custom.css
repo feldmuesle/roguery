@@ -91,8 +91,8 @@ red dark: #ac2925;
 #profileBox{
     padding: 10px;
     margin-right: 10px;
-    border-radius: 25px;
-    background-color: #Fefefe;
+/*    border-radius: 25px;
+    background-color: #Fefefe;*/
 }
 
 /*** profile - playerstats *****/
@@ -126,10 +126,10 @@ red dark: #ac2925;
 /****** STORY ************************************************************/
 
 
-#storyWrapper{
+/*#storyWrapper{
     background-color: #Fefefe;
     border-radius: 25px;   
-}
+}*/
 
 #storyEntries{
 /*    position: absolute;*/

@@ -123,7 +123,6 @@ $(document).ready(function(){
     // update token
     socket.on('updateToken', function(data){
         var token = data['token'];
-        console.log('update token from '+user+' to '+token);
         user = token;
         
     });
@@ -149,8 +148,7 @@ $(document).ready(function(){
     });
     
     //notify user that game has been saved
-    socket.on('gameSaved', function(data){
-       console.log(data['msg']); 
+    socket.on('gameSaved', function(data){ 
        savedGameNotify(data['msg']);
     });
     
