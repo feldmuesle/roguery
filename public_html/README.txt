@@ -1,13 +1,14 @@
-1) Download and install Node
-2) run application by typing node server.js 
+This is a Game-engine and CMS for an adventure game a'la gamebooks we know from the 80ies. 
+To try it out get the code and
 
-Start-up MongoDB locally:
+
+1) Download and install Node
+2) Start-up MongoDB locally:
 
 - open cmd-prompt and go to mongoDB(C:\Program Files\MongoDB 2.6 Standard\bin) and paste in:
             mongod.exe --dbpath C:\Users\Lisa\Documents\MongoData
     since the storage is at that location instead default location
 
-- do create new database, open new cmd-prompt go to C:\Program Files\MongoDB 2.6 Standard\bin and write mungo
+- to create new database, open new cmd-prompt go to C:\Program Files\MongoDB 2.6 Standard\bin and write mungo
     for further info look up at http://docs.mongodb.org/manual/tutorial/getting-started/
-
-- then start up node-server in new cmd-prompt and folder of the project
+3) Start up node-server in new cmd-prompt and folder of the project by typing node server.js 
